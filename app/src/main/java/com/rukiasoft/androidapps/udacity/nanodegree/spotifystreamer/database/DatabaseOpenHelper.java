@@ -20,9 +20,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements Serializable
     final public static String ID = "id";
     final public static String SAVED_SEARCH = "saved_search";
 
-    final public static String[] columnsLinks = {ID, SAVED_SEARCH};
+    final public static String[] columnsStoredSearches = {ID, SAVED_SEARCH};
 
-    final private static String CREATE_SEARCHS_CMD = "CREATE TABLE IF NOT EXISTS " + SpotifyStreamerConstants.TABLE_SEARCHS + " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+    final private static String CREATE_SEARCHES_CMD = "CREATE TABLE IF NOT EXISTS " + SpotifyStreamerConstants.TABLE_SEARCHES + " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + SAVED_SEARCH + " TEXT NOT NULL)";
 
     final private static Integer VERSION = 1;
@@ -37,7 +37,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements Serializable
     @Override
     public void onCreate(SQLiteDatabase db) {
         //Log.d(TAG, "onCreate");
-        db.execSQL(CREATE_SEARCHS_CMD);
+        db.execSQL(CREATE_SEARCHES_CMD);
     }
 
     @Override
@@ -50,8 +50,8 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements Serializable
         db.execSQL("VACUUM;");
         db.execSQL("PRAGMA INTEGRITY_CHECK;");
 
-        db.execSQL("DROP TABLE IF EXISTS " + SpotifyStreamerConstants.TABLE_SEARCHS);
-        db.execSQL(CREATE_SEARCHS_CMD);
+        db.execSQL("DROP TABLE IF EXISTS " + SpotifyStreamerConstants.TABLE_SEARCHES);
+        db.execSQL(CREATE_SEARCHES_CMD);
 
     }
 
@@ -62,7 +62,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements Serializable
 
 
     public void createLinksTable() {
-        this.getWritableDatabase().execSQL(CREATE_SEARCHS_CMD);
+        this.getWritableDatabase().execSQL(CREATE_SEARCHES_CMD);
     }
 
 

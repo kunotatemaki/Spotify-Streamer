@@ -9,6 +9,8 @@ import android.util.Log;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.SpotifyStreamerConstants;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseHandler implements Serializable {
 
@@ -26,19 +28,19 @@ public class DatabaseHandler implements Serializable {
         this.context = context;
     }
 
-    public long storeRecentSearch(String search) throws Exception {
+    public long storeRecentSearch(String search){
         //Log.d(TAG, "STOREDATA");
         long result = 0;
         try {
             mDbHelper = new DatabaseOpenHelper(context);
             mDB = mDbHelper.getWritableDatabase();
-            if (!tableExists(SpotifyStreamerConstants.TABLE_SEARCHS)) {
+            if (!tableExists(SpotifyStreamerConstants.TABLE_SEARCHES)) {
                 mDbHelper.createLinksTable();
             }
             if(checkIfSearchExists(search) == false){
                 ContentValues values = new ContentValues();
                 values.put(DatabaseOpenHelper.SAVED_SEARCH, search);
-                result = mDB.insert(SpotifyStreamerConstants.TABLE_SEARCHS, null, values);
+                result = mDB.insert(SpotifyStreamerConstants.TABLE_SEARCHES, null, values);
                 if (result < 0)
                     Log.d(TAG, "Error inserting data");
 
@@ -67,11 +69,11 @@ public class DatabaseHandler implements Serializable {
         try {
             String column;
             String[] args;
-            column = "name=?";
+            column = DatabaseOpenHelper.SAVED_SEARCH.concat("=?");
             args = new String[]{search};
 
-            Cursor c = mDB.query(SpotifyStreamerConstants.TABLE_SEARCHS,
-                    DatabaseOpenHelper.columnsLinks, column, args, null, null,
+            Cursor c = mDB.query(SpotifyStreamerConstants.TABLE_SEARCHES,
+                    DatabaseOpenHelper.columnsStoredSearches, column, args, null, null,
                     null);
             String searchSaved = "";
             if (c.moveToFirst()) {
@@ -89,6 +91,32 @@ public class DatabaseHandler implements Serializable {
             //Log.d(TAG, "error en checkIfZipExists");
             return false;
         }
+    }
+
+    public List<String> getStoredSearches() {
+        List<String> storedSearches = new ArrayList<>();
+        try {
+            mDbHelper = new DatabaseOpenHelper(context);
+            mDB = mDbHelper.getWritableDatabase();
+            String column = null;
+            String[] args = null;
+
+            Cursor c = mDB.query(SpotifyStreamerConstants.TABLE_SEARCHES,
+                    DatabaseOpenHelper.columnsStoredSearches, column, args, null, null,
+                    null);
+            if (c.moveToFirst()) {
+                do {
+                    String search = c.getString(1);
+                    storedSearches.add(search);
+                } while (c.moveToNext());
+            }
+            c.close();
+            mDB.close();
+        } catch (Exception e) {
+            Log.d(TAG, "getPlayerList");
+            throw e;
+        }
+        return storedSearches;
     }
 
 

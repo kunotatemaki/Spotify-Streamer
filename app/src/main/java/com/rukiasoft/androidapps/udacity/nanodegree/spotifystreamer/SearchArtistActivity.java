@@ -3,7 +3,6 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.SearchRecentSuggestions;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,12 +12,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.quinny898.library.persistentsearch.SearchBox;
 import com.quinny898.library.persistentsearch.SearchResult;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.database.DatabaseHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class SearchArtistActivity extends AppCompatActivity {
 
@@ -26,6 +26,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     private SearchBox search;
     private Toolbar toolbar;
     MenuItem magnifyingGlass;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +132,7 @@ public class SearchArtistActivity extends AppCompatActivity {
         }
         search.setLogoText(getResources().getString(R.string.search_hint));
         search.setSearchString("");
+        readStoredSearches();
         search.revealFromMenuItem(R.id.action_search, this);
 
         search.setMenuListener(new SearchBox.MenuListener() {
@@ -167,9 +169,7 @@ public class SearchArtistActivity extends AppCompatActivity {
                 TextView result = ((TextView) toolbar.findViewById(R.id.toolbar_subtitle));
                 result.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
                 result.setText(searchTerm);
-                SearchResult option = new SearchResult(searchTerm,
-                        ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_history));
-                search.addSearchable(option);
+                insertSerchable(searchTerm);
             }
 
             @Override
@@ -188,5 +188,22 @@ public class SearchArtistActivity extends AppCompatActivity {
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    private void readStoredSearches(){
+        DatabaseHandler dbHandler = new DatabaseHandler(this);
+        List<String> recentSearches = dbHandler.getStoredSearches();
+        search.clearSearchable();
+        for(int i = 0; i < recentSearches.size(); i++){
+            SearchResult option = new SearchResult(recentSearches.get(i), ContextCompat.getDrawable(this, R.drawable.ic_history));
+            search.addSearchable(option);
+        }
+
+    }
+
+    private void insertSerchable(String search){
+        DatabaseHandler dbHandler = new DatabaseHandler(this);
+        dbHandler.storeRecentSearch(search);
+        readStoredSearches();
     }
 }
