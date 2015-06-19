@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Reproductor Spotify</string>
+
+    <string name="action_settings">Ajustes</string>
+    <string name="comming_soon">Ajustes próximamente</string>
+
+</resources>
