@@ -5,4 +5,8 @@
     <string name="comming_soon">comming soon</string>
     <string name="search_hint">Search Artist</string>
     <string name="action_search">Search</string>
+    <string name="action_delete_searches">Delete search history</string>
+    <string name="delete_recent_searches_question">Are you sure?</string>
+    <string name="Delete">Delete</string>
+    <string name="cancel">Cancel</string>
 </resources>

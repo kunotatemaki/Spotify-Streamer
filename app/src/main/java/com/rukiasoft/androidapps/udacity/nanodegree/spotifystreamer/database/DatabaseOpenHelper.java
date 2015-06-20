@@ -19,11 +19,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper implements Serializable
 
     final public static String ID = "id";
     final public static String SAVED_SEARCH = "saved_search";
+    final public static String DATE = "date";
 
-    final public static String[] columnsStoredSearches = {ID, SAVED_SEARCH};
+    final public static String[] columnsStoredSearches = {ID, SAVED_SEARCH, DATE};
 
     final private static String CREATE_SEARCHES_CMD = "CREATE TABLE IF NOT EXISTS " + SpotifyStreamerConstants.TABLE_SEARCHES + " (" + ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + SAVED_SEARCH + " TEXT NOT NULL)";
+            + SAVED_SEARCH + " TEXT NOT NULL, "
+            + DATE + " LONG)";
 
     final private static Integer VERSION = 1;
     final private Context mContext;

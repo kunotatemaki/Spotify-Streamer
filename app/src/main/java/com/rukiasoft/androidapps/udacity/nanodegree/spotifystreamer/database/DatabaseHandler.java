@@ -40,6 +40,7 @@ public class DatabaseHandler implements Serializable {
             if(checkIfSearchExists(search) == false){
                 ContentValues values = new ContentValues();
                 values.put(DatabaseOpenHelper.SAVED_SEARCH, search);
+                values.put(DatabaseOpenHelper.DATE, System.currentTimeMillis());
                 result = mDB.insert(SpotifyStreamerConstants.TABLE_SEARCHES, null, values);
                 if (result < 0)
                     Log.d(TAG, "Error inserting data");
@@ -100,10 +101,12 @@ public class DatabaseHandler implements Serializable {
             mDB = mDbHelper.getWritableDatabase();
             String column = null;
             String[] args = null;
+            String order = DatabaseOpenHelper.DATE + " DESC";
+
 
             Cursor c = mDB.query(SpotifyStreamerConstants.TABLE_SEARCHES,
                     DatabaseOpenHelper.columnsStoredSearches, column, args, null, null,
-                    null);
+                    order);
             if (c.moveToFirst()) {
                 do {
                     String search = c.getString(1);
@@ -117,6 +120,20 @@ public class DatabaseHandler implements Serializable {
             throw e;
         }
         return storedSearches;
+    }
+
+    public void deleteStoredSearches(){
+        try {
+            mDbHelper = new DatabaseOpenHelper(context);
+            mDB = mDbHelper.getWritableDatabase();
+            if (!tableExists(SpotifyStreamerConstants.TABLE_SEARCHES)) {
+                mDbHelper.createLinksTable();
+            }
+            mDB.delete(SpotifyStreamerConstants.TABLE_SEARCHES, null, null);
+                        mDB.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
