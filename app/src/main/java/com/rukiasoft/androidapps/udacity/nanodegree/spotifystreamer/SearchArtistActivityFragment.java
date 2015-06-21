@@ -22,14 +22,22 @@ public class SearchArtistActivityFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search_artist, container, false);
         recView = (RecyclerView) view.findViewById(R.id.search_artist_list);
 
-        artistListAdapter = new ArtistListAdapter();
+        if(artistListAdapter == null) {
+            artistListAdapter = new ArtistListAdapter();
+        }
         recView.setAdapter(artistListAdapter);
-        recView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));
+        recView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
         /*adaptador.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,6 +54,7 @@ public class SearchArtistActivityFragment extends Fragment {
     public void setArtists(List<ArtistItem> artists){
 
         artistListAdapter.setItems(artists);
+
 
     }
 }

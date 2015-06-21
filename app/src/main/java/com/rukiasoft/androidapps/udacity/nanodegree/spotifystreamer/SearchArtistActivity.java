@@ -1,25 +1,17 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.app.AlertDialog;
 import android.app.FragmentManager;
-import android.content.DialogInterface;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.speech.RecognizerIntent;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
-import com.quinny898.library.persistentsearch.SearchBox;
-import com.quinny898.library.persistentsearch.SearchResult;
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.database.DatabaseHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +25,7 @@ import retrofit.client.Response;
 
 public class SearchArtistActivity extends AppCompatActivity {
 
-    private SearchBox search;
+    private SearchView searchView;
     private Toolbar toolbar;
     SpotifyService spotify;
     SearchArtistActivityFragment searchArtistActivityFragment;
@@ -49,7 +41,6 @@ public class SearchArtistActivity extends AppCompatActivity {
 
             if(getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         }
 
@@ -61,13 +52,12 @@ public class SearchArtistActivity extends AppCompatActivity {
             // add the fragment
             searchArtistActivityFragment = new SearchArtistActivityFragment();
             fm.beginTransaction().add(R.id.search_artist_activity_container, searchArtistActivityFragment, "search_fragment").commit();
-            // load the data from the spotify web
-            //searchArtistActivityFragment.setData(loadMyData());
-            fm.executePendingTransactions();
-        }
 
-        search = (SearchBox)findViewById(R.id.searchbox);
-        search.enableVoiceRecognition(this);
+        }//else
+           // fm.beginTransaction().replace(R.id.search_artist_activity_container, searchArtistActivityFragment).commit();
+        fm.executePendingTransactions();
+
+
 
         SpotifyApi api = new SpotifyApi();
         spotify = api.getService();
@@ -77,9 +67,61 @@ public class SearchArtistActivity extends AppCompatActivity {
     @Override
     public void onPostResume(){
         super.onPostResume();
-        openSearch();
+        //openSearch();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        setIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            query = query.trim();
+            String parsedQuery = query.replace(" ", "+");
+            spotify.searchArtists(parsedQuery, new Callback<ArtistsPager>() {
+
+
+                @Override
+                public void success(ArtistsPager artistsPager, Response response) {
+                    final List<ArtistItem> artists = new ArrayList<>();
+                    for(int i=0; i<artistsPager.artists.items.size(); i++){
+                        ArtistItem item = new ArtistItem();
+                        item.setId(artistsPager.artists.items.get(i).id);
+                        item.setName(artistsPager.artists.items.get(i).name);
+                        for(int j=0; j<artistsPager.artists.items.get(i).images.size(); j++){
+                            if(j == 0)
+                                item.setPicture(artistsPager.artists.items.get(i).images.get(j).url);
+                            else
+                            if(artistsPager.artists.items.get(i).images.get(j).width == 200){
+                                item.setPicture(artistsPager.artists.items.get(i).images.get(j).url);
+                            }
+                        }
+                        /*Glide.with(getApplicationContext())
+                                .load(item.getPicture())
+                                .transform(new GlideCircleTransform(getApplicationContext()));*/
+                        artists.add(item);
+                    }
+                    Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+                    mainHandler.post(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            searchArtistActivityFragment.setArtists(artists);
+                        }
+                    });
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("Album failure", error.toString());
+                }
+            });
+        }
+    }
 
 
 
@@ -87,6 +129,15 @@ public class SearchArtistActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search_artist, menu);
+        searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        //searchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        searchView.setSubmitButtonEnabled(true);
+        searchView.setQueryRefinementEnabled(true);
+        //searchView.setIconified(false);
 
         return true;
     }
@@ -106,13 +157,14 @@ public class SearchArtistActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
             case R.id.action_search:
-                if(search.getVisibility() != View.VISIBLE)
+                /*if(search.getVisibility() != View.VISIBLE)
                     openSearch();
                 else
-                    search.toggleSearch();
+                    search.toggleSearch();*/
                 return true;
             case R.id.action_delete_recent_searches:
-                deleteRecentSearches();
+
+                //deleteRecentSearches();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -121,16 +173,17 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        switch(search.getVisibility()) {
+        super.onBackPressed();
+        /*switch(search.getVisibility()) {
             case View.VISIBLE:
                 search.toggleSearch();
                 return;
             default:
                 super.onBackPressed();
-        }
+        }*/
     }
 
-    @Override
+    /*@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SearchBox.VOICE_RECOGNITION_CODE && resultCode == RESULT_OK) {
             ArrayList<String> matches =  data
@@ -144,9 +197,9 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
+    }*/
 
-    public void openSearch() {
+    /*public void openSearch() {
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
@@ -291,5 +344,44 @@ public class SearchArtistActivity extends AppCompatActivity {
                 getResources().getString(R.string.Delete), dialogClickListener)
                 .setNegativeButton(getResources().getString(R.string.cancel), dialogClickListener).show();
 
-    }
+    }*/
+
+   /* public static class CircleTransform extends BitmapTransformation {
+        public CircleTransform(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected Bitmap transform(BitmapPool pool, Bitmap toTransform, int outWidth, int outHeight) {
+            return circleCrop(pool, toTransform);
+        }
+
+        private static Bitmap circleCrop(BitmapPool pool, Bitmap source) {
+            if (source == null) return null;
+
+            int size = Math.min(source.getWidth(), source.getHeight());
+            int x = (source.getWidth() - size) / 2;
+            int y = (source.getHeight() - size) / 2;
+
+            // TODO this could be acquired from the pool too
+            Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
+
+            Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
+            if (result == null) {
+                result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
+            }
+
+            Canvas canvas = new Canvas(result);
+            Paint paint = new Paint();
+            paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
+            paint.setAntiAlias(true);
+            float r = size / 2f;
+            canvas.drawCircle(r, r, r, paint);
+            return result;
+        }
+
+        @Override public String getId() {
+            return getClass().getName();
+        }
+    }*/
 }
