@@ -8,12 +8,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.List;
+
 /**
  * A placeholder fragment containing a simple view.
  */
 public class SearchArtistActivityFragment extends Fragment {
 
     private RecyclerView recView;
+    ArtistListAdapter artistListAdapter;
 
     public SearchArtistActivityFragment() {
     }
@@ -24,7 +27,9 @@ public class SearchArtistActivityFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_artist, container, false);
         recView = (RecyclerView) view.findViewById(R.id.search_artist_list);
 
-        final ArtistListAdapter artistListAdapter = new ArtistListAdapter();
+        artistListAdapter = new ArtistListAdapter();
+        recView.setAdapter(artistListAdapter);
+        recView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));
 
         /*adaptador.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,10 +38,14 @@ public class SearchArtistActivityFragment extends Fragment {
             }
         });*/
 
-        recView.setAdapter(artistListAdapter);
 
-        recView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL,false));
 
         return view;
+    }
+
+    public void setArtists(List<ArtistItem> artists){
+
+        artistListAdapter.setItems(artists);
+
     }
 }

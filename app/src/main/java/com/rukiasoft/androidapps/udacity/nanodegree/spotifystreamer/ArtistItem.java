@@ -4,12 +4,18 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
  * Created by Raúl Feliz Alonso on 18/06/15.
  */
 public class ArtistItem {
+    private String id;
     private String name;
-    private String path;
+    private String picture;
 
-    public ArtistItem(String name, String path){
-        name = name;
-        path = path;
+    public ArtistItem(){
+
+    }
+    public ArtistItem(String name, String picture, String id){
+        this.name = name;
+        this.picture = picture;
+        this.id = id;
+
     }
 
     public String getName() {
@@ -20,11 +26,19 @@ public class ArtistItem {
         this.name = name;
     }
 
-    public String getPath() {
-        return path;
+    public String getPicture() {
+        return picture;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

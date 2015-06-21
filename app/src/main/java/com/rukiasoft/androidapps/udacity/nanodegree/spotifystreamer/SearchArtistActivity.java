@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -34,8 +35,8 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     private SearchBox search;
     private Toolbar toolbar;
-    MenuItem magnifyingGlass;
     SpotifyService spotify;
+    SearchArtistActivityFragment searchArtistActivityFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class SearchArtistActivity extends AppCompatActivity {
         }
 
         FragmentManager fm = getFragmentManager();
-        SearchArtistActivityFragment searchArtistActivityFragment = (SearchArtistActivityFragment) fm.findFragmentByTag("search_fragment");
+        searchArtistActivityFragment = (SearchArtistActivityFragment) fm.findFragmentByTag("search_fragment");
 
         // create the fragment and data the first time
         if (searchArtistActivityFragment == null) {
@@ -86,9 +87,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_search_artist, menu);
-        magnifyingGlass = menu.findItem(R.id.action_search);
-        if(search.getVisibility() == View.VISIBLE)
-            magnifyingGlass.setVisible(false);
+
         return true;
     }
 
@@ -107,7 +106,10 @@ public class SearchArtistActivity extends AppCompatActivity {
                 onBackPressed();
                 return true;
             case R.id.action_search:
-                openSearch();
+                if(search.getVisibility() != View.VISIBLE)
+                    openSearch();
+                else
+                    search.toggleSearch();
                 return true;
             case R.id.action_delete_recent_searches:
                 deleteRecentSearches();
@@ -121,7 +123,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     public void onBackPressed(){
         switch(search.getVisibility()) {
             case View.VISIBLE:
-                closeSearch();
+                search.toggleSearch();
                 return;
             default:
                 super.onBackPressed();
@@ -131,16 +133,20 @@ public class SearchArtistActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == SearchBox.VOICE_RECOGNITION_CODE && resultCode == RESULT_OK) {
-            ArrayList<String> matches = data
+            ArrayList<String> matches =  data
                     .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-            search.populateEditText(matches);
+
+            if(matches.size()>0){
+                ArrayList<String> mainMatch = new ArrayList<>();
+                mainMatch.add(matches.get(0));
+                search.populateEditText(mainMatch);
+            }
+
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     public void openSearch() {
-        if(magnifyingGlass != null)
-            magnifyingGlass.setVisible(false);
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
@@ -159,6 +165,7 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         });
         search.setSearchListener(new SearchBox.SearchListener() {
+
 
             @Override
             public void onSearchOpened() {
@@ -181,8 +188,9 @@ public class SearchArtistActivity extends AppCompatActivity {
             @Override
             public void onSearch(String searchTerm) {
                 TextView result = ((TextView) toolbar.findViewById(R.id.toolbar_subtitle));
-                result.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
                 result.setText(searchTerm);
+                //setSupportActionBar(toolbar);
+                result.getLayoutParams().height = LinearLayout.LayoutParams.WRAP_CONTENT;
                 insertSerchable(searchTerm);
                 String parsedSearch = searchTerm.replace(" ", "+");
                 //parsedSearch = "*" + parsedSearch + "*";
@@ -191,7 +199,29 @@ public class SearchArtistActivity extends AppCompatActivity {
 
                     @Override
                     public void success(ArtistsPager artistsPager, Response response) {
-                        int i = artistsPager.artists.total;
+                        final List<ArtistItem> artists = new ArrayList<>();
+                        for(int i=0; i<artistsPager.artists.items.size(); i++){
+                            ArtistItem item = new ArtistItem();
+                            item.setId(artistsPager.artists.items.get(i).id);
+                            item.setName(artistsPager.artists.items.get(i).name);
+                            for(int j=0; j<artistsPager.artists.items.get(i).images.size(); j++){
+                                if(j == 0)
+                                    item.setPicture(artistsPager.artists.items.get(i).images.get(j).url);
+                                else
+                                    if(artistsPager.artists.items.get(i).images.get(j).width == 200){
+                                        item.setPicture(artistsPager.artists.items.get(i).images.get(j).url);
+                                    }
+                            }
+                            artists.add(item);
+                        }
+                        Handler mainHandler = new Handler(getApplicationContext().getMainLooper());
+                        mainHandler.post(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                searchArtistActivityFragment.setArtists(artists);
+                            }
+                        });
 
                     }
 
@@ -209,15 +239,14 @@ public class SearchArtistActivity extends AppCompatActivity {
 
         });
 
+
     }
 
     protected void closeSearch() {
-        search.hideCircularly(this);
-        if(magnifyingGlass != null)
-            magnifyingGlass.setVisible(true);
         if(getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        search.hideCircularly(this);
     }
 
     private void readStoredSearches(){
@@ -246,7 +275,7 @@ public class SearchArtistActivity extends AppCompatActivity {
                         DatabaseHandler dbHandler = new DatabaseHandler(SearchArtistActivity.this);
                         dbHandler.deleteStoredSearches();
                         search.clearSearchable();
-                        closeSearch();
+                        search.toggleSearch();
                         readStoredSearches();
                         break;
 
