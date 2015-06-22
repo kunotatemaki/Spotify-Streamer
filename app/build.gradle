@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "21.1.2"
+    buildToolsVersion "22.0.1"
 
     defaultConfig {
         applicationId "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer"
@@ -22,9 +22,7 @@ android {
         flatDir {
             dirs 'libs'
         }
-        maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-        }
+
     }
 }
 
@@ -39,5 +37,4 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp:2.2.0'
     compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.quinny898.library.persistentsearch:library:1.0.0-SNAPSHOT'
 }

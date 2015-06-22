@@ -15,72 +15,75 @@ import java.util.List;
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
  */
-public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.ArtistViewHolder>
+public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.TrackViewHolder>
         implements View.OnClickListener {
 
     private View.OnClickListener listener;
-    private List<ArtistItem> artists;
+    private List<TrackItem> tracks;
 
 
-    public ArtistListAdapter(){
+    public TrackListAdapter(){
     }
 
-    public static class ArtistViewHolder
+    public static class TrackViewHolder
             extends RecyclerView.ViewHolder {
 
-        private TextView artistName;
-        private ImageView artistPic;
+        private TextView trackName;
+        private TextView albumName;
+        private ImageView albumPic;
         private Context context;
-        public ArtistViewHolder(View itemView) {
+        public TrackViewHolder(View itemView) {
             super(itemView);
             context = itemView.getContext();
-            artistName = (TextView)itemView.findViewById(R.id.artist_item_name);
-            artistPic = (ImageView)itemView.findViewById(R.id.artist_item_image);
+            trackName = (TextView)itemView.findViewById(R.id.track_item_song);
+            albumName = (TextView)itemView.findViewById(R.id.track_item_album);
+            albumPic = (ImageView)itemView.findViewById(R.id.track_item_image);
         }
 
-        public void bindArtist(ArtistItem item) {
-            artistName.setText(item.getArtistName());
+        public void bindArtist(TrackItem item) {
+            trackName.setText(item.getTrackName());
+            albumName.setText(item.getAlbumName());
             Glide.with(context)
-                    .load(item.getArtistPicture())
+                    .load(item.getThumbnailSmall())
                     .error(R.mipmap.ic_launcher)
                     .transform(new GlideCircleTransform(context))
-                    .into(artistPic);
+                    .into(albumPic);
         }
     }
 
-    public void setItems(List<ArtistItem> items) {
-        this.artists = items;
+    public void setItems(List<TrackItem> items) {
+        this.tracks = items;
         notifyDataSetChanged();
     }
 
-    public ArtistItem getItem(Integer position){
-        return artists.get(position);
+    public TrackItem getItem(Integer position){
+        return tracks.get(position);
     }
 
     @Override
-    public ArtistViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
+    public TrackViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.item_artist, viewGroup, false);
+                .inflate(R.layout.item_track, viewGroup, false);
 
         itemView.setOnClickListener(this);
         //android:background="?android:attr/selectableItemBackground"
 
-        return new ArtistViewHolder(itemView);
+        return new TrackViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(ArtistViewHolder viewHolder, int pos) {
-        ArtistItem item = artists.get(pos);
+    public void onBindViewHolder(TrackViewHolder viewHolder, int pos) {
+        TrackItem item = tracks.get(pos);
 
         viewHolder.bindArtist(item);
     }
 
     @Override
     public int getItemCount() {
-        if(artists == null)
+        if(tracks == null)
             return 0;
         else
-            return artists.size();
+            return tracks.size();
     }
 
     public void setOnClickListener(View.OnClickListener listener) {
@@ -92,6 +95,5 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
         if(listener != null)
             listener.onClick(view);
     }
-
 
 }
