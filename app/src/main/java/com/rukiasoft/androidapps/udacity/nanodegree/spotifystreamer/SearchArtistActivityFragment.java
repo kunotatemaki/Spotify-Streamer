@@ -140,6 +140,8 @@ public class SearchArtistActivityFragment extends Fragment {
     }
 
     public void setSearchViewCollapsed(Boolean collapsed){
+        searchView.setQuery("", false);
+        searchView.clearFocus();
         searchView.setIconified(collapsed);
     }
 
