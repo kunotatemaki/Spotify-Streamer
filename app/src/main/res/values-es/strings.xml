@@ -8,10 +8,11 @@
     <string name="action_search">Buscar</string>
     <string name="cancel">Cancelar</string>
     <string name="delete_recent_searches_question">¿Deseas borrar?</string>
-    <string name="no_artist_found">No hay resultados</string>
+    <string name="no_artist_found">No hay resultados. Comprueba el nombre del artista.</string>
     <string name="no_top_tracks_found">No hay resultados de canciones</string>
     <string name="search_content_description">Buscar</string>
     <string name="search_hint">Buscar Artista</string>
     <string name="error_passing_artist">Algo falló. ¡Inténtalo otra vez!</string>
+    <string name="no_response">Sin respuesta del servidor. Inténtalo otra vez.</string>
 
 </resources>
