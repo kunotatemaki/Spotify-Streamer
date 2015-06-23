@@ -49,6 +49,8 @@ public class TopTracksFragment extends Fragment {
 
     }
 
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,7 +77,7 @@ public class TopTracksFragment extends Fragment {
             if(imageView != null) {
                 Glide.with(getActivity())
                         .load(artist.getArtistPicture())
-                        .error(R.mipmap.ic_launcher)
+                        .error(R.drawable.default_image)
                         .transform(new GlideCircleTransform(getActivity()))
                         .into(imageView);
             }
@@ -167,7 +169,7 @@ public class TopTracksFragment extends Fragment {
             @Override
             public void failure(RetrofitError error) {
                 //TODO - different messages for different type of errors??
-                Utilities.showToast(getActivity(), getResources().getString(R.string.no_top_tracks_found));
+                Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
             }
         });
     }

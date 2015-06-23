@@ -1,15 +1,14 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.SearchManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,6 +47,11 @@ public class ArtistSearchWidgetFragment extends Fragment {
         Utilities.hideSoftKeyboard(getActivity());
         super.onDetach();
 
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
     }
 
     @Override

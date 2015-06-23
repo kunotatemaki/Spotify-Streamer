@@ -16,6 +16,9 @@ import android.view.MenuItem;
 public class ArtistSearchActivity extends AppCompatActivity implements ArtistListFragment.ArtistListSearchClickListener{
 
     private Fragment retainedFragment;
+    boolean mActivityRecreated = false;
+    static final String STATE_ACTIVITY = "first_created";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +36,13 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
 
         }
         fm.executePendingTransactions();
+
+        //Check if the activity is recreated
+        if (savedInstanceState != null) {
+            // Restore recreated or not
+            mActivityRecreated = savedInstanceState.getBoolean(STATE_ACTIVITY);
+        }
+
     }
 
     /**
@@ -62,6 +72,24 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save activity recreated
+        mActivityRecreated = true;
+        savedInstanceState.putBoolean(STATE_ACTIVITY, mActivityRecreated);
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onPostResume(){
+        //open search byDefault if activity is first created
+        super.onPostResume();
+        if(!mActivityRecreated) {
+            onSearchClick();
+            mActivityRecreated = true;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

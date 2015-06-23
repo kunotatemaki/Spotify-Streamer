@@ -42,7 +42,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
             artistName.setText(item.getArtistName());
             Glide.with(context)
                     .load(item.getArtistPicture())
-                    .error(R.mipmap.ic_launcher)
+                    .error(R.drawable.default_image)
                     .transform(new GlideCircleTransform(context))
                     .into(artistPic);
         }

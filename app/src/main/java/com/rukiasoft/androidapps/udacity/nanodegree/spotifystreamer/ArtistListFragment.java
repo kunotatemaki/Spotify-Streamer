@@ -120,6 +120,11 @@ public class ArtistListFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+
     /**
      * save the list of artists returned by the search into a local List
      * @param artists
@@ -207,7 +212,7 @@ public class ArtistListFragment extends Fragment {
 
                         @Override
                         public void run() {
-                        Utilities.showToast(getActivity(), getResources().getString(R.string.no_artist_found));
+                        Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
                     }
                 });
             }

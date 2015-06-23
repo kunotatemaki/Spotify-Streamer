@@ -13,7 +13,7 @@
         android:paddingLeft="@dimen/picture_margin"
         android:paddingTop="@dimen/picture_margin"
         android:layout_centerVertical="true"
-        android:src="@mipmap/ic_launcher"/>
+        android:src="@drawable/default_image"/>
     <TextView
         android:id="@+id/artist_item_name"
         android:layout_width="fill_parent"

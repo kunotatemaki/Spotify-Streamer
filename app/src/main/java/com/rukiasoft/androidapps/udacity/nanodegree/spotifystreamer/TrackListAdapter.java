@@ -45,7 +45,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
             albumName.setText(item.getAlbumName());
             Glide.with(context)
                     .load(item.getThumbnailSmall())
-                    .error(R.mipmap.ic_launcher)
+                    .error(R.drawable.default_image)
                     .transform(new GlideCircleTransform(context))
                     .into(albumPic);
         }
