@@ -9,7 +9,7 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
  * Created by iRuler on 21/6/15.
  */
 
-public class GlideCircleTransform extends BitmapTransformation {
+class GlideCircleTransform extends BitmapTransformation {
     public GlideCircleTransform(Context context) {
         super(context);
     }

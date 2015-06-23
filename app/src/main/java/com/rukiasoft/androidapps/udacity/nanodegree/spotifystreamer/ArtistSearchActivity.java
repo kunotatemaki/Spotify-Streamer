@@ -5,6 +5,7 @@ import android.app.FragmentManager;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.v7.app.AlertDialog;
@@ -12,14 +13,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class SearchArtistActivity extends AppCompatActivity {
+public class ArtistSearchActivity extends AppCompatActivity implements ArtistListFragment.ArtistListSearchClickListener{
 
-    Fragment retainedFragment;
+    private Fragment retainedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_artist);
+        setContentView(R.layout.activity_artist_list);
 
         FragmentManager fm = getFragmentManager();
         retainedFragment = fm.findFragmentByTag("search_fragment");
@@ -27,19 +28,17 @@ public class SearchArtistActivity extends AppCompatActivity {
         // create the fragment and data the first time
         if (retainedFragment == null) {
             // add the fragment
-            retainedFragment = new SearchArtistActivityFragment();
-            fm.beginTransaction().add(R.id.search_artist_activity_container, retainedFragment, "search_fragment").commit();
+            retainedFragment = new ArtistListFragment();
+            fm.beginTransaction().add(R.id.activity_artist_list_container, retainedFragment, "search_fragment").commit();
 
         }
         fm.executePendingTransactions();
-
-
-
-
-
-
     }
 
+    /**
+     * handles the SearchView results
+     * @param intent
+     */
     @Override
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
@@ -55,10 +54,11 @@ public class SearchArtistActivity extends AppCompatActivity {
                     MySuggestionProvider.AUTHORITY, MySuggestionProvider.MODE);
             suggestions.saveRecentQuery(query, null);
 
-            //collapse searchview
-            collapseSearchView(true);
-            if(retainedFragment instanceof SearchArtistActivityFragment)
-                ((SearchArtistActivityFragment)retainedFragment).searchArtist(query);
+            //hide SearchView widget
+            hideSearchWidget();
+            //run search
+            if(retainedFragment instanceof ArtistListFragment)
+                ((ArtistListFragment)retainedFragment).searchArtist(query);
         }
     }
 
@@ -66,7 +66,7 @@ public class SearchArtistActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search_artist, menu);
+        getMenuInflater().inflate(R.menu.menu_activity, menu);
         return true;
     }
 
@@ -74,8 +74,11 @@ public class SearchArtistActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch(id){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
             case R.id.action_settings:
-                Utilities.showToast(this, getResources().getString(R.string.comming_soon));
+                Utilities.showToast(this, getResources().getString(R.string.coming_soon));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -84,11 +87,16 @@ public class SearchArtistActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        //collapse searchview if showed.
-        if(!collapseSearchView(true))
-            super.onBackPressed();
+        if (hideSearchWidget()) return; //if searchview is shown, close it
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            finish();
+        else
+            finishAfterTransition();
     }
 
+    /**
+     * Clean the search history form the suggestions content provider
+     */
     public void cleanRecentSearches(){
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
             @Override
@@ -110,12 +118,25 @@ public class SearchArtistActivity extends AppCompatActivity {
                 .setNegativeButton(getResources().getString(R.string.cancel), dialogClickListener).show();
     }
 
-    private Boolean collapseSearchView(Boolean collapse){
-        if(retainedFragment instanceof SearchArtistActivityFragment &&
-                !((SearchArtistActivityFragment)retainedFragment).isSearchViewCollapsed()) {
-            ((SearchArtistActivityFragment) retainedFragment).setSearchViewCollapsed(collapse);
-            return true;
-        }else
-            return false;
+    /**
+     * Show SearchView as a widget overlapping actionbar, when the magnifying glass is clicked.
+     */
+    @Override
+    public void onSearchClick() {
+        ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
+        FragmentManager fm = getFragmentManager();
+        fm.beginTransaction()
+                .add(R.id.activity_artist_list_container, artistSearchWidgetFragment, "search_widget")
+                .addToBackStack(null)
+                .commit();
+        fm.executePendingTransactions();
+
+    }
+
+    /**
+     * Hide search widget
+     */
+    private Boolean hideSearchWidget(){
+        return getFragmentManager().popBackStackImmediate();
     }
 }

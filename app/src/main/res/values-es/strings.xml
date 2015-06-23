@@ -2,6 +2,16 @@
     <string name="app_name">Reproductor Spotify</string>
 
     <string name="action_settings">Ajustes</string>
-    <string name="comming_soon">Ajustes próximamente</string>
+    <string name="coming_soon">Ajustes próximamente</string>
+    <string name="Delete">Borrar</string>
+    <string name="action_delete_searches">Borrar historial</string>
+    <string name="action_search">Buscar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete_recent_searches_question">¿Deseas borrar?</string>
+    <string name="no_artist_found">No hay resultados</string>
+    <string name="no_top_tracks_found">No hay resultados de canciones</string>
+    <string name="search_content_description">Buscar</string>
+    <string name="search_hint">Buscar Artista</string>
+    <string name="error_passing_artist">Algo falló. ¡Inténtalo otra vez!</string>
 
 </resources>

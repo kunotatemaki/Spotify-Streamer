@@ -3,17 +3,15 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
  */
-public class ArtistItem implements Parcelable{
+public class ArtistListItem implements Parcelable{
     private String artistId;
     private String artistName;
     private String artistPicture;
 
-    public ArtistItem(){
+    public ArtistListItem(){
 
     }
 
@@ -42,7 +40,7 @@ public class ArtistItem implements Parcelable{
         this.artistPicture = artistPicture;
     }
 
-    public ArtistItem(Parcel in){
+    private ArtistListItem(Parcel in){
         this.artistId = in.readString();
         this.artistName = in.readString();
         this.artistPicture= in.readString();
@@ -60,13 +58,13 @@ public class ArtistItem implements Parcelable{
         dest.writeString(getArtistPicture());
     }
 
-    public static final Parcelable.Creator<ArtistItem> CREATOR = new Parcelable.Creator<ArtistItem>() {
-        public ArtistItem createFromParcel(Parcel in) {
-            return new ArtistItem(in);
+    public static final Parcelable.Creator<ArtistListItem> CREATOR = new Parcelable.Creator<ArtistListItem>() {
+        public ArtistListItem createFromParcel(Parcel in) {
+            return new ArtistListItem(in);
         }
 
-        public ArtistItem[] newArray(int size) {
-            return new ArtistItem[size];
+        public ArtistListItem[] newArray(int size) {
+            return new ArtistListItem[size];
         }
     };
 }

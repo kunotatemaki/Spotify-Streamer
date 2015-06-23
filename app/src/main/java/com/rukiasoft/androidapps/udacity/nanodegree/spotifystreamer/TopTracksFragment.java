@@ -10,14 +10,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TooManyListenersException;
 
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
@@ -26,18 +29,15 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-/**
- * A placeholder fragment containing a simple view.
- */
-public class TopTracksActivityFragment extends Fragment {
+
+public class TopTracksFragment extends Fragment {
 
     private RecyclerView recView;
-    TrackListAdapter tracksListAdapter;
-    private Toolbar toolbar;
-    SpotifyService spotify;
-    ArtistItem artist;
+    private TrackListAdapter tracksListAdapter;
+    private SpotifyService spotify;
+    private ArtistListItem artist;
 
-    public TopTracksActivityFragment() {
+    public TopTracksFragment() {
     }
 
     @Override
@@ -52,18 +52,38 @@ public class TopTracksActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_top_tracks, container, false);
-        toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        View view = inflater.inflate(R.layout.fragment_top_tracks_list, container, false);
+        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
             if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
+            RelativeLayout linearLayout = (RelativeLayout) toolbar.findViewById(R.id.toolbar_back_image);
+            if(linearLayout != null) {
+                //make arroy+image clickable (as Whatsapp do)
+                linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getActivity().onBackPressed();
+                    }
+                });
+            }
+            //Set artist image on toolbar
+            ImageView imageView = (ImageView) toolbar.findViewById(R.id.artist_item_image);
+            if(imageView != null) {
+                Glide.with(getActivity())
+                        .load(artist.getArtistPicture())
+                        .error(R.mipmap.ic_launcher)
+                        .transform(new GlideCircleTransform(getActivity()))
+                        .into(imageView);
+            }
+            TextView subtitle = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
+            if(subtitle != null)
+                subtitle.setText(artist.getArtistName());
         }
-        TextView subtitle = (TextView)toolbar.findViewById(R.id.toolbar_subtitle);
-        subtitle.setText(artist.getArtistName());
+
 
         recView = (RecyclerView) view.findViewById(R.id.tracks_list);
         recView.setHasFixedSize(true);
@@ -75,7 +95,6 @@ public class TopTracksActivityFragment extends Fragment {
 
         recView.addItemDecoration(
                 new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-
 
 
         tracksListAdapter.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +109,11 @@ public class TopTracksActivityFragment extends Fragment {
         return view;
     }
 
-    public void setTopTracks(List<TrackItem> tracks){
+    /**
+     * save the list of tracks returned by the search into a local List
+     * @param tracks
+     */
+    private void setTopTracks(List<TrackItem> tracks){
 
         tracksListAdapter.setItems(tracks);
         //go to first position
@@ -99,10 +122,14 @@ public class TopTracksActivityFragment extends Fragment {
 
     }
 
-    public void setArtist(ArtistItem artist){
+    public void setArtist(ArtistListItem artist){
         this.artist = artist;
     }
 
+    /**
+     * Search for an artist's top tracks using Spotify's wrapper
+     * @param id
+     */
     private void searchTopTracks(String id){
         Map<String, Object> map = new HashMap<>();
         map.put("country", Locale.getDefault().getCountry());
@@ -139,12 +166,10 @@ public class TopTracksActivityFragment extends Fragment {
 
             @Override
             public void failure(RetrofitError error) {
-                //TODO - ver el tipo de error??
+                //TODO - different messages for different type of errors??
                 Utilities.showToast(getActivity(), getResources().getString(R.string.no_top_tracks_found));
             }
         });
     }
-
-
 
 }

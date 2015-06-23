@@ -13,6 +13,12 @@
     <dimen name="horizontal_page_margin">@dimen/margin_medium</dimen>
     <dimen name="vertical_page_margin">@dimen/margin_medium</dimen>
 
+    <dimen name="horizontal_search_margin">@dimen/margin_small</dimen>
+    <dimen name="vertical_search_margin">@dimen/margin_small</dimen>
+
+    <dimen name="standard_touch_target_size">48dp</dimen>
+
+
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="toolbar_elevation">4dp</dimen>
 
@@ -25,6 +31,10 @@
     <dimen name="picture_margin">4dp</dimen>
     <dimen name="one_line_row">56dp</dimen>
     <dimen name="two_line_row">72dp</dimen>
+    <dimen name="horizontal_toolbar_button_margin">16dp</dimen>
+
+    <dimen name="picture_toolbar_diameter">24dp</dimen>
+    <dimen name="picture_toolbar_margin">2dp</dimen>
 
 
 </resources>

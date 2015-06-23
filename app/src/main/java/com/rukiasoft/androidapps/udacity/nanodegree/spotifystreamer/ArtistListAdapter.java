@@ -19,7 +19,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
         implements View.OnClickListener {
 
     private View.OnClickListener listener;
-    private List<ArtistItem> artists;
+    private List<ArtistListItem> artists;
 
 
     public ArtistListAdapter(){
@@ -28,9 +28,9 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
     public static class ArtistViewHolder
             extends RecyclerView.ViewHolder {
 
-        private TextView artistName;
-        private ImageView artistPic;
-        private Context context;
+        private final TextView artistName;
+        private final ImageView artistPic;
+        private final Context context;
         public ArtistViewHolder(View itemView) {
             super(itemView);
             context = itemView.getContext();
@@ -38,7 +38,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
             artistPic = (ImageView)itemView.findViewById(R.id.artist_item_image);
         }
 
-        public void bindArtist(ArtistItem item) {
+        public void bindArtist(ArtistListItem item) {
             artistName.setText(item.getArtistName());
             Glide.with(context)
                     .load(item.getArtistPicture())
@@ -48,12 +48,12 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
         }
     }
 
-    public void setItems(List<ArtistItem> items) {
+    public void setItems(List<ArtistListItem> items) {
         this.artists = items;
         notifyDataSetChanged();
     }
 
-    public ArtistItem getItem(Integer position){
+    public ArtistListItem getItem(Integer position){
         return artists.get(position);
     }
 
@@ -70,7 +70,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
 
     @Override
     public void onBindViewHolder(ArtistViewHolder viewHolder, int pos) {
-        ArtistItem item = artists.get(pos);
+        ArtistListItem item = artists.get(pos);
 
         viewHolder.bindArtist(item);
     }

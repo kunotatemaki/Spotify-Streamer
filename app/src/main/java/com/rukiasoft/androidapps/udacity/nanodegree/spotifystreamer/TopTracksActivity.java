@@ -2,43 +2,27 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.SearchManager;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.provider.SearchRecentSuggestions;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.ArtistsPager;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-
 public class TopTracksActivity extends AppCompatActivity {
 
-    Fragment retainedFragment;
+    private Fragment retainedFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_tracks);
 
+        //get artist item
         if(!getIntent().hasExtra("artist_item")){
-            //no id. Finish Activity
+            //no artist item. Finish Activity
             setResult(RESULT_CANCELED);
             finish();
         }
-        ArtistItem artist = getIntent().getExtras().getParcelable("artist_item");
+        ArtistListItem artist = getIntent().getExtras().getParcelable("artist_item");
 
 
         FragmentManager fm = getFragmentManager();
@@ -47,21 +31,21 @@ public class TopTracksActivity extends AppCompatActivity {
         // create the fragment and data the first time
         if (retainedFragment == null) {
             // add the fragment
-            retainedFragment = new TopTracksActivityFragment();
+            retainedFragment = new TopTracksFragment();
             fm.beginTransaction().add(R.id.top_tracks_activity_container, retainedFragment, "top_track_fragment").commit();
 
         }
         fm.executePendingTransactions();
 
-        if(retainedFragment instanceof TopTracksActivityFragment)
-            ((TopTracksActivityFragment)retainedFragment).setArtist(artist);
+        if(retainedFragment instanceof TopTracksFragment)
+            ((TopTracksFragment)retainedFragment).setArtist(artist);
 
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_search_artist, menu);
+        getMenuInflater().inflate(R.menu.menu_activity, menu);
         return true;
     }
 
@@ -70,7 +54,7 @@ public class TopTracksActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch(id){
             case R.id.action_settings:
-                Utilities.showToast(this, getResources().getString(R.string.comming_soon));
+                Utilities.showToast(this, getResources().getString(R.string.coming_soon));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -79,6 +63,7 @@ public class TopTracksActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
+        //return normally
         setResult(RESULT_OK);
         super.onBackPressed();
     }

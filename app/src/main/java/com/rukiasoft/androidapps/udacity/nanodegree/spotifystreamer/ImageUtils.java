@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-public class ImageUtils {
+class ImageUtils {
     public static Bitmap getCircularBitmapImage(Bitmap source) {
         int size = Math.min(source.getWidth(), source.getHeight());
         int x = (source.getWidth() - size) / 2;

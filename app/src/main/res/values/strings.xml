@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">Spotify Streamer</string>
-    <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="comming_soon">comming soon</string>
+    <string name="coming_soon">coming soon</string>
     <string name="search_hint">Search Artist</string>
     <string name="action_search">Search</string>
     <string name="action_delete_searches">Delete search history</string>
@@ -11,4 +10,8 @@
     <string name="cancel">Cancel</string>
     <string name="no_artist_found">No result from server</string>
     <string name="no_top_tracks_found">No Top tracks found on server</string>
+
+
+    <string name="search_content_description">Search</string>
+    <string name="error_passing_artist">Something went wrong. Try again!</string>
 </resources>

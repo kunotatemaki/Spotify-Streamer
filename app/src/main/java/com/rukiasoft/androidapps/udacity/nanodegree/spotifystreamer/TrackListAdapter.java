@@ -28,10 +28,10 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     public static class TrackViewHolder
             extends RecyclerView.ViewHolder {
 
-        private TextView trackName;
-        private TextView albumName;
-        private ImageView albumPic;
-        private Context context;
+        private final TextView trackName;
+        private final TextView albumName;
+        private final ImageView albumPic;
+        private final Context context;
         public TrackViewHolder(View itemView) {
             super(itemView);
             context = itemView.getContext();
