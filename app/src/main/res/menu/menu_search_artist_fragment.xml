@@ -5,7 +5,7 @@
 
     <item android:id="@+id/action_delete_recent_searches"
         android:title="@string/action_delete_searches"
-        android:icon="@drawable/ic_history"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="100"
+        app:showAsAction="never" />
 
 </menu>

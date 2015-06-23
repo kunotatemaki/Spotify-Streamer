@@ -34,7 +34,7 @@
                     android:layout_width="@dimen/standard_touch_target_size"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="@dimen/horizontal_toolbar_button_margin"
-                    android:src="@drawable/ic_action_search"
+                    android:src="@drawable/ic_search_white_24dp"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:contentDescription="@string/search_content_description"/>
