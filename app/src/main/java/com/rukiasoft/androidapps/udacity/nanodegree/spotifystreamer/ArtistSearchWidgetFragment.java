@@ -68,7 +68,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         }
-        SearchView searchView = (SearchView) view.findViewById(R.id.lupa);
+        SearchView searchView = (SearchView) view.findViewById(R.id.searchview_widget);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         // Assumes current activity is the searchable activity
