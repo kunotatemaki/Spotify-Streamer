@@ -19,12 +19,19 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 
 public class ArtistSearchWidgetFragment extends Fragment {
 
-    private static final String TAG = "SearchWidgetFragment";
+    private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
     private static final String IS_ANIMATED = "animated";
     Boolean animated = false;
+    @InjectView(R.id.toolbar_search) Toolbar toolbar;
 
     public ArtistSearchWidgetFragment() {
         // Required empty public constructor
@@ -63,7 +70,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
-        final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_search);
+        ButterKnife.inject(this, view);
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 

@@ -1,12 +1,15 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.annotation.TargetApi;
 import android.app.Fragment;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +43,7 @@ public class TopTracksFragment extends Fragment {
     private SpotifyService spotify;
     private ArtistListItem artist;
 
-    @InjectView(R.id.toolbar) Toolbar toolbar;
+    @InjectView(R.id.toolbar_top_track_list) Toolbar toolbar_top_track_list;
     @InjectView(R.id.toolbar_back_image)
     RelativeLayout toolbarBAckImage;
     @InjectView(R.id.toolbar_subtitle) TextView toolbarSubtitle;
@@ -67,8 +70,8 @@ public class TopTracksFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_top_tracks_list, container, false);
         ButterKnife.inject(this, view);
 
-        if(null != toolbar) {
-            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        if(null != toolbar_top_track_list) {
+            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar_top_track_list);
 
             if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -83,7 +86,9 @@ public class TopTracksFragment extends Fragment {
                     }
                 });
             }
-            //Set artist image on toolbar
+
+            loadArtistInformationForToolbar();
+            /*//Set artist image on toolbar
             if(artistItemImage != null) {
                 Glide.with(getActivity())
                         .load(artist.getArtistPicture())
@@ -92,7 +97,7 @@ public class TopTracksFragment extends Fragment {
                         .into(artistItemImage);
             }
             if(toolbarSubtitle != null)
-                toolbarSubtitle.setText(artist.getArtistName());
+                toolbarSubtitle.setText(artist.getArtistName());*/
         }
 
 
@@ -182,4 +187,96 @@ public class TopTracksFragment extends Fragment {
         });
     }
 
+    private void loadArtistInformationForToolbar() {
+        if(toolbarSubtitle != null)
+            toolbarSubtitle.setText(artist.getArtistName());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && addTransitionListener()) {
+            // If we're running on Lollipop and we have added a listener to the shared element
+            // transition, load the thumbnail. The listener will load the full-size image when
+            // the transition is complete.
+            loadThumbnail();
+        } else {
+            // If all other cases we should just load the full-size image now
+            loadFullSizeImage();
+        }
+    }
+
+    /**
+     * Load the item's thumbnail image into our {@link ImageView}.
+     */
+    private void loadThumbnail() {
+        if(artistItemImage != null) {
+            Glide.with(getActivity())
+                    .load(artist.getArtistPicture())
+                    .error(R.drawable.default_image)
+                    .transform(new GlideCircleTransform(getActivity()))
+                    .into(artistItemImage);
+        }
+    }
+
+    /**
+     * Load the item's full-size image into our {@link ImageView}.
+     */
+    private void loadFullSizeImage() {
+
+        if(artistItemImage != null) {
+            Glide.with(getActivity())
+                    .load(artist.getArtistPicture())
+                    .error(R.drawable.default_image)
+                    .transform(new GlideCircleTransform(getActivity()))
+                    .into(artistItemImage);
+        }
+    }
+
+    /**
+     * Try and add a {@link Transition.TransitionListener} to the entering shared element
+     * {@link Transition}. We do this so that we can load the full-size image after the transition
+     * has completed.
+     *
+     * @return true if we were successful in adding a listener to the enter transition
+     */
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private boolean addTransitionListener() {
+        final Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
+
+        if (transition != null) {
+            // There is an entering shared element transition so add a listener to it
+            transition.addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    // As the transition has ended, we can now load the full-size image
+                    loadFullSizeImage();
+
+                    // Make sure we remove ourselves as a listener
+                    transition.removeListener(this);
+                }
+
+                @Override
+                public void onTransitionStart(Transition transition) {
+                    // No-op
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) {
+                    // Make sure we remove ourselves as a listener
+                    transition.removeListener(this);
+                }
+
+                @Override
+                public void onTransitionPause(Transition transition) {
+                    // No-op
+                }
+
+                @Override
+                public void onTransitionResume(Transition transition) {
+                    // No-op
+                }
+            });
+            return true;
+        }
+
+        // If we reach here then we have not added a listener
+        return false;
+    }
 }

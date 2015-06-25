@@ -10,9 +10,10 @@
     <string name="cancel">Cancel</string>
     <string name="no_artist_found">No results. Check the Artist\'s name.</string>
     <string name="no_top_tracks_found">No Top tracks found on server</string>
-
-
     <string name="search_content_description">Search</string>
     <string name="error_passing_artist">Something went wrong. Try again!</string>
     <string name="no_response">No response from server. Try it Again.</string>
+    <string name="artist_name_imageview" translatable="false">artist_name_imageview</string>
+    <string name="artist_name_textview" translatable="false">artist_name_textview</string>
+    <string name="toolbar_toptracks_view" translatable="false">toolbar_toptracks_view</string>
 </resources>

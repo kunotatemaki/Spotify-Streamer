@@ -1,5 +1,23 @@
 <resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <!-- enable window content transitions -->
+        <item name="android:windowContentTransitions">true</item>
 
+        <!-- specify enter and exit transitions
+        <item name="android:windowEnterTransition">@transition/artist_item_transition</item>
+        <item name="android:windowExitTransition">@transition/artist_item_transition</item>
+        -->
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">
+            @transition/artist_item_transition
+        </item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/artist_item_transition
+        </item>
+    </style>
 
 
 </resources>

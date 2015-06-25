@@ -11,7 +11,8 @@
         android:id="@+id/appbar_layout">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_top_track_list"
+            android:transitionName="@string/toolbar_toptracks_view"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
             android:minHeight="?attr/actionBarSize"
@@ -21,12 +22,13 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_height="wrap_content"
                 >
                 <RelativeLayout
                     android:id="@+id/toolbar_back_image"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
                     android:gravity="center"
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentStart="true"
@@ -51,7 +53,8 @@
                         android:paddingLeft="@dimen/picture_margin"
                         android:paddingTop="@dimen/picture_margin"
                         android:layout_toRightOf="@id/toolbar_back_arrow_on_image"
-                        android:layout_centerVertical="true"/>
+                        android:layout_centerVertical="true"
+                        android:transitionName="@string/artist_name_imageview"/>
                 </RelativeLayout>
                 <TextView android:id="@+id/toolbar_title"
                     android:layout_width="match_parent"
@@ -59,6 +62,8 @@
                     android:text="@string/app_name"
                     android:layout_toRightOf="@id/toolbar_back_image"
                     android:layout_marginLeft="@dimen/margin_small"
+                    android:layout_marginRight="@dimen/margin_small"
+                    android:layout_marginTop="@dimen/margin_small"
                     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title" />
 
                 <TextView android:id="@+id/toolbar_subtitle"
@@ -67,7 +72,10 @@
                     android:layout_toRightOf="@id/toolbar_back_image"
                     android:layout_below="@id/toolbar_title"
                     android:layout_marginLeft="@dimen/margin_small"
-                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle" />
+                    android:layout_marginRight="@dimen/margin_small"
+                    android:layout_marginBottom="@dimen/margin_small"
+                    style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle"
+                    android:transitionName="@string/artist_name_textview"/>
             </RelativeLayout>
         </android.support.v7.widget.Toolbar>
 

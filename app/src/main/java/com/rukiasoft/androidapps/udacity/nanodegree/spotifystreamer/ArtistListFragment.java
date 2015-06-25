@@ -3,8 +3,11 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -41,7 +44,7 @@ public class ArtistListFragment extends Fragment {
     private ArtistListSearchClickListener mListener;
     private static final int TOP_TRACK_REQUEST = 153;
 
-    @InjectView(R.id.toolbar) Toolbar toolbar;
+    @InjectView(R.id.toolbar_artist_list) Toolbar toolbar_artist_list;
     @InjectView(R.id.toolbar_button) ImageButton imageButton;
     @InjectView(R.id.artist_list) RecyclerView recView;
 
@@ -80,8 +83,8 @@ public class ArtistListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.inject(this, view);
-        if(null != toolbar) {
-            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+        if(null != toolbar_artist_list) {
+            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar_artist_list);
 
             if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -116,7 +119,21 @@ public class ArtistListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("artist_item", artistListAdapter.getItem(position));
                 topTracksIntent.putExtras(bundle);
-                startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+
+                            // Now we provide a list of Pair items which contain the view we can transitioning
+                            // from, and the name of the view it is transitioning to, in the launched activity
+                            new Pair<View, String>(v.findViewById(R.id.artist_item_image),
+                                    getResources().getString(R.string.artist_name_imageview)),
+                            new Pair<View, String>(v.findViewById(R.id.artist_item_name),
+                                    getResources().getString(R.string.artist_name_textview)),
+                            new Pair<View, String>(toolbar_artist_list,
+                                    getResources().getString(R.string.toolbar_toptracks_view)));
+                    startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST, activityOptions.toBundle());
+                }else{
+                    startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST);
+                }
             }
         });
 
