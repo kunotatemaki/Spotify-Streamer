@@ -15,6 +15,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +24,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -32,10 +36,16 @@ import retrofit.client.Response;
 
 public class TopTracksFragment extends Fragment {
 
-    private RecyclerView recView;
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
     private ArtistListItem artist;
+
+    @InjectView(R.id.toolbar) Toolbar toolbar;
+    @InjectView(R.id.toolbar_back_image)
+    RelativeLayout toolbarBAckImage;
+    @InjectView(R.id.toolbar_subtitle) TextView toolbarSubtitle;
+    @InjectView(R.id.artist_item_image) ImageView artistItemImage;
+    @InjectView(R.id.tracks_list) RecyclerView trackList;
 
     public TopTracksFragment() {
     }
@@ -55,17 +65,18 @@ public class TopTracksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_top_tracks_list, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        ButterKnife.inject(this, view);
+
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
             if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
-            RelativeLayout linearLayout = (RelativeLayout) toolbar.findViewById(R.id.toolbar_back_image);
-            if(linearLayout != null) {
+
+            if(toolbarBAckImage != null) {
                 //make arroy+image clickable (as Whatsapp do)
-                linearLayout.setOnClickListener(new View.OnClickListener() {
+                toolbarBAckImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         getActivity().onBackPressed();
@@ -73,36 +84,33 @@ public class TopTracksFragment extends Fragment {
                 });
             }
             //Set artist image on toolbar
-            ImageView imageView = (ImageView) toolbar.findViewById(R.id.artist_item_image);
-            if(imageView != null) {
+            if(artistItemImage != null) {
                 Glide.with(getActivity())
                         .load(artist.getArtistPicture())
                         .error(R.drawable.default_image)
                         .transform(new GlideCircleTransform(getActivity()))
-                        .into(imageView);
+                        .into(artistItemImage);
             }
-            TextView subtitle = (TextView) toolbar.findViewById(R.id.toolbar_subtitle);
-            if(subtitle != null)
-                subtitle.setText(artist.getArtistName());
+            if(toolbarSubtitle != null)
+                toolbarSubtitle.setText(artist.getArtistName());
         }
 
 
-        recView = (RecyclerView) view.findViewById(R.id.tracks_list);
-        recView.setHasFixedSize(true);
+        trackList.setHasFixedSize(true);
         if(tracksListAdapter == null) {
             tracksListAdapter = new TrackListAdapter();
         }
-        recView.setAdapter(tracksListAdapter);
-        recView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
+        trackList.setAdapter(tracksListAdapter);
+        trackList.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
 
-        recView.addItemDecoration(
+        trackList.addItemDecoration(
                 new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
 
 
         tracksListAdapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int position = recView.getChildAdapterPosition(v);
+                int position = trackList.getChildAdapterPosition(v);
                 //TODO show media player in STAGE 2
 
             }
@@ -113,14 +121,14 @@ public class TopTracksFragment extends Fragment {
 
     /**
      * save the list of tracks returned by the search into a local List
-     * @param tracks
+     * @param tracks list of tracks
      */
     private void setTopTracks(List<TrackItem> tracks){
 
         tracksListAdapter.setItems(tracks);
         //go to first position
-        if(recView != null && recView.getLayoutManager() != null)
-            recView.getLayoutManager().scrollToPosition(0);
+        if(trackList != null && trackList.getLayoutManager() != null)
+            trackList.getLayoutManager().scrollToPosition(0);
 
     }
 
@@ -130,7 +138,7 @@ public class TopTracksFragment extends Fragment {
 
     /**
      * Search for an artist's top tracks using Spotify's wrapper
-     * @param id
+     * @param id spotify artist's id
      */
     private void searchTopTracks(String id){
         Map<String, Object> map = new HashMap<>();

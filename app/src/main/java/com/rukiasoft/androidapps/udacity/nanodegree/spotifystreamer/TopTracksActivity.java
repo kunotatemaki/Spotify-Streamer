@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
 public class TopTracksActivity extends AppCompatActivity {
 
     private Fragment retainedFragment;

@@ -9,8 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
 
 import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
@@ -28,16 +32,14 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     public static class TrackViewHolder
             extends RecyclerView.ViewHolder {
 
-        private final TextView trackName;
-        private final TextView albumName;
-        private final ImageView albumPic;
+        @InjectView(R.id.track_item_song) TextView trackName;
+        @InjectView(R.id.track_item_album) TextView albumName;
+        @InjectView(R.id.track_item_image) ImageView albumPic;
         private final Context context;
         public TrackViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.inject(this, itemView);
             context = itemView.getContext();
-            trackName = (TextView)itemView.findViewById(R.id.track_item_song);
-            albumName = (TextView)itemView.findViewById(R.id.track_item_album);
-            albumPic = (ImageView)itemView.findViewById(R.id.track_item_image);
         }
 
         public void bindArtist(TrackItem item) {

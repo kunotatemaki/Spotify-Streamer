@@ -15,10 +15,20 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
 
 public class ArtistSearchWidgetFragment extends Fragment {
 
-    private static final String TAG = "SearchWidgetFragment";
+    @InjectView(R.id.toolbar_search) Toolbar toolbar;
+    @InjectView(R.id.searchview_widget)
+    SearchView searchView;
+
+    private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
 
 
     public ArtistSearchWidgetFragment() {
@@ -28,6 +38,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
+        LogHelper.d(TAG, "onAttach");
         //Change appearance of statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
@@ -59,7 +70,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_search);
+        ButterKnife.inject(this, view);
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
@@ -68,7 +79,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         }
-        SearchView searchView = (SearchView) view.findViewById(R.id.lupa);
+
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         // Assumes current activity is the searchable activity

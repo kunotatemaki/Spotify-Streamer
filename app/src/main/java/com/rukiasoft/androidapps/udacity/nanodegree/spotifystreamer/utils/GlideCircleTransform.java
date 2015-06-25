@@ -1,4 +1,4 @@
-package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
+package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 
@@ -9,7 +9,7 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
  * Created by iRuler on 21/6/15.
  */
 
-class GlideCircleTransform extends BitmapTransformation {
+public class GlideCircleTransform extends BitmapTransformation {
     public GlideCircleTransform(Context context) {
         super(context);
     }

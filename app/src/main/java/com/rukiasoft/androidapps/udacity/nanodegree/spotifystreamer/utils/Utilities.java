@@ -1,4 +1,4 @@
-package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
+package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.widget.Toast;
 /**
  * Created by Raúl Feliz on 2014 for the Udacity Nanodegree.
  */
-class Utilities {
+public class Utilities {
     static private Toast toast = null;
 
     /**

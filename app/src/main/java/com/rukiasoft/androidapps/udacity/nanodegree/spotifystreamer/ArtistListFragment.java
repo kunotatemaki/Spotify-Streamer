@@ -17,9 +17,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
@@ -32,11 +36,14 @@ import retrofit.client.Response;
  */
 public class ArtistListFragment extends Fragment {
 
-    private RecyclerView recView;
     private ArtistListAdapter artistListAdapter;
     private SpotifyService spotify;
     private ArtistListSearchClickListener mListener;
     private static final int TOP_TRACK_REQUEST = 153;
+
+    @InjectView(R.id.toolbar) Toolbar toolbar;
+    @InjectView(R.id.toolbar_button) ImageButton imageButton;
+    @InjectView(R.id.artist_list) RecyclerView recView;
 
     public ArtistListFragment() {
     }
@@ -72,7 +79,7 @@ public class ArtistListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
-        Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar);
+        ButterKnife.inject(this, view);
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
@@ -80,7 +87,7 @@ public class ArtistListFragment extends Fragment {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
-            ImageButton imageButton = (ImageButton) toolbar.findViewById(R.id.toolbar_button);
+
             if(imageButton != null) {
                 imageButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -91,8 +98,6 @@ public class ArtistListFragment extends Fragment {
             }
         }
 
-        recView = (RecyclerView) view.findViewById(R.id.artist_list);
-
         if(artistListAdapter == null) {
             artistListAdapter = new ArtistListAdapter();
         }
@@ -101,8 +106,6 @@ public class ArtistListFragment extends Fragment {
 
         recView.addItemDecoration(
                 new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL_LIST));
-
-
 
         artistListAdapter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,14 +123,9 @@ public class ArtistListFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-    }
-
     /**
      * save the list of artists returned by the search into a local List
-     * @param artists
+     * @param artists list of artists
      */
     private void setArtists(List<ArtistListItem> artists){
 
@@ -158,7 +156,7 @@ public class ArtistListFragment extends Fragment {
 
     /**
      * Search for an artist using Spotify's wrapper
-     * @param query
+     * @param query name of the artist
      */
     public void searchArtist(String query){
         //search artist with spotify wrapper

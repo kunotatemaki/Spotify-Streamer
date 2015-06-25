@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:paddingLeft="@dimen/text_item_margin_left"
         android:paddingRight="@dimen/horizontal_page_margin"
+        android:layout_toRightOf="@id/artist_item_image"
         android:paddingBottom="@dimen/text_item_margin_bottom"
         android:paddingTop="@dimen/text_item_margin_top"
         android:layout_centerVertical="true"

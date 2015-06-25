@@ -9,8 +9,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
 
 import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
@@ -28,14 +32,13 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
     public static class ArtistViewHolder
             extends RecyclerView.ViewHolder {
 
-        private final TextView artistName;
-        private final ImageView artistPic;
+        @InjectView(R.id.artist_item_name) TextView artistName;
+        @InjectView(R.id.artist_item_image) ImageView artistPic;
         private final Context context;
         public ArtistViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.inject(this, itemView);
             context = itemView.getContext();
-            artistName = (TextView)itemView.findViewById(R.id.artist_item_name);
-            artistPic = (ImageView)itemView.findViewById(R.id.artist_item_image);
         }
 
         public void bindArtist(ArtistListItem item) {
