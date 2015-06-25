@@ -108,7 +108,7 @@ public class ArtistListFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("artist_item", artistListAdapter.getItem(position));
                 topTracksIntent.putExtras(bundle);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                     ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
 
                             // Now we provide a list of Pair items which contain the view we can transitioning
@@ -120,7 +120,7 @@ public class ArtistListFragment extends Fragment {
                             new Pair<View, String>(toolbar_artist_list,
                                     getResources().getString(R.string.toolbar_toptracks_view)));
                     startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST, activityOptions.toBundle());
-                }else{
+                } else {
                     startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST);
                 }
             }
@@ -153,6 +153,10 @@ public class ArtistListFragment extends Fragment {
         switch(id){
             case R.id.action_search:
                 mListener.onSearchClick();
+                /*if(getActivity() instanceof ArtistSearchActivity){
+                    ((ArtistSearchActivity) getActivity()).setShowSearchIcon(false);
+                    getActivity().invalidateOptionsMenu();
+                }*/
                 return true;
             case R.id.action_delete_recent_searches:
                 if(getActivity() instanceof ArtistSearchActivity)
@@ -161,6 +165,20 @@ public class ArtistListFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        MenuItem searchIcon = menu.findItem(R.id.action_search);
+
+        if(getActivity() instanceof ArtistSearchActivity){
+            Boolean showIcon = ((ArtistSearchActivity) getActivity()).getShowSearchIcon();
+            searchIcon.setVisible(showIcon);
+        }
+
+
+        super.onPrepareOptionsMenu(menu);
     }
 
     /**
@@ -176,7 +194,7 @@ public class ArtistListFragment extends Fragment {
             public void success(ArtistsPager artistsPager, Response response) {
                 final List<ArtistListItem> artists = new ArrayList<>();
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
-                if(artistsPager.artists.items.size() == 0){
+                if (artistsPager.artists.items.size() == 0) {
                     //no artists, notify it!
                     mainHandler.post(new Runnable() {
 
@@ -187,13 +205,14 @@ public class ArtistListFragment extends Fragment {
                     });
                     return;
                 }
-                for(int i=0; i<artistsPager.artists.items.size(); i++){
+                for (int i = 0; i < artistsPager.artists.items.size(); i++) {
                     ArtistListItem item = new ArtistListItem();
                     item.setArtistId(artistsPager.artists.items.get(i).id);
                     item.setArtistName(artistsPager.artists.items.get(i).name);
-                    for(int j=0; j<artistsPager.artists.items.get(i).images.size(); j++){
+                    for (int j = 0; j < artistsPager.artists.items.get(i).images.size(); j++) {
                         //save 200px picture (or any other if not available)
-                        if(j == 0)  item.setArtistPicture(artistsPager.artists.items.get(i).images.get(j).url);
+                        if (j == 0)
+                            item.setArtistPicture(artistsPager.artists.items.get(i).images.get(j).url);
                         else if (artistsPager.artists.items.get(i).images.get(j).width == 200) {
                             item.setArtistPicture(artistsPager.artists.items.get(i).images.get(j).url);
                             break;
@@ -217,8 +236,8 @@ public class ArtistListFragment extends Fragment {
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
                 mainHandler.post(new Runnable() {
 
-                        @Override
-                        public void run() {
+                    @Override
+                    public void run() {
                         Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
                     }
                 });
@@ -226,7 +245,15 @@ public class ArtistListFragment extends Fragment {
         });
     }
 
+@Override
+public void onResume(){
+    if(getActivity() instanceof ArtistSearchActivity){
+        ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
+        getActivity().invalidateOptionsMenu();
+    }
 
+    super.onResume();
+}
     public interface ArtistListSearchClickListener {
         void onSearchClick();
     }

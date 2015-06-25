@@ -20,7 +20,15 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
     private Fragment retainedFragment;
     boolean mActivityRecreated = false;
     static final String STATE_ACTIVITY = "first_created";
+    private Boolean showSearchIcon = true;
 
+    public Boolean getShowSearchIcon() {
+        return showSearchIcon;
+    }
+
+    public void setShowSearchIcon(Boolean showSearchIcon) {
+        this.showSearchIcon = showSearchIcon;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +168,8 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
+        setShowSearchIcon(false);
+        invalidateOptionsMenu();
 
     }
 
@@ -167,6 +177,9 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
      * Hide search widget
      */
     private Boolean hideSearchWidget(){
-        return getFragmentManager().popBackStackImmediate();
+
+        Boolean ret = getFragmentManager().popBackStackImmediate();
+
+        return ret;
     }
 }
