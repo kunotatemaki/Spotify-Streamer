@@ -18,7 +18,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
@@ -45,7 +44,6 @@ public class ArtistListFragment extends Fragment {
     private static final int TOP_TRACK_REQUEST = 153;
 
     @InjectView(R.id.toolbar_artist_list) Toolbar toolbar_artist_list;
-    @InjectView(R.id.toolbar_button) ImageButton imageButton;
     @InjectView(R.id.artist_list) RecyclerView recView;
 
     public ArtistListFragment() {
@@ -88,17 +86,8 @@ public class ArtistListFragment extends Fragment {
 
             if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
 
-            if(imageButton != null) {
-                imageButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mListener.onSearchClick();
-                    }
-                });
-            }
         }
 
         if(artistListAdapter == null) {
@@ -162,6 +151,9 @@ public class ArtistListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch(id){
+            case R.id.action_search:
+                mListener.onSearchClick();
+                return true;
             case R.id.action_delete_recent_searches:
                 if(getActivity() instanceof ArtistSearchActivity)
                     ((ArtistSearchActivity)getActivity()).cleanRecentSearches();
