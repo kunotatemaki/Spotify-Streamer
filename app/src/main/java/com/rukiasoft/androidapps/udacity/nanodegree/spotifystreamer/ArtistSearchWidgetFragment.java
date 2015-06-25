@@ -1,5 +1,7 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.animation.Animator;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.SearchManager;
@@ -11,25 +13,18 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
-
-import butterknife.ButterKnife;
-import butterknife.InjectView;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 
 public class ArtistSearchWidgetFragment extends Fragment {
 
-    @InjectView(R.id.toolbar_search) Toolbar toolbar;
-    @InjectView(R.id.searchview_widget)
-    SearchView searchView;
-
-    private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
-
+    private static final String TAG = "SearchWidgetFragment";
+    private static final String IS_ANIMATED = "animated";
+    Boolean animated = false;
 
     public ArtistSearchWidgetFragment() {
         // Required empty public constructor
@@ -38,7 +33,6 @@ public class ArtistSearchWidgetFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        LogHelper.d(TAG, "onAttach");
         //Change appearance of statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
@@ -60,17 +54,16 @@ public class ArtistSearchWidgetFragment extends Fragment {
 
     }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if(savedInstanceState != null){
+            animated = savedInstanceState.getBoolean(IS_ANIMATED);
+        }
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
-        ButterKnife.inject(this, view);
+        final Toolbar toolbar = (Toolbar) view.findViewById(R.id.toolbar_search);
         if(null != toolbar) {
             ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
 
@@ -79,7 +72,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
                 ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
         }
-
+        SearchView searchView = (SearchView) view.findViewById(R.id.searchview_widget);
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         // Assumes current activity is the searchable activity
@@ -87,8 +80,48 @@ public class ArtistSearchWidgetFragment extends Fragment {
         searchView.setIconified(false); // Do not iconify the widget; expand it at the first time
         searchView.setSubmitButtonEnabled(true);
         searchView.setQueryRefinementEnabled(true);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            view.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if(!animated){
+                        animated = true;
+                    }else{
+                        toolbar.setVisibility(View.VISIBLE);
+                        return;
+                    }
+                    v.removeOnLayoutChangeListener(this);
+                    // get the top right corner of the view for the clipping circle
+                    int cx = toolbar.getLeft() + toolbar.getRight();
+                    int cy = toolbar.getTop() + toolbar.getBottom();
+
+                    Animator animator = ViewAnimationUtils.createCircularReveal(
+                            toolbar,
+                            cx,
+                            cy,
+                            0,
+                            (float) Math.hypot(toolbar.getWidth(), toolbar.getHeight()));
+
+                    // Set a natural ease-in/ease-out interpolator.
+                    animator.setInterpolator(new AccelerateDecelerateInterpolator());
+
+                    // make the view visible and start the animation
+                    toolbar.setVisibility(View.VISIBLE);
+                    animator.start();
+                }
+            });
+        }
         return view;
     }
 
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(IS_ANIMATED, true);
+        super.onSaveInstanceState(outState);
+
+    }
 
 }
