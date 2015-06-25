@@ -1,7 +1,6 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
@@ -117,38 +116,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onDestroyView(){
 
-        super.onDestroyView();
-        final Toolbar toolbar = (Toolbar) getView().findViewById(R.id.toolbar_search);
-        int cx = toolbar.getLeft() + toolbar.getRight();
-        int cy = toolbar.getTop() + toolbar.getBottom();
-
-// get the initial radius for the clipping circle
-        float initialRadius = (float) Math.hypot(toolbar.getWidth(), toolbar.getHeight());
-
-// start the animation
-        Animator animator = ViewAnimationUtils.createCircularReveal(
-                toolbar,
-                cx,
-                cy,
-                (float) Math.hypot(toolbar.getWidth(), toolbar.getHeight()),
-                0);
-
-        // Set a natural ease-in/ease-out interpolator.
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-
-        // make the view invisible when the animation is done
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                toolbar.setVisibility(View.INVISIBLE);
-            }
-        });
-        animator.start();
-    }
     @Override
     public void onSaveInstanceState(Bundle outState) {
         outState.putBoolean(IS_ANIMATED, true);
