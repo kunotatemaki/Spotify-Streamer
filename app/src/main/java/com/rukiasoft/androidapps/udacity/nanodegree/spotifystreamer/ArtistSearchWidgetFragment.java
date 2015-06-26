@@ -61,7 +61,6 @@ public class ArtistSearchWidgetFragment extends Fragment {
         if(getActivity() instanceof ArtistSearchActivity){
             ((ArtistSearchActivity) getActivity()).setToolbarInActivity(null, true, true, false);
             ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
-            getActivity().invalidateOptionsMenu();
         }
         super.onDetach();
 

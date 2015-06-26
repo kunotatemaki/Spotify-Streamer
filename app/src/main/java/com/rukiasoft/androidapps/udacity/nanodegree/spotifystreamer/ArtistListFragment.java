@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +45,8 @@ public class ArtistListFragment extends Fragment {
 
     @InjectView(R.id.toolbar_artist_list) Toolbar toolbar_artist_list;
     @InjectView(R.id.artist_list) RecyclerView recView;
+    @InjectView(R.id.swipe_container_artist_list)
+    SwipeRefreshLayout refreshLayoutArtistListFragment;
 
     public ArtistListFragment() {
     }
@@ -122,6 +125,12 @@ public class ArtistListFragment extends Fragment {
             }
         });
 
+        //configure swipeRefreshLayout
+        Utilities.setRefreshLayoutColorScheme(refreshLayoutArtistListFragment, getResources().getColor(R.color.color_scheme_1_1),
+                getResources().getColor(R.color.color_scheme_1_2),
+                getResources().getColor(R.color.color_scheme_1_3),
+                getResources().getColor(R.color.color_scheme_1_4));
+        Utilities.disableRefreshLayoutSwipe(refreshLayoutArtistListFragment);
         return view;
     }
 
@@ -180,6 +189,10 @@ public class ArtistListFragment extends Fragment {
     public void searchArtist(String query){
         //search artist with spotify wrapper
         String parsedQuery = query.replace(" ", "+");
+
+        //show indefiniteProgressBar
+        Utilities.showRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
+
         spotify.searchArtists(parsedQuery, new Callback<ArtistsPager>() {
 
             @Override
@@ -192,6 +205,8 @@ public class ArtistListFragment extends Fragment {
 
                         @Override
                         public void run() {
+                            //hide indefiniteProgressBar
+                            Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
                             Utilities.showToast(getActivity(), getResources().getString(R.string.no_artist_found));
                         }
                     });
@@ -217,6 +232,8 @@ public class ArtistListFragment extends Fragment {
 
                     @Override
                     public void run() {
+                        //hide indefiniteProgressBar
+                        Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
                         setArtists(artists);
                     }
                 });
@@ -230,6 +247,8 @@ public class ArtistListFragment extends Fragment {
 
                     @Override
                     public void run() {
+                        //hide indefiniteProgressBar
+                        Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
                         Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
                     }
                 });

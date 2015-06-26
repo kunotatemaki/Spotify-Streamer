@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -15,6 +16,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 public class ArtistSearchActivity extends AppCompatActivity implements ArtistListFragment.ArtistListSearchClickListener{
 
@@ -30,12 +34,14 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
 
     public void setShowSearchIcon(Boolean showSearchIcon) {
         this.showSearchIcon = showSearchIcon;
+        invalidateOptionsMenu();
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_list);
+        ButterKnife.inject(this);
 
         FragmentManager fm = getFragmentManager();
         retainedFragment = fm.findFragmentByTag("search_fragment");
@@ -54,6 +60,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
             // Restore recreated or not
             mActivityRecreated = savedInstanceState.getBoolean(STATE_ACTIVITY);
         }
+
 
     }
 
@@ -171,7 +178,6 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
         fm.executePendingTransactions();
 
         setShowSearchIcon(false);
-        invalidateOptionsMenu();
 
     }
 
@@ -201,4 +207,6 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
             }
         }
     }
+
+
 }
