@@ -11,8 +11,6 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilit
 
 public class TopTracksActivity extends AppCompatActivity {
 
-    private Fragment retainedFragment;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +26,7 @@ public class TopTracksActivity extends AppCompatActivity {
 
 
         FragmentManager fm = getFragmentManager();
-        retainedFragment = fm.findFragmentByTag("top_track_fragment");
+        Fragment retainedFragment = fm.findFragmentByTag("top_track_fragment");
 
         // create the fragment and data the first time
         if (retainedFragment == null) {
@@ -40,7 +38,7 @@ public class TopTracksActivity extends AppCompatActivity {
         fm.executePendingTransactions();
 
         if(retainedFragment instanceof TopTracksFragment)
-            ((TopTracksFragment)retainedFragment).setArtist(artist);
+            ((TopTracksFragment) retainedFragment).setArtist(artist);
 
     }
 

@@ -31,7 +31,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
     private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
     private static final String IS_ANIMATED = "animated";
     Boolean animated = false;
-    @InjectView(R.id.toolbar_search) Toolbar toolbar;
+    @InjectView(R.id.toolbar_search) Toolbar toolbar_search;
 
     public ArtistSearchWidgetFragment() {
         // Required empty public constructor
@@ -57,6 +57,12 @@ public class ArtistSearchWidgetFragment extends Fragment {
             window.setStatusBarColor(getResources().getColor(R.color.primary_dark));
         }
         Utilities.hideSoftKeyboard(getActivity());
+        //get the previous toolbar (ArtistListFragment) back
+        if(getActivity() instanceof ArtistSearchActivity){
+            ((ArtistSearchActivity) getActivity()).setToolbarInActivity(null, true, true, false);
+            ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
+            getActivity().invalidateOptionsMenu();
+        }
         super.onDetach();
 
     }
@@ -71,12 +77,9 @@ public class ArtistSearchWidgetFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
         ButterKnife.inject(this, view);
-        if(null != toolbar) {
-            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-
-            if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+        if(null != toolbar_search) {
+            if(getActivity() instanceof ArtistSearchActivity){
+                ((ArtistSearchActivity) getActivity()).setToolbarInActivity(toolbar_search, true, false, false);
             }
         }
         SearchView searchView = (SearchView) view.findViewById(R.id.searchview_widget);
@@ -96,26 +99,26 @@ public class ArtistSearchWidgetFragment extends Fragment {
                     if(!animated){
                         animated = true;
                     }else{
-                        toolbar.setVisibility(View.VISIBLE);
+                        toolbar_search.setVisibility(View.VISIBLE);
                         return;
                     }
                     v.removeOnLayoutChangeListener(this);
                     // get the top right corner of the view for the clipping circle
-                    int cx = toolbar.getLeft() + toolbar.getRight();
-                    int cy = toolbar.getTop() + toolbar.getBottom();
+                    int cx = toolbar_search.getLeft() + toolbar_search.getRight();
+                    int cy = toolbar_search.getTop() + toolbar_search.getBottom();
 
                     Animator animator = ViewAnimationUtils.createCircularReveal(
-                            toolbar,
+                            toolbar_search,
                             cx,
                             cy,
                             0,
-                            (float) Math.hypot(toolbar.getWidth(), toolbar.getHeight()));
+                            (float) Math.hypot(toolbar_search.getWidth(), toolbar_search.getHeight()));
 
                     // Set a natural ease-in/ease-out interpolator.
                     animator.setInterpolator(new AccelerateDecelerateInterpolator());
 
                     // make the view visible and start the animation
-                    toolbar.setVisibility(View.VISIBLE);
+                    toolbar_search.setVisibility(View.VISIBLE);
                     animator.start();
                 }
             });

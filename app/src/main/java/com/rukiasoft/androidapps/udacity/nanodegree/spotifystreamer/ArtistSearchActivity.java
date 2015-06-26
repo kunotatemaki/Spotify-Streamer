@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -21,6 +22,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
     boolean mActivityRecreated = false;
     static final String STATE_ACTIVITY = "first_created";
     private Boolean showSearchIcon = true;
+    private android.support.v7.widget.Toolbar mToolbar;
 
     public Boolean getShowSearchIcon() {
         return showSearchIcon;
@@ -57,7 +59,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
 
     /**
      * handles the SearchView results
-     * @param intent
+     * @param intent intent to handle
      */
     @Override
     protected void onNewIntent(Intent intent) {
@@ -85,8 +87,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save activity recreated
-        mActivityRecreated = true;
-        savedInstanceState.putBoolean(STATE_ACTIVITY, mActivityRecreated);
+        savedInstanceState.putBoolean(STATE_ACTIVITY, true);
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -168,6 +169,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
+
         setShowSearchIcon(false);
         invalidateOptionsMenu();
 
@@ -178,8 +180,25 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
      */
     private Boolean hideSearchWidget(){
 
-        Boolean ret = getFragmentManager().popBackStackImmediate();
+        return getFragmentManager().popBackStackImmediate();
+    }
 
-        return ret;
+    /**
+     * Set the toolbar included in the fragment layout as the actionbar
+     * @param toolbar toolbar to be added as actionbar. If null, the toolbar variable stored will be set
+     * @param backIcon  true if back arrow is wanted
+     * @param showTitle true if app name has to be showed
+     * @param save true if we want to store toolbar as the toolbar variable stored
+     */
+    public void setToolbarInActivity(Toolbar toolbar, Boolean backIcon, Boolean showTitle, Boolean save){
+        if(save) mToolbar = toolbar;
+        Toolbar localToolbar = toolbar == null? mToolbar : toolbar;
+        if(localToolbar != null){
+            setSupportActionBar(localToolbar);
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
+                getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
+            }
+        }
     }
 }

@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -82,12 +81,9 @@ public class ArtistListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.inject(this, view);
         if(null != toolbar_artist_list) {
-            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar_artist_list);
-
-            if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            if(getActivity() instanceof ArtistSearchActivity){
+                ((ArtistSearchActivity) getActivity()).setToolbarInActivity(toolbar_artist_list, true, true, true);
             }
-
         }
 
         if(artistListAdapter == null) {
@@ -113,9 +109,9 @@ public class ArtistListFragment extends Fragment {
 
                             // Now we provide a list of Pair items which contain the view we can transitioning
                             // from, and the name of the view it is transitioning to, in the launched activity
-                            new Pair<View, String>(v.findViewById(R.id.artist_item_image),
+                            new Pair<>(v.findViewById(R.id.artist_item_image),
                                     getResources().getString(R.string.artist_name_imageview)),
-                            new Pair<View, String>(v.findViewById(R.id.artist_item_name),
+                            new Pair<>(v.findViewById(R.id.artist_item_name),
                                     getResources().getString(R.string.artist_name_textview)),
                             new Pair<View, String>(toolbar_artist_list,
                                     getResources().getString(R.string.toolbar_toptracks_view)));
@@ -153,10 +149,6 @@ public class ArtistListFragment extends Fragment {
         switch(id){
             case R.id.action_search:
                 mListener.onSearchClick();
-                /*if(getActivity() instanceof ArtistSearchActivity){
-                    ((ArtistSearchActivity) getActivity()).setShowSearchIcon(false);
-                    getActivity().invalidateOptionsMenu();
-                }*/
                 return true;
             case R.id.action_delete_recent_searches:
                 if(getActivity() instanceof ArtistSearchActivity)
@@ -245,15 +237,7 @@ public class ArtistListFragment extends Fragment {
         });
     }
 
-@Override
-public void onResume(){
-    if(getActivity() instanceof ArtistSearchActivity){
-        ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
-        getActivity().invalidateOptionsMenu();
-    }
 
-    super.onResume();
-}
     public interface ArtistListSearchClickListener {
         void onSearchClick();
     }
