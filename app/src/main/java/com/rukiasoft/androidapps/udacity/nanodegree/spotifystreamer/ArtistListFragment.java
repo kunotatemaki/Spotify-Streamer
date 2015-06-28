@@ -1,14 +1,12 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +34,7 @@ import retrofit.client.Response;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class ArtistListFragment extends Fragment {
+public class ArtistListFragment extends RefreshFragment {
 
     private ArtistListAdapter artistListAdapter;
     private SpotifyService spotify;
@@ -45,8 +43,8 @@ public class ArtistListFragment extends Fragment {
 
     @InjectView(R.id.toolbar_artist_list) Toolbar toolbar_artist_list;
     @InjectView(R.id.artist_list) RecyclerView recView;
-    @InjectView(R.id.swipe_container_artist_list)
-    SwipeRefreshLayout refreshLayoutArtistListFragment;
+    //@InjectView(R.id.swipe_container_artist_list)
+    //SwipeRefreshLayout refreshLayoutArtistListFragment;
 
     public ArtistListFragment() {
     }
@@ -125,12 +123,15 @@ public class ArtistListFragment extends Fragment {
             }
         });
 
-        //configure swipeRefreshLayout
+        /*//configure swipeRefreshLayout
         Utilities.setRefreshLayoutColorScheme(refreshLayoutArtistListFragment, getResources().getColor(R.color.color_scheme_1_1),
                 getResources().getColor(R.color.color_scheme_1_2),
                 getResources().getColor(R.color.color_scheme_1_3),
                 getResources().getColor(R.color.color_scheme_1_4));
-        Utilities.disableRefreshLayoutSwipe(refreshLayoutArtistListFragment);
+        Utilities.disableRefreshLayoutSwipe(refreshLayoutArtistListFragment);*/
+        super.onCreateView(inflater, container, savedInstanceState);
+        disableRefreshLayoutSwipe();
+
         return view;
     }
 
@@ -191,7 +192,7 @@ public class ArtistListFragment extends Fragment {
         String parsedQuery = query.replace(" ", "+");
 
         //show indefiniteProgressBar
-        Utilities.showRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
+        showRefreshLayoutSwipeProgress();
 
         spotify.searchArtists(parsedQuery, new Callback<ArtistsPager>() {
 
@@ -206,7 +207,7 @@ public class ArtistListFragment extends Fragment {
                         @Override
                         public void run() {
                             //hide indefiniteProgressBar
-                            Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
+                            hideRefreshLayoutSwipeProgress();
                             Utilities.showToast(getActivity(), getResources().getString(R.string.no_artist_found));
                         }
                     });
@@ -233,7 +234,7 @@ public class ArtistListFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
+                        hideRefreshLayoutSwipeProgress();
                         setArtists(artists);
                     }
                 });
@@ -248,7 +249,7 @@ public class ArtistListFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutArtistListFragment);
+                        hideRefreshLayoutSwipeProgress();
                         Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
                     }
                 });

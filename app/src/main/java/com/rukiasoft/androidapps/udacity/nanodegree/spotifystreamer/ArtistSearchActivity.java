@@ -8,25 +8,20 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
-public class ArtistSearchActivity extends AppCompatActivity implements ArtistListFragment.ArtistListSearchClickListener{
+public class ArtistSearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener{
 
     private Fragment retainedFragment;
     boolean mActivityRecreated = false;
     static final String STATE_ACTIVITY = "first_created";
     private Boolean showSearchIcon = true;
-    private android.support.v7.widget.Toolbar mToolbar;
 
     public Boolean getShowSearchIcon() {
         return showSearchIcon;
@@ -38,7 +33,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_list);
         ButterKnife.inject(this);
@@ -189,24 +184,7 @@ public class ArtistSearchActivity extends AppCompatActivity implements ArtistLis
         return getFragmentManager().popBackStackImmediate();
     }
 
-    /**
-     * Set the toolbar included in the fragment layout as the actionbar
-     * @param toolbar toolbar to be added as actionbar. If null, the toolbar variable stored will be set
-     * @param backIcon  true if back arrow is wanted
-     * @param showTitle true if app name has to be showed
-     * @param save true if we want to store toolbar as the toolbar variable stored
-     */
-    public void setToolbarInActivity(Toolbar toolbar, Boolean backIcon, Boolean showTitle, Boolean save){
-        if(save) mToolbar = toolbar;
-        Toolbar localToolbar = toolbar == null? mToolbar : toolbar;
-        if(localToolbar != null){
-            setSupportActionBar(localToolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
-                getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
-            }
-        }
-    }
+
 
 
 }

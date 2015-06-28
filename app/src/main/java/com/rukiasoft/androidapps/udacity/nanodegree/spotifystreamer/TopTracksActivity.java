@@ -3,16 +3,15 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
-public class TopTracksActivity extends AppCompatActivity {
+public class TopTracksActivity extends MediaControlsActivity {
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_top_tracks);
 

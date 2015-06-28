@@ -1,11 +1,9 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
-import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,7 +36,7 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class TopTracksFragment extends Fragment {
+public class TopTracksFragment extends RefreshFragment {
 
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
@@ -50,8 +48,6 @@ public class TopTracksFragment extends Fragment {
     @InjectView(R.id.toolbar_subtitle) TextView toolbarSubtitle;
     @InjectView(R.id.artist_item_image) ImageView artistItemImage;
     @InjectView(R.id.tracks_list) RecyclerView trackList;
-    @InjectView(R.id.swipe_container_top_tracks_list)
-    SwipeRefreshLayout refreshLayoutTopTracksListFragment;
 
     public TopTracksFragment() {
     }
@@ -125,12 +121,13 @@ public class TopTracksFragment extends Fragment {
         });
         searchTopTracks(artist.getArtistId());
 
-        //configure swipeRefreshLayout
+        /*//configure swipeRefreshLayout
         Utilities.setRefreshLayoutColorScheme(refreshLayoutTopTracksListFragment, getResources().getColor(R.color.color_scheme_1_1),
                 getResources().getColor(R.color.color_scheme_1_2),
                 getResources().getColor(R.color.color_scheme_1_3),
                 getResources().getColor(R.color.color_scheme_1_4));
-        Utilities.disableRefreshLayoutSwipe(refreshLayoutTopTracksListFragment);
+        Utilities.disableRefreshLayoutSwipe(refreshLayoutTopTracksListFragment);*/
+        disableRefreshLayoutSwipe();
         return view;
     }
 
@@ -160,7 +157,7 @@ public class TopTracksFragment extends Fragment {
         map.put("country", Locale.getDefault().getCountry());
 
         //show indefiniteProgressBar
-        Utilities.showRefreshLayoutSwipeProgress(refreshLayoutTopTracksListFragment);
+        showRefreshLayoutSwipeProgress();
 
         spotify.getArtistTopTrack(id, map, new Callback<Tracks>() {
 
@@ -189,7 +186,7 @@ public class TopTracksFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutTopTracksListFragment);
+                        hideRefreshLayoutSwipeProgress();
                         setTopTracks(trackItems);
                     }
                 });
@@ -199,7 +196,7 @@ public class TopTracksFragment extends Fragment {
             public void failure(RetrofitError error) {
                 //TODO - different messages for different type of errors??
                 //hide indefiniteProgressBar
-                Utilities.hideRefreshLayoutSwipeProgress(refreshLayoutTopTracksListFragment);
+                hideRefreshLayoutSwipeProgress();
                 Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
             }
         });

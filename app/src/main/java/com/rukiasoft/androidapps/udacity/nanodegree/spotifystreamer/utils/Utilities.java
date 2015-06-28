@@ -51,41 +51,6 @@ public class Utilities {
         }
     }
 
-    /**
-     * It shows the SwipeRefreshLayout progress
-     */
-    public static void showRefreshLayoutSwipeProgress(SwipeRefreshLayout refreshLayout) {
-        refreshLayout.setRefreshing(true);
-    }
-
-    /**
-     * It shows the SwipeRefreshLayout progress
-     */
-    public static void hideRefreshLayoutSwipeProgress(SwipeRefreshLayout refreshLayout) {
-        refreshLayout.setRefreshing(false);
-    }
-
-    /**
-     * Enables swipe gesture
-     */
-    public static void enableRefreshLayoutSwipe(SwipeRefreshLayout refreshLayout) {
-        refreshLayout.setEnabled(true);
-    }
-
-    /**
-     * Disables swipe gesture. It prevents manual gestures but keeps the option tu show
-     * refreshing programatically.
-     */
-    public static void disableRefreshLayoutSwipe(SwipeRefreshLayout refreshLayout) {
-        refreshLayout.setEnabled(false);
-    }
-
-    /**
-     * Set colors of refreshlayout
-     */
-    public static void setRefreshLayoutColorScheme(SwipeRefreshLayout refreshLayout, int colorRes1, int colorRes2, int colorRes3, int colorRes4) {
-        refreshLayout.setColorSchemeColors(colorRes1, colorRes2, colorRes3, colorRes4);
-    }
 
 
 }
