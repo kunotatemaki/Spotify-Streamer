@@ -59,7 +59,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         //get the previous toolbar (ArtistListFragment) back
         if(getActivity() instanceof ToolbarActivity){
             ((ToolbarActivity) getActivity()).restorePreviousToolbar(true, true);
-            ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
+            ((SearchActivity) getActivity()).setShowSearchIcon(true);
         }
         super.onDetach();
 
@@ -76,8 +76,8 @@ public class ArtistSearchWidgetFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
         ButterKnife.inject(this, view);
         if(null != toolbar_search) {
-            if(getActivity() instanceof ArtistSearchActivity){
-                ((ArtistSearchActivity) getActivity()).setToolbarInActivity(toolbar_search, true, false, false);
+            if(getActivity() instanceof SearchActivity){
+                ((SearchActivity) getActivity()).setToolbarInActivity(toolbar_search, true, false, false);
             }
         }
         SearchView searchView = (SearchView) view.findViewById(R.id.searchview_widget);

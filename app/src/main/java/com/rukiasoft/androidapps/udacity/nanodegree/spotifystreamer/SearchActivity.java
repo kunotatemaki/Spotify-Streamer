@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.transition.TransitionInflater;
 import android.view.View;
@@ -16,8 +18,8 @@ import java.util.List;
 
 import butterknife.ButterKnife;
 
-public class ArtistSearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
-ArtistListFragment.ArtistListFragmentSelectionListener{
+public class SearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
+ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTracksFragmentSelectionListener{
 
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
@@ -203,6 +205,30 @@ ArtistListFragment.ArtistListFragmentSelectionListener{
                     .replace(R.id.activity_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null);
             ft.commit();
+        }
+    }
+
+    @Override
+    public void onTopTracksFragmentItemSelected(ListItem item, List<View> sharedElements) {
+
+        Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("artist_item", item);
+        topTracksIntent.putExtras(bundle);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+
+                    // Now we provide a list of Pair items which contain the view we can transitioning
+                    // from, and the name of the view it is transitioning to, in the launched activity
+                    new Pair<>(sharedElements.get(0),
+                            getResources().getString(R.string.track_name_imageview)),
+                    new Pair<>(sharedElements.get(1),
+                            getResources().getString(R.string.song_name_textview)),
+                    new Pair<View, String>(sharedElements.get(2),
+                            getResources().getString(R.string.album_name_textview)));
+            startActivity(topTracksIntent, activityOptions.toBundle());
+        } else {
+            startActivity(topTracksIntent);
         }
     }
 }

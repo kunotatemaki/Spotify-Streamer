@@ -121,7 +121,14 @@ public class TopTracksFragment extends RefreshFragment {
             @Override
             public void onClick(View v) {
                 int position = trackList.getChildAdapterPosition(v);
-                //TODO show media player in STAGE 2
+                ListItem item = tracksListAdapter.getItem(position);
+                List<View> sharedViews = new ArrayList<>();
+                sharedViews.add(v.findViewById(R.id.track_item_image));
+                sharedViews.add(v.findViewById(R.id.track_item_song));
+                sharedViews.add(v.findViewById(R.id.track_item_album));
+                mCallback.onTopTracksFragmentItemSelected(item, sharedViews);
+
+                //TODO pasar toda la lista
 
             }
         });
@@ -301,12 +308,12 @@ public class TopTracksFragment extends RefreshFragment {
     public void onActivityCreated(Bundle state) {
         super.onActivityCreated(state);
 
-        /*try {
+        try {
             mCallback = (TopTracksFragmentSelectionListener) getActivity();
         } catch (ClassCastException e) {
             throw new ClassCastException(getActivity().toString()
                     + " must implement SelectionListener");
-        }*/
+        }
 
     }
 }

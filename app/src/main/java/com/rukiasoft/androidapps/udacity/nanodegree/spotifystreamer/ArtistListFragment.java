@@ -86,8 +86,8 @@ public class ArtistListFragment extends RefreshFragment {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.inject(this, view);
         if(null != toolbar_artist_list) {
-            if(getActivity() instanceof ArtistSearchActivity){
-                ((ArtistSearchActivity) getActivity()).setToolbarInActivity(toolbar_artist_list, true, true, true);
+            if(getActivity() instanceof SearchActivity){
+                ((SearchActivity) getActivity()).setToolbarInActivity(toolbar_artist_list, true, true, true);
             }
         }
 
@@ -166,8 +166,8 @@ public class ArtistListFragment extends RefreshFragment {
                 mListener.onSearchClick();
                 return true;
             case R.id.action_delete_recent_searches:
-                if(getActivity() instanceof ArtistSearchActivity)
-                    ((ArtistSearchActivity)getActivity()).cleanRecentSearches();
+                if(getActivity() instanceof SearchActivity)
+                    ((SearchActivity)getActivity()).cleanRecentSearches();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -179,8 +179,8 @@ public class ArtistListFragment extends RefreshFragment {
         // If the nav drawer is open, hide action items related to the content view
         MenuItem searchIcon = menu.findItem(R.id.action_search);
 
-        if(getActivity() instanceof ArtistSearchActivity){
-            Boolean showIcon = ((ArtistSearchActivity) getActivity()).getShowSearchIcon();
+        if(getActivity() instanceof SearchActivity){
+            Boolean showIcon = ((SearchActivity) getActivity()).getShowSearchIcon();
             searchIcon.setVisible(showIcon);
         }
 
