@@ -3,6 +3,7 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.media.MediaPlayer;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -11,15 +12,13 @@ import android.content.Context;
  * TODO: Customize class - update intent actions, extra parameters and static
  * helper methods.
  */
-public class MusicIntentService extends IntentService {
-    // TODO: Rename actions, choose action names that describe tasks that this
-    // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_FOO = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.action.FOO";
-    private static final String ACTION_BAZ = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.action.BAZ";
+public class MusicIntentService extends IntentService  implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener {
 
-    // TODO: Rename parameters
-    private static final String EXTRA_PARAM1 = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.extra.PARAM1";
-    private static final String EXTRA_PARAM2 = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.extra.PARAM2";
+    private static final String ACTION_PLAY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.action.PLAY";
+
+    private static final String LIST_PARAM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.extra.LIST";
+    private static final String TRACK_PARAM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.extra.SELECTED_TRACK";
 
     /**
      * Starts this service to perform action Foo with the given parameters. If
@@ -36,20 +35,7 @@ public class MusicIntentService extends IntentService {
         context.startService(intent);
     }
 
-    /**
-     * Starts this service to perform action Baz with the given parameters. If
-     * the service is already performing a task this action will be queued.
-     *
-     * @see IntentService
-     */
-    // TODO: Customize helper method
-    public static void startActionBaz(Context context, String param1, String param2) {
-        Intent intent = new Intent(context, MusicIntentService.class);
-        intent.setAction(ACTION_BAZ);
-        intent.putExtra(EXTRA_PARAM1, param1);
-        intent.putExtra(EXTRA_PARAM2, param2);
-        context.startService(intent);
-    }
+
 
     public MusicIntentService() {
         super("MusicIntentService");
@@ -89,3 +75,7 @@ public class MusicIntentService extends IntentService {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
+
+
+//http://stackoverflow.com/questions/17742477/mediaplayer-progress-update-to-seekbar-not-smooth
+//http://stackoverflow.com/questions/9088315/start-intentservice-from-activity-and-refresh-activity-when-intentservice-is-fin

@@ -8,7 +8,6 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -58,8 +57,8 @@ public class ArtistSearchWidgetFragment extends Fragment {
         }
         Utilities.hideSoftKeyboard(getActivity());
         //get the previous toolbar (ArtistListFragment) back
-        if(getActivity() instanceof ArtistSearchActivity){
-            ((ArtistSearchActivity) getActivity()).setToolbarInActivity(null, true, true, false);
+        if(getActivity() instanceof ToolbarActivity){
+            ((ToolbarActivity) getActivity()).restorePreviousToolbar(true, true);
             ((ArtistSearchActivity) getActivity()).setShowSearchIcon(true);
         }
         super.onDetach();

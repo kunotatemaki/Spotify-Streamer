@@ -2,7 +2,6 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
@@ -15,8 +14,6 @@ public class Utilities {
     /**
      * Show Toas. If a Toast is shown, replaces the text instead of creating a new one. In case of multiple Toast
      * in a row, only one with several texts will be shown, instead of a lot of them sequentially;
-     * @param context
-     * @param text
      */
     public static void showToast(final Context context, final String text) {
         //only show if context is an instance of Activity
@@ -40,7 +37,6 @@ public class Utilities {
 
     /**
      * Force to hide keyboard if showing
-     * @param activity
      */
     public static void hideSoftKeyboard(Activity activity) {
         try {

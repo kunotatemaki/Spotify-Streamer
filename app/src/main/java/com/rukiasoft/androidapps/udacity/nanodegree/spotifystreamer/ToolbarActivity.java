@@ -15,6 +15,7 @@
  */
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -34,16 +35,28 @@ public abstract class ToolbarActivity extends AppCompatActivity{
 
     /**
      * Set the toolbar included in the fragment layout as the actionbar
-     * @param toolbar toolbar to be added as actionbar. If null, the toolbar variable stored will be set
+     * @param toolbar toolbar to be added as actionbar
      * @param backIcon  true if back arrow is wanted
      * @param showTitle true if app name has to be showed
      * @param save true if we want to store toolbar as the toolbar variable stored
      */
-    public void setToolbarInActivity(Toolbar toolbar, Boolean backIcon, Boolean showTitle, Boolean save){
+    public void setToolbarInActivity(@NonNull Toolbar toolbar, Boolean backIcon, Boolean showTitle, Boolean save){
         if(save) mToolbar = toolbar;
-        Toolbar localToolbar = toolbar == null? mToolbar : toolbar;
-        if(localToolbar != null){
-            setSupportActionBar(localToolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
+            getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
+        }
+    }
+
+    /**
+     * Restore the saved actionbar
+     * @param backIcon true if back arrow is wanted
+     * @param showTitle true if app name has to be showed
+     */
+    public void restorePreviousToolbar(Boolean backIcon, Boolean showTitle){
+        if(mToolbar != null){
+            setSupportActionBar(mToolbar);
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
                 getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
