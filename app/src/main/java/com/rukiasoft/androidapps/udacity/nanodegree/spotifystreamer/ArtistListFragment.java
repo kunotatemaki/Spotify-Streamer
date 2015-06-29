@@ -2,11 +2,8 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -49,6 +46,12 @@ public class ArtistListFragment extends RefreshFragment {
     public ArtistListFragment() {
     }
 
+    public interface ArtistListFragmentSelectionListener {
+        void onArtistListFragmentItemSelected(ListItem item, List<View> sharedElements);
+    }
+
+    private ArtistListFragmentSelectionListener mCallback;
+
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -56,6 +59,7 @@ public class ArtistListFragment extends RefreshFragment {
         setHasOptionsMenu(true);
         SpotifyApi api = new SpotifyApi();
         spotify = api.getService();
+
 
     }
 
@@ -99,8 +103,15 @@ public class ArtistListFragment extends RefreshFragment {
         artistListAdapter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Start top track list activity
                 int position = recView.getChildAdapterPosition(v);
+                ListItem item = artistListAdapter.getItem(position);
+                List<View> sharedViews = new ArrayList<>();
+                sharedViews.add(v.findViewById(R.id.artist_item_image));
+                sharedViews.add(v.findViewById(R.id.artist_item_name));
+                sharedViews.add(toolbar_artist_list);
+                mCallback.onArtistListFragmentItemSelected(item, sharedViews);
+                //Start top track list activity
+                /*int position = recView.getChildAdapterPosition(v);
                 Intent topTracksIntent = new Intent(getActivity(), TopTracksActivity.class);
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("artist_item", artistListAdapter.getItem(position));
@@ -119,16 +130,10 @@ public class ArtistListFragment extends RefreshFragment {
                     startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST, activityOptions.toBundle());
                 } else {
                     startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST);
-                }
+                }*/
             }
         });
 
-        /*//configure swipeRefreshLayout
-        Utilities.setRefreshLayoutColorScheme(refreshLayoutArtistListFragment, getResources().getColor(R.color.color_scheme_1_1),
-                getResources().getColor(R.color.color_scheme_1_2),
-                getResources().getColor(R.color.color_scheme_1_3),
-                getResources().getColor(R.color.color_scheme_1_4));
-        Utilities.disableRefreshLayoutSwipe(refreshLayoutArtistListFragment);*/
         super.onCreateView(inflater, container, savedInstanceState);
         disableRefreshLayoutSwipe();
 
@@ -139,7 +144,7 @@ public class ArtistListFragment extends RefreshFragment {
      * save the list of artists returned by the search into a local List
      * @param artists list of artists
      */
-    private void setArtists(List<ArtistListItem> artists){
+    private void setArtists(List<ListItem> artists){
 
         artistListAdapter.setItems(artists);
         //go to first position
@@ -179,7 +184,6 @@ public class ArtistListFragment extends RefreshFragment {
             searchIcon.setVisible(showIcon);
         }
 
-
         super.onPrepareOptionsMenu(menu);
     }
 
@@ -198,7 +202,7 @@ public class ArtistListFragment extends RefreshFragment {
 
             @Override
             public void success(ArtistsPager artistsPager, Response response) {
-                final List<ArtistListItem> artists = new ArrayList<>();
+                final List<ListItem> artists = new ArrayList<>();
                 Handler mainHandler = new Handler(getActivity().getMainLooper());
                 if (artistsPager.artists.items.size() == 0) {
                     //no artists, notify it!
@@ -214,7 +218,7 @@ public class ArtistListFragment extends RefreshFragment {
                     return;
                 }
                 for (int i = 0; i < artistsPager.artists.items.size(); i++) {
-                    ArtistListItem item = new ArtistListItem();
+                    ListItem item = new ListItem(ListItem.FLAG_BROWSABLE);
                     item.setArtistId(artistsPager.artists.items.get(i).id);
                     item.setArtistName(artistsPager.artists.items.get(i).name);
                     for (int j = 0; j < artistsPager.artists.items.get(i).images.size(); j++) {
@@ -271,6 +275,19 @@ public class ArtistListFragment extends RefreshFragment {
                 Utilities.showToast(getActivity(), getResources().getString(R.string.error_passing_artist));
             }
         }
+    }
+
+    @Override
+    public void onActivityCreated(Bundle state) {
+        super.onActivityCreated(state);
+
+        try {
+            mCallback = (ArtistListFragmentSelectionListener) getActivity();
+        } catch (ClassCastException e) {
+            throw new ClassCastException(getActivity().toString()
+                    + " must implement SelectionListener");
+        }
+
     }
 
 }

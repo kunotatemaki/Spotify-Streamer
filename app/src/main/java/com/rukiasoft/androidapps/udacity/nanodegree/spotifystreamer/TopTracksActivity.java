@@ -21,7 +21,7 @@ public class TopTracksActivity extends MediaControlsActivity {
             setResult(RESULT_CANCELED);
             finish();
         }
-        ArtistListItem artist = getIntent().getExtras().getParcelable("artist_item");
+        ListItem artist = getIntent().getExtras().getParcelable("artist_item");
 
 
         FragmentManager fm = getFragmentManager();

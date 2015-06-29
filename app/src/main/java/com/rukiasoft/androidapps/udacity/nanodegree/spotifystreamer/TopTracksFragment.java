@@ -40,7 +40,7 @@ public class TopTracksFragment extends RefreshFragment {
 
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
-    private ArtistListItem artist;
+    private ListItem artist;
 
     @InjectView(R.id.toolbar_top_track_list) Toolbar toolbar_top_track_list;
     @InjectView(R.id.toolbar_back_image)
@@ -135,7 +135,7 @@ public class TopTracksFragment extends RefreshFragment {
      * save the list of tracks returned by the search into a local List
      * @param tracks list of tracks
      */
-    private void setTopTracks(List<TrackItem> tracks){
+    private void setTopTracks(List<ListItem> tracks){
 
         tracksListAdapter.setItems(tracks);
         //go to first position
@@ -144,7 +144,7 @@ public class TopTracksFragment extends RefreshFragment {
 
     }
 
-    public void setArtist(ArtistListItem artist){
+    public void setArtist(ListItem artist){
         this.artist = artist;
     }
 
@@ -163,9 +163,9 @@ public class TopTracksFragment extends RefreshFragment {
 
             @Override
             public void success(Tracks tracks, Response response) {
-                final List<TrackItem> trackItems = new ArrayList<>();
+                final List<ListItem> trackItems = new ArrayList<>();
                 for (int i = 0; i < tracks.tracks.size(); i++) {
-                    TrackItem item = new TrackItem();
+                    ListItem item = new ListItem(ListItem.FLAG_PLAYABLE);
                     item.setTrackName(tracks.tracks.get(i).name);
                     item.setAlbumName(tracks.tracks.get(i).album.name);
                     item.setPreviewUrl(tracks.tracks.get(i).preview_url);

@@ -23,7 +23,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
         implements View.OnClickListener {
 
     private View.OnClickListener listener;
-    private List<ArtistListItem> artists;
+    private List<ListItem> artists;
 
 
     public ArtistListAdapter(){
@@ -41,7 +41,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
             context = itemView.getContext();
         }
 
-        public void bindArtist(ArtistListItem item) {
+        public void bindArtist(ListItem item) {
             artistName.setText(item.getArtistName());
             Glide.with(context)
                     .load(item.getArtistPicture())
@@ -51,12 +51,12 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
         }
     }
 
-    public void setItems(List<ArtistListItem> items) {
+    public void setItems(List<ListItem> items) {
         this.artists = items;
         notifyDataSetChanged();
     }
 
-    public ArtistListItem getItem(Integer position){
+    public ListItem getItem(Integer position){
         return artists.get(position);
     }
 
@@ -73,7 +73,7 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
 
     @Override
     public void onBindViewHolder(ArtistViewHolder viewHolder, int pos) {
-        ArtistListItem item = artists.get(pos);
+        ListItem item = artists.get(pos);
 
         viewHolder.bindArtist(item);
     }

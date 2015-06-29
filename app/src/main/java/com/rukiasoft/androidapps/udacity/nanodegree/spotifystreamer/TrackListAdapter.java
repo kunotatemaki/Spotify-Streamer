@@ -23,7 +23,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
         implements View.OnClickListener {
 
     private View.OnClickListener listener;
-    private List<TrackItem> tracks;
+    private List<ListItem> tracks;
 
 
     public TrackListAdapter(){
@@ -42,7 +42,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
             context = itemView.getContext();
         }
 
-        public void bindArtist(TrackItem item) {
+        public void bindArtist(ListItem item) {
             trackName.setText(item.getTrackName());
             albumName.setText(item.getAlbumName());
             Glide.with(context)
@@ -53,12 +53,12 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
         }
     }
 
-    public void setItems(List<TrackItem> items) {
+    public void setItems(List<ListItem> items) {
         this.tracks = items;
         notifyDataSetChanged();
     }
 
-    public TrackItem getItem(Integer position){
+    public ListItem getItem(Integer position){
         return tracks.get(position);
     }
 
@@ -75,7 +75,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
 
     @Override
     public void onBindViewHolder(TrackViewHolder viewHolder, int pos) {
-        TrackItem item = tracks.get(pos);
+        ListItem item = tracks.get(pos);
 
         viewHolder.bindArtist(item);
     }

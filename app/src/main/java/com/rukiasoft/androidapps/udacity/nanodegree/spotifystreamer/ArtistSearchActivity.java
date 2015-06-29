@@ -1,7 +1,7 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,16 +9,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
 import android.support.v7.app.AlertDialog;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.transition.TransitionInflater;
+import android.view.View;
 
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+import java.util.List;
 
 import butterknife.ButterKnife;
 
-public class ArtistSearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener{
+public class ArtistSearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
+ArtistListFragment.ArtistListFragmentSelectionListener{
 
-    private Fragment retainedFragment;
+    private ArtistListFragment artistListFragment;
+    private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
     static final String STATE_ACTIVITY = "first_created";
     private Boolean showSearchIcon = true;
@@ -39,21 +41,21 @@ public class ArtistSearchActivity extends MediaControlsActivity implements Artis
         ButterKnife.inject(this);
 
         FragmentManager fm = getFragmentManager();
-        retainedFragment = fm.findFragmentByTag("search_fragment");
+        artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
 
         // create the fragment and data the first time
-        if (retainedFragment == null) {
+        if (artistListFragment == null) {
             // add the fragment
-            retainedFragment = new ArtistListFragment();
-            fm.beginTransaction().add(R.id.activity_artist_list_container, retainedFragment, "search_fragment").commit();
-
+            artistListFragment = new ArtistListFragment();
+            fm.beginTransaction().add(R.id.activity_artist_list_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
+            fm.executePendingTransactions();
         }
-        fm.executePendingTransactions();
+
 
         //Check if the activity is recreated
         if (savedInstanceState != null) {
-            // Restore recreated or not
-            mActivityRecreated = savedInstanceState.getBoolean(STATE_ACTIVITY);
+            // activity recreated
+            mActivityRecreated = true;
         }
 
 
@@ -81,18 +83,17 @@ public class ArtistSearchActivity extends MediaControlsActivity implements Artis
             //hide SearchView widget
             hideSearchWidget();
             //run search
-            if(retainedFragment instanceof ArtistListFragment)
-                ((ArtistListFragment)retainedFragment).searchArtist(query);
+            artistListFragment.searchArtist(query);
         }
     }
 
-    @Override
+    /*@Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save activity recreated
         savedInstanceState.putBoolean(STATE_ACTIVITY, true);
 
         super.onSaveInstanceState(savedInstanceState);
-    }
+    }*/
 
     @Override
     public void onPostResume(){
@@ -104,27 +105,6 @@ public class ArtistSearchActivity extends MediaControlsActivity implements Artis
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_activity, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch(id){
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_settings:
-                Utilities.showToast(this, getResources().getString(R.string.coming_soon));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     public void onBackPressed(){
@@ -167,7 +147,7 @@ public class ArtistSearchActivity extends MediaControlsActivity implements Artis
         ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
-                .add(R.id.activity_artist_list_container, artistSearchWidgetFragment, "search_widget")
+                .add(R.id.activity_artist_list_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -185,6 +165,43 @@ public class ArtistSearchActivity extends MediaControlsActivity implements Artis
     }
 
 
+    @Override
+    public void onArtistListFragmentItemSelected(ListItem item, List<View> sharedElements) {
+        hideSearchWidget();
+        FragmentManager fm = getFragmentManager();
+        topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
 
+        // create the fragment and data the first time
+        if (topTracksFragment == null) {
+            // add the fragment
+            topTracksFragment = new TopTracksFragment();
+        }
+        topTracksFragment.setArtist(item);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            artistListFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
+            //artistListFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
+
+            // Create new fragment to add (Fragment B)
+
+            topTracksFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
+            //topTracksFragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
+
+            // Add Fragment B
+            FragmentTransaction ft = fm.beginTransaction()
+                    .replace(R.id.activity_artist_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .addToBackStack(null)
+                    .addSharedElement(sharedElements.get(0), getResources().getString(R.string.artist_name_imageview))
+                    .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
+                    .addSharedElement(findViewById(R.id.toolbar_artist_list), getResources().getString(R.string.toolbar_toptracks_view));
+            ft.commit();
+
+        }
+        else {
+            FragmentTransaction ft = fm.beginTransaction()
+                    .replace(R.id.activity_artist_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .addToBackStack(null);
+            ft.commit();
+        }
+    }
 }

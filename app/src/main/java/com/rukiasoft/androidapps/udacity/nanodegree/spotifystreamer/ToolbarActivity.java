@@ -18,8 +18,11 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 
 /**
@@ -31,6 +34,28 @@ public abstract class ToolbarActivity extends AppCompatActivity{
 
     private android.support.v7.widget.Toolbar mToolbar;
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_activity, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch(id){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            case R.id.action_settings:
+                Utilities.showToast(this, getResources().getString(R.string.coming_soon));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 
     /**
