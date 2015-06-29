@@ -8,7 +8,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/activity_artist_list_container"
+        android:id="@+id/activity_list_container"
         android:layout_above="@+id/controls_container">
     </FrameLayout>
     <android.support.v7.widget.CardView

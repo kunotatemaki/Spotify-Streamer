@@ -47,7 +47,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener{
         if (artistListFragment == null) {
             // add the fragment
             artistListFragment = new ArtistListFragment();
-            fm.beginTransaction().add(R.id.activity_artist_list_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
+            fm.beginTransaction().add(R.id.activity_list_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
             fm.executePendingTransactions();
         }
 
@@ -147,7 +147,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener{
         ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
-                .add(R.id.activity_artist_list_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
+                .add(R.id.activity_list_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -189,17 +189,18 @@ ArtistListFragment.ArtistListFragmentSelectionListener{
 
             // Add Fragment B
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.activity_artist_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.activity_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null)
                     .addSharedElement(sharedElements.get(0), getResources().getString(R.string.artist_name_imageview))
                     .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
-                    .addSharedElement(findViewById(R.id.toolbar_artist_list), getResources().getString(R.string.toolbar_toptracks_view));
+                    .addSharedElement(sharedElements.get(2), getResources().getString(R.string.toolbar_toptracks_view));
             ft.commit();
+            //TODO check why it is not working
 
         }
         else {
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.activity_artist_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.activity_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null);
             ft.commit();
         }
