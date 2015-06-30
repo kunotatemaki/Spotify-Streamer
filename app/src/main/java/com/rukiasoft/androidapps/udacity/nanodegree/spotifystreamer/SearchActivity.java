@@ -3,16 +3,21 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.transition.TransitionInflater;
 import android.view.View;
+
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
 import java.util.List;
 
@@ -21,11 +26,13 @@ import butterknife.ButterKnife;
 public class SearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
 ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTracksFragmentSelectionListener{
 
+    private static final String TAG = LogHelper.makeLogTag(SearchActivity.class);
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
     static final String STATE_ACTIVITY = "first_created";
     private Boolean showSearchIcon = true;
+
 
     public Boolean getShowSearchIcon() {
         return showSearchIcon;
@@ -41,6 +48,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_artist_list);
         ButterKnife.inject(this);
+
+
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
@@ -60,7 +69,11 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             mActivityRecreated = true;
         }
 
-
+        //if activity receives list of tracks, it means it is recreated from notification click
+        if(getIntent().hasExtra("list_of_songs")){
+            LogHelper.d(TAG, "tracks");
+            //TODO lanzar el segundo fragment (provisionaaal)
+        }
     }
 
     /**
@@ -209,9 +222,13 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     }
 
     @Override
-    public void onTopTracksFragmentItemSelected(ListItem item, List<View> sharedElements) {
+    public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
 
-        Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
+        musicSrv.setSong(position);
+        musicSrv.setAsForeground();
+        musicSrv.playSong();
+        showPlaybackControls();
+        /*Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("artist_item", item);
         topTracksIntent.putExtras(bundle);
@@ -229,6 +246,19 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             startActivity(topTracksIntent, activityOptions.toBundle());
         } else {
             startActivity(topTracksIntent);
-        }
+        }*/
+    }
+
+
+
+    @Override
+    protected void onDestroy() {
+        //stopService(playIntent);
+        //musicSrv=null;
+        super.onDestroy();
+    }
+
+    public void setTracks(List<ListItem> tracks){
+        if(musicSrv != null) musicSrv.setList(tracks);
     }
 }

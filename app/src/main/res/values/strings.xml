@@ -53,4 +53,8 @@
     <string name="track_name_imageview" translatable="false">track_name_imageview</string>
     <string name="song_name_textview" translatable="false">song_name_textview</string>
     <string name="album_name_textview" translatable="false">album_name_textview</string>
+    <string name="song_no_available">Song not available</string>
+    <string name="title_activity_music_service">MusicServiceActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 </resources>

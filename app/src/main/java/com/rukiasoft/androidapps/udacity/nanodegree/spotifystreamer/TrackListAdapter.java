@@ -25,6 +25,9 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     private View.OnClickListener listener;
     private List<ListItem> tracks;
 
+    public List<ListItem> getTracks() {
+        return tracks;
+    }
 
     public TrackListAdapter(){
     }

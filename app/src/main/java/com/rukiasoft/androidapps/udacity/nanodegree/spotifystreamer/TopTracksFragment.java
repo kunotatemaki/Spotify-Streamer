@@ -50,7 +50,7 @@ public class TopTracksFragment extends RefreshFragment {
     @InjectView(R.id.tracks_list) RecyclerView trackList;
 
     public interface TopTracksFragmentSelectionListener {
-        void onTopTracksFragmentItemSelected(ListItem item, List<View> sharedElements);
+        void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements);
     }
 
     private TopTracksFragmentSelectionListener mCallback;
@@ -126,7 +126,7 @@ public class TopTracksFragment extends RefreshFragment {
                 sharedViews.add(v.findViewById(R.id.track_item_image));
                 sharedViews.add(v.findViewById(R.id.track_item_song));
                 sharedViews.add(v.findViewById(R.id.track_item_album));
-                mCallback.onTopTracksFragmentItemSelected(item, sharedViews);
+                mCallback.onTopTracksFragmentItemSelected(item, position, sharedViews);
 
                 //TODO pasar toda la lista
 
@@ -148,6 +148,9 @@ public class TopTracksFragment extends RefreshFragment {
         //go to first position
         if(trackList != null && trackList.getLayoutManager() != null)
             trackList.getLayoutManager().scrollToPosition(0);
+        //set tracks in service
+        //TODO comprobar la nueva clase de activity
+        ((SearchActivity)getActivity()).setTracks(tracks);
 
     }
 
@@ -217,7 +220,7 @@ public class TopTracksFragment extends RefreshFragment {
             // If we're running on Lollipop and we have added a listener to the shared element
             // transition, load the thumbnail. The listener will load the full-size image when
             // the transition is complete.
-            //loadThumbnail();
+            loadThumbnail();
         } else {
             // If all other cases we should just load the full-size image now
             loadFullSizeImage();
@@ -261,8 +264,8 @@ public class TopTracksFragment extends RefreshFragment {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private boolean addTransitionListener() {
 
-        //final Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
-        final Transition transition = getSharedElementEnterTransition();
+        final Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
+        //final Transition transition = getSharedElementEnterTransition();
 
         if (transition != null) {
             // There is an entering shared element transition so add a listener to it
@@ -315,5 +318,9 @@ public class TopTracksFragment extends RefreshFragment {
                     + " must implement SelectionListener");
         }
 
+    }
+
+    public List<ListItem> getItems(){
+        return tracksListAdapter.getTracks();
     }
 }

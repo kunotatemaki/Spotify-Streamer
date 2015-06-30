@@ -24,7 +24,7 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Networ
 /**
  * Base activity for activities that need to show a playback control fragment when media is playing.
  */
-public abstract class MediaControlsActivity extends ToolbarActivity {
+public abstract class MediaControlsActivity extends MusicServiceActivity {
 
     private static final String TAG = LogHelper.makeLogTag(MediaControlsActivity.class);
 
