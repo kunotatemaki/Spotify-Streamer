@@ -175,7 +175,7 @@ public class TopTracksFragment extends RefreshFragment {
             public void success(Tracks tracks, Response response) {
                 final List<ListItem> trackItems = new ArrayList<>();
                 for (int i = 0; i < tracks.tracks.size(); i++) {
-                    ListItem item = new ListItem(ListItem.FLAG_PLAYABLE);
+                    ListItem item = new ListItem();
                     item.setTrackName(tracks.tracks.get(i).name);
                     item.setAlbumName(tracks.tracks.get(i).album.name);
                     item.setPreviewUrl(tracks.tracks.get(i).preview_url);
@@ -322,5 +322,17 @@ public class TopTracksFragment extends RefreshFragment {
 
     public List<ListItem> getItems(){
         return tracksListAdapter.getTracks();
+    }
+
+    public void setPlayingSong(int currentSong){
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PLAYING);
+    }
+
+    public void setPausedSong(int currentSong){
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PAUSED);
+    }
+
+    public void setFinishedPlayingSong(int currentSong) {
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_STOPPED);
     }
 }

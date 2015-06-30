@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
  * Created by Raúl Feliz Alonso on 18/06/15.
  */
 public class ListItem implements Parcelable{
-    private final int mFlags;
+    private int mFlags;
     private String artistId;
     private String artistName;
     private String artistPicture;
@@ -25,28 +25,28 @@ public class ListItem implements Parcelable{
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
+    @IntDef(flag=true, value = { FLAG_PLAYING, FLAG_PAUSED, FLAG_STOPPED })
     public @interface Flags { }
 
     /**
-     * Flag: Indicates that the item has children of its own.
+     * Flag: Indicates that the item is being played.
      */
-    public static final int FLAG_BROWSABLE = 1 << 0;
+    public static final int FLAG_PLAYING = 1 << 0;
 
     /**
-     * Flag: Indicates that the item is playable.
-     * <p>
-     * The id of this item may be passed to
-     * {@link MediaController.TransportControls#playFromMediaId(String, Bundle)}
-     * to start playing it.
-     * </p>
+     * Flag: Indicates that the item is paused.
      */
-    public static final int FLAG_PLAYABLE = 1 << 1;
+    public static final int FLAG_PAUSED = 1 << 1;
+
+    /**
+     * Flag: Indicates that the item is stopped.
+     */
+    public static final int FLAG_STOPPED = 1 << 2;
 
 
 
-    public ListItem( @Flags int flags){
-        mFlags = flags;
+    public ListItem( ){
+        mFlags = FLAG_STOPPED;
     }
 
     /**
@@ -56,20 +56,32 @@ public class ListItem implements Parcelable{
         return mFlags;
     }
 
-    /**
-     * Returns whether this item is browsable.
-     * @see #FLAG_BROWSABLE
-     */
-    public boolean isBrowsable() {
-        return (mFlags & FLAG_BROWSABLE) != 0;
+    public void setmFlags(int mFlags) {
+        this.mFlags = mFlags;
     }
 
     /**
-     * Returns whether this item is playable.
-     * @see #FLAG_PLAYABLE
+     * Returns whether this item is paused.
+     * @see #FLAG_PAUSED
      */
-    public boolean isPlayable() {
-        return (mFlags & FLAG_PLAYABLE) != 0;
+    public boolean isPaused() {
+        return (mFlags & FLAG_PAUSED) != 0;
+    }
+
+    /**
+     * Returns whether this item is playing.
+     * @see #FLAG_PLAYING
+     */
+    public boolean isPlaying() {
+        return (mFlags & FLAG_PLAYING) != 0;
+    }
+
+    /**
+     * Returns whether this item is stopped.
+     * @see #FLAG_PLAYING
+     */
+    public boolean isStopped() {
+        return (mFlags & FLAG_STOPPED) != 0;
     }
 
     public String getArtistId() {

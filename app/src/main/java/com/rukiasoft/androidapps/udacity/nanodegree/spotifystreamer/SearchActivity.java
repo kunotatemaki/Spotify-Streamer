@@ -224,9 +224,9 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
 
-        musicSrv.setSong(position);
-        musicSrv.setAsForeground();
-        musicSrv.playSong();
+        sendSetCurrentSongMessageToService(position);
+        sendSetAsForegroundMessageToService();
+        sendPlayMessageToService();
         showPlaybackControls();
         /*Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
@@ -259,6 +259,27 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     }
 
     public void setTracks(List<ListItem> tracks){
-        if(musicSrv != null) musicSrv.setList(tracks);
+        sendSetSongListMessageToService(tracks);
+    }
+
+    @Override
+    public void playingSong(int currentSong){
+        if(topTracksFragment != null){
+            topTracksFragment.setPlayingSong(currentSong);
+        }
+    }
+
+    @Override
+    public void pausedSong(int currentSong){
+        if(topTracksFragment != null){
+            topTracksFragment.setPausedSong(currentSong);
+        }
+    }
+
+    @Override
+    public void finishedPlayingSong(int currentSong){
+        if(topTracksFragment != null){
+            topTracksFragment.setFinishedPlayingSong(currentSong);
+        }
     }
 }

@@ -11,9 +11,12 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.RemoteException;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
@@ -38,7 +41,7 @@ public class MusicService extends Service implements
     //current position
     private int songPosn;
 
-    /*List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
+    List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
     static final int MSG_REGISTER_CLIENT = 1;
     static final int MSG_UNREGISTER_CLIENT = 2;
     static final int MSG_PLAY = 3;
@@ -46,8 +49,14 @@ public class MusicService extends Service implements
     static final int MSG_STOP = 5;
     static final int MSG_NEXT = 6;
     static final int MSG_PREV = 7;
+    static final int MSG_SET_CURRENT_SONG = 8;
+    static final int MSG_SET_SONG_LIST = 9;
+    static final int MSG_SET_AS_FOREGROUND  = 10;
+    static final int MSG_FINISHED_PLAYING_SONG = 11;
+    static final int MSG_PLAYING_SONG = 12;
+    static final int MSG_PAUSED_SONG = 13;
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
-*/
+
 
     private final IBinder musicBind = new MusicBinder();
 
@@ -87,13 +96,14 @@ public class MusicService extends Service implements
      * pass the track list to the service
      * @param theSongs list of tracks
      */
-    public void setList(List<ListItem> theSongs){
+    private void setList(List<ListItem> theSongs){
         songs = theSongs;
     }
 
     @Override
     public IBinder onBind(Intent arg0) {
-        return musicBind;
+        //return musicBind;
+        return mMessenger.getBinder();
     }
 
     @Override
@@ -103,11 +113,42 @@ public class MusicService extends Service implements
         return false;
     }
 
+    class IncomingHandler extends Handler { // Handler of incoming messages from clients.
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_REGISTER_CLIENT:
+                    mClients.add(msg.replyTo);
+                    break;
+                case MSG_UNREGISTER_CLIENT:
+                    mClients.remove(msg.replyTo);
+                    break;
+                case MSG_SET_SONG_LIST:
+                    List<ListItem> songs = msg.getData().getParcelableArrayList("list_of_songs");
+                    setList(songs);
+                    break;
+                case MSG_PLAY:
+                    playSong();
+                    break;
+                case MSG_SET_CURRENT_SONG:
+                    songPosn = msg.arg1;
+                    break;
+                case MSG_SET_AS_FOREGROUND:
+                    setAsForeground();
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
     @Override
     public void onCompletion(MediaPlayer mp) {
         LogHelper.d(TAG, "onCompletion");
+        sendFinisihedPlayingSong(songPosn);
         songPosn++;
         if(songPosn < songs.size()) playSong();
+        else releaseMediaPlayer();
     }
 
     @Override
@@ -119,6 +160,7 @@ public class MusicService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
+        sendSongPlaying(songPosn);
     }
 
     public class MusicBinder extends Binder {
@@ -127,7 +169,7 @@ public class MusicService extends Service implements
         }
     }
 
-    public void playSong(){
+    private void playSong(){
         //play a song
         player.reset();
         //get song
@@ -147,21 +189,17 @@ public class MusicService extends Service implements
 
     }
 
-    public void setSong(int songIndex){
-        songPosn=songIndex;
-    }
 
     @Override
     public void onDestroy() {
-        player.stop();
-        player.release();
+        releaseMediaPlayer();
         super.onDestroy();
     }
 
     /**
      * set the service as a foreground service
      */
-    public void setAsForeground(){
+    private void setAsForeground(){
         String songName;
         // assign the song name to songName
         //TODO abrir la activity de pantalla completa
@@ -177,5 +215,53 @@ public class MusicService extends Service implements
                 .setContentText("reproductor spotify content text").build();
         startForeground(NOTIFICATION_ID, notification);
     }
+
+    private void releaseMediaPlayer(){
+        if(player != null){
+            player.stop();
+            player.release();
+        }
+    }
+
+    private void sendFinisihedPlayingSong(int currentSong){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data as an Integer
+                mClients.get(i).send(Message.obtain(null, MSG_FINISHED_PLAYING_SONG, currentSong, 0));
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+    private void sendSongPlaying(int currentSong){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data as an Integer
+                mClients.get(i).send(Message.obtain(null, MSG_PLAYING_SONG, currentSong, 0));
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+    private void sendSongPaused(int currentSong){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data as an Integer
+                mClients.get(i).send(Message.obtain(null, MSG_PAUSED_SONG, currentSong, 0));
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+
 }
 

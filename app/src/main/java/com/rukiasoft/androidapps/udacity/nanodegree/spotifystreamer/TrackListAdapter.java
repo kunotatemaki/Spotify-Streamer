@@ -1,6 +1,8 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.drawable.AnimationDrawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,21 +40,59 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
         @InjectView(R.id.track_item_song) TextView trackName;
         @InjectView(R.id.track_item_album) TextView albumName;
         @InjectView(R.id.track_item_image) ImageView albumPic;
+
+        private static ColorStateList sColorStatePlaying;
+        private static ColorStateList sColorStateNotPlaying;
+
         private final Context context;
         public TrackViewHolder(View itemView) {
             super(itemView);
             ButterKnife.inject(this, itemView);
             context = itemView.getContext();
+            if (sColorStateNotPlaying == null || sColorStatePlaying == null) {
+                initializeColorStateLists(context);
+            }
         }
 
         public void bindArtist(ListItem item) {
             trackName.setText(item.getTrackName());
             albumName.setText(item.getAlbumName());
-            Glide.with(context)
-                    .load(item.getThumbnailSmall())
-                    .error(R.drawable.default_image)
-                    .transform(new GlideCircleTransform(context))
-                    .into(albumPic);
+            switch (item.getFlags()) {
+                case ListItem.FLAG_STOPPED:
+                    Glide.with(context)
+                            .load(item.getThumbnailSmall())
+                            .error(R.drawable.default_image)
+                            .transform(new GlideCircleTransform(context))
+                            .into(albumPic);
+                    break;
+                case ListItem.FLAG_PLAYING:
+                    AnimationDrawable animation = (AnimationDrawable)
+                            context.getDrawable(R.drawable.ic_equalizer_white_36dp);
+                    albumPic.setImageDrawable(animation);
+                    albumPic.setImageTintList(sColorStatePlaying);
+                    if (animation != null) animation.start();
+                    break;
+                case ListItem.FLAG_PAUSED:
+                    albumPic.setImageDrawable(
+                            context.getDrawable(R.drawable.ic_equalizer1_white_36dp));
+                    albumPic.setImageTintList(sColorStateNotPlaying);
+                    break;
+                default:
+                    Glide.with(context)
+                            .load(item.getThumbnailSmall())
+                            .error(R.drawable.default_image)
+                            .transform(new GlideCircleTransform(context))
+                            .into(albumPic);
+                    break;
+            }
+
+        }
+
+        static private void initializeColorStateLists(Context ctx) {
+            sColorStateNotPlaying = ColorStateList.valueOf(ctx.getResources().getColor(
+                    R.color.media_item_icon_not_playing));
+            sColorStatePlaying = ColorStateList.valueOf(ctx.getResources().getColor(
+                    R.color.media_item_icon_playing));
         }
     }
 
@@ -99,6 +139,14 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     public void onClick(View view) {
         if(listener != null)
             listener.onClick(view);
+    }
+
+    public void setItemState(int position, int flag){
+        if(position < tracks.size()){
+            tracks.get(position).setmFlags(flag);
+
+            notifyItemChanged(position);
+        }
     }
 
 }

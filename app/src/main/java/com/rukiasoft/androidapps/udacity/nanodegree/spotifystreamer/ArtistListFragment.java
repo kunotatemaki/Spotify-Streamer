@@ -218,7 +218,7 @@ public class ArtistListFragment extends RefreshFragment {
                     return;
                 }
                 for (int i = 0; i < artistsPager.artists.items.size(); i++) {
-                    ListItem item = new ListItem(ListItem.FLAG_BROWSABLE);
+                    ListItem item = new ListItem();
                     item.setArtistId(artistsPager.artists.items.get(i).id);
                     item.setArtistName(artistsPager.artists.items.get(i).name);
                     for (int j = 0; j < artistsPager.artists.items.get(i).images.size(); j++) {
