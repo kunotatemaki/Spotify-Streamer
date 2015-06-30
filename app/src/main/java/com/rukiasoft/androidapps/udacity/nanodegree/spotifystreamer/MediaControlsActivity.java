@@ -27,6 +27,8 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Networ
 public abstract class MediaControlsActivity extends MusicServiceActivity {
 
     private static final String TAG = LogHelper.makeLogTag(MediaControlsActivity.class);
+    private static final String STATE_CONTROLS = "state_controls";
+    private Boolean showingControls = false;
 
 
     private PlaybackControlsFragment mControlsFragment;
@@ -36,20 +38,38 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         super.onCreate(savedInstanceState);
 
         LogHelper.d(TAG, "Activity onCreate");
+        if(savedInstanceState != null && savedInstanceState.containsKey(STATE_CONTROLS)) {
+            showingControls = savedInstanceState.getBoolean(STATE_CONTROLS);
+        }
 
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save play controls state
+        savedInstanceState.putBoolean(STATE_CONTROLS, showingControls);
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         LogHelper.d(TAG, "Activity onStart");
         mControlsFragment = (PlaybackControlsFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_playback_controls);
         if (mControlsFragment == null) {
             throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");
         }
-        hidePlaybackControls();
+        if(!showingControls) hidePlaybackControls();
+        else showPlaybackControls();
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        mControlsFragment = null;
+        super.onDestroy();
     }
 
     @Override
@@ -68,6 +88,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
                     R.animator.slide_in_from_bottom, R.animator.slide_out_to_bottom)
                 .show(mControlsFragment)
                 .commit();
+            showingControls = true;
         }
     }
 
@@ -76,25 +97,31 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         getFragmentManager().beginTransaction()
             .hide(mControlsFragment)
             .commit();
+        showingControls = false;
     }
 
     @Override
-    public void playingSong(int currentSong){
-        super.playingSong(currentSong);
+    public void playingSong(Bundle bundle){
+        super.playingSong(bundle);
         if(mControlsFragment != null){
+            showPlaybackControls();
             mControlsFragment.setPauseButton();
+            if(bundle.containsKey(MusicService.SONG_INFO)){
+                ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
+                setSongInfo(song);
+            }
         }
     }
 
     @Override
-    public void pausedSong(int currentSong){
-        super.pausedSong(currentSong);
+    public void pausedSong(Bundle bundle){
+        super.pausedSong(bundle);
         if(mControlsFragment != null){
             mControlsFragment.setPlayButton();
         }
     }
 
-    protected void setSongInfo(ListItem song){
+    private void setSongInfo(ListItem song){
         if(mControlsFragment != null){
             mControlsFragment.setSongInfo(song);
         }

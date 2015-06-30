@@ -1,16 +1,15 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -33,13 +32,16 @@ public class MusicService extends Service implements
 
     private final static String TAG = LogHelper.makeLogTag(MusicService.class);
     private static final int NOTIFICATION_ID = 999;
+    public final static String SONG_INFO = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songinfo";
+    public final static String SONG_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songposition";
 
     //media player
     private MediaPlayer player;
     //song list
     private List<ListItem> songs;
+    private ListItem currentPlayingSong;
     //current position
-    private int songPosn;
+    private Integer songPosn;
     //previous song played
     private int previouSong;
 
@@ -125,6 +127,11 @@ public class MusicService extends Service implements
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
+                    //if playing when activity is created, send info in order to show controls
+                    if(player != null && player.isPlaying()) {
+                        songPosn = null;
+                        sendSongPlaying(currentPlayingSong, songPosn);
+                    }
                     break;
                 case MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
@@ -143,7 +150,11 @@ public class MusicService extends Service implements
                     resumeSong();
                     break;
                 case MSG_SET_CURRENT_SONG:
-                    songPosn = msg.arg1;
+                    Bundle bundle = msg.getData();
+                    if(bundle != null && bundle.containsKey(MusicService.SONG_POSITION)){
+                        songPosn = bundle.getInt(MusicService.SONG_POSITION);
+                    }else
+                        songPosn = null;
                     break;
                 case MSG_SET_AS_FOREGROUND:
                     setAsForeground();
@@ -172,7 +183,8 @@ public class MusicService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         mp.start();
-        sendSongPlaying(songPosn);
+        currentPlayingSong = songs.get(songPosn);
+        sendSongPlaying(currentPlayingSong, songPosn);
         previouSong = songPosn;
     }
 
@@ -206,7 +218,7 @@ public class MusicService extends Service implements
 
     private void resumeSong(){
         player.start();
-        sendSongPlaying(songPosn);
+        sendSongPlaying(currentPlayingSong, songPosn);
     }
 
     private void pauseSong(){
@@ -262,11 +274,21 @@ public class MusicService extends Service implements
         }
     }
 
-    private void sendSongPlaying(int currentSong){
+    /**
+     * send info to activity to show artist playing
+     * @param currentSong position of the song in the tracklist
+     */
+    private void sendSongPlaying(ListItem song, Integer currentSong){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
-                // Send data as an Integer
-                mClients.get(i).send(Message.obtain(null, MSG_PLAYING_SONG, currentSong, 0));
+                // Send data
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(SONG_INFO, song);
+                if(currentSong != null)
+                    bundle.putInt(SONG_POSITION, currentSong);
+                Message msg = Message.obtain(null, MusicService.MSG_PLAYING_SONG);
+                msg.setData(bundle);
+                mClients.get(i).send(msg);
             }
             catch (RemoteException e) {
                 // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
@@ -275,11 +297,17 @@ public class MusicService extends Service implements
         }
     }
 
-    private void sendSongPaused(int currentSong){
+    private void sendSongPaused(Integer currentSong){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
                 // Send data as an Integer
-                mClients.get(i).send(Message.obtain(null, MSG_PAUSED_SONG, currentSong, 0));
+                Message msg = Message.obtain(null, MusicService.MSG_PLAYING_SONG);
+                if(currentSong != null) {
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(SONG_POSITION, currentSong);
+                    msg.setData(bundle);
+                }
+                mClients.get(i).send(msg);
             }
             catch (RemoteException e) {
                 // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.

@@ -38,6 +38,7 @@ import retrofit.client.Response;
 
 public class TopTracksFragment extends RefreshFragment {
 
+    private static final String LIST_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.songlist";
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
     private ListItem artist;
@@ -66,6 +67,15 @@ public class TopTracksFragment extends RefreshFragment {
         spotify = api.getService();
 
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save play controls state
+        savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>)((TrackListAdapter) trackList.getAdapter()).getTracks());
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
 
 
 
@@ -132,8 +142,13 @@ public class TopTracksFragment extends RefreshFragment {
 
             }
         });
-        searchTopTracks(artist.getArtistId());
 
+        if(savedInstanceState != null && savedInstanceState.containsKey(LIST_SONGS)){
+            List<ListItem> songs =  savedInstanceState.getParcelableArrayList(LIST_SONGS);
+            setTopTracks(songs);
+        }else {
+            searchTopTracks(artist.getArtistId());
+        }
         disableRefreshLayoutSwipe();
         return view;
     }
@@ -198,6 +213,8 @@ public class TopTracksFragment extends RefreshFragment {
                         //hide indefiniteProgressBar
                         hideRefreshLayoutSwipeProgress();
                         setTopTracks(trackItems);
+                        if(getActivity() instanceof MusicServiceActivity)
+                            ((MusicServiceActivity) getActivity()).sendSetCurrentSongMessageToService(null);
                     }
                 });
             }

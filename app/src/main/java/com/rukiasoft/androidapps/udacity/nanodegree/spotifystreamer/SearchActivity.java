@@ -3,16 +3,11 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.SearchRecentSuggestions;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.transition.TransitionInflater;
 import android.view.View;
@@ -53,6 +48,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
+        topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
@@ -228,7 +224,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
         showPlaybackControls();
-        setSongInfo(item);
+        //setSongInfo(item);
         /*Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("artist_item", item);
@@ -264,18 +260,19 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     }
 
     @Override
-    public void playingSong(int currentSong){
-        super.playingSong(currentSong);
-        if(topTracksFragment != null){
+    public void playingSong(Bundle bundle){
+        super.playingSong(bundle);
+        if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
+            int currentSong = bundle.getInt(MusicService.SONG_POSITION);
             topTracksFragment.setPlayingSong(currentSong);
         }
     }
 
     @Override
-    public void pausedSong(int currentSong){
-        super.pausedSong(currentSong);
-        if(topTracksFragment != null){
-            topTracksFragment.setPausedSong(currentSong);
+    public void pausedSong(Bundle bundle){
+        super.pausedSong(bundle );
+        if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
+            topTracksFragment.setPausedSong(bundle.getInt(MusicService.SONG_POSITION));
         }
     }
 

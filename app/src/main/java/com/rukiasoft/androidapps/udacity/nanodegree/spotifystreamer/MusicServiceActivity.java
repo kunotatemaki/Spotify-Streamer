@@ -3,15 +3,12 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +30,15 @@ public class MusicServiceActivity extends ToolbarActivity {
         @Override
         public void handleMessage(Message msg) {
             int currentSong = 0;
+            Bundle bundle;
             switch (msg.what) {
                 case MusicService.MSG_PAUSED_SONG:
-                    currentSong = msg.arg1;
-                    pausedSong(currentSong);
+                    bundle = msg.getData();
+                    pausedSong(bundle);
                     break;
                 case MusicService.MSG_PLAYING_SONG:
-                    currentSong = msg.arg1;
-                    playingSong(currentSong);
+                    bundle = msg.getData();
+                    playingSong(bundle);
                     break;
                 case MusicService.MSG_FINISHED_PLAYING_SONG:
                     currentSong = msg.arg1;
@@ -74,7 +72,17 @@ public class MusicServiceActivity extends ToolbarActivity {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
+
             musicBound = false;
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_UNREGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+                // In this case the service has crashed before we could even do anything with it
+            }
         }
     };
 
@@ -91,6 +99,24 @@ public class MusicServiceActivity extends ToolbarActivity {
             bindService(playIntent, musicConnection, getApplicationContext().BIND_AUTO_CREATE);
             startService(playIntent);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        //stopService(playIntent);
+        //musicSrv=null;
+        unbindService(musicConnection);
+        musicBound = false;
+        try {
+            Message msg = Message.obtain(null, MusicService.MSG_UNREGISTER_CLIENT);
+            msg.replyTo = mMessenger;
+            mService.send(msg);
+        }
+        catch (RemoteException e) {
+            e.printStackTrace();
+            // In this case the service has crashed before we could even do anything with it
+        }
+        super.onDestroy();
     }
 
     protected void sendPlayMessageToService() {
@@ -145,10 +171,16 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
-    protected void sendSetCurrentSongMessageToService(int position) {
+    protected void sendSetCurrentSongMessageToService(Integer position) {
         if (musicBound && mService != null) {
             try {
-                Message msg = Message.obtain(null, MusicService.MSG_SET_CURRENT_SONG, position, 0);
+                Message msg = Message.obtain(null, MusicService.MSG_SET_CURRENT_SONG);
+                if (position != null){
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(MusicService.SONG_POSITION, position);
+                    msg.setData(bundle);
+                }
+
                 msg.replyTo = mMessenger;
                 mService.send(msg);
             }
@@ -174,11 +206,11 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
-    protected void pausedSong(int currentSong){
+    protected void pausedSong(Bundle bundle){
         state = STATE_PAUSED;
     }
 
-    protected void playingSong(int currentSong){
+    protected void playingSong(Bundle bundle){
         state = STATE_PLAYING;
     }
 

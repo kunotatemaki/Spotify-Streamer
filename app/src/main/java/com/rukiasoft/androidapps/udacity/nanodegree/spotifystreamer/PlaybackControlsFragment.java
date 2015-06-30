@@ -15,24 +15,17 @@
  */
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Bitmap;
-import android.media.MediaMetadata;
-import android.media.session.MediaController;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
 import butterknife.ButterKnife;
@@ -45,12 +38,28 @@ import butterknife.InjectView;
 public class PlaybackControlsFragment extends Fragment {
 
     private static final String TAG = LogHelper.makeLogTag(PlaybackControlsFragment.class);
+    private static final String SONG_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.songitem";
 
     @InjectView(R.id.play_pause_play_controls) ImageButton mPlayPause;
     @InjectView(R.id.song_play_controls) TextView mTitle;
     @InjectView(R.id.album_play_controls) TextView mSubtitle;
     @InjectView(R.id.album_art_play_controls) ImageView mAlbumArt;
-    //@InjectView(R.id.toolbar_top_track_list) String mArtUrl;
+    ListItem mSong;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey(SONG_ITEM))
+            mSong = savedInstanceState.getParcelable(SONG_ITEM);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save play controls state
+        savedInstanceState.putParcelable(SONG_ITEM, mSong);
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -59,6 +68,9 @@ public class PlaybackControlsFragment extends Fragment {
         ButterKnife.inject(this, rootView);
         mPlayPause.setEnabled(true);
         mPlayPause.setOnClickListener(mButtonListener);
+
+        if(mSong != null)
+            showSongInfo();
 
         rootView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,14 +109,20 @@ public class PlaybackControlsFragment extends Fragment {
     }
 
     public void setPauseButton(){
+        Activity activity = getActivity();
         mPlayPause.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pause_black_36dp));
     }
 
     public void setSongInfo(ListItem song){
-        mTitle.setText(song.getTrackName());
-        mSubtitle.setText(song.getAlbumName());
+        mSong = song;
+        showSongInfo();
+    }
+
+    private void showSongInfo(){
+        mTitle.setText(mSong.getTrackName());
+        mSubtitle.setText(mSong.getAlbumName());
         Glide.with(getActivity())
-                .load(song.getThumbnailSmall())
+                .load(mSong.getThumbnailSmall())
                 .error(R.drawable.default_image)
                 .into(mAlbumArt);
     }
