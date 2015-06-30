@@ -18,10 +18,15 @@ import java.util.List;
 
 public class MusicServiceActivity extends ToolbarActivity {
 
+    static final int STATE_PLAYING = 1;
+    static final int STATE_PAUSED = 2;
+    static final int STATE_STOPED = 3;
+
     //protected MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
     Messenger mService = null;
+    protected int state;
     final Messenger mMessenger = new Messenger(new IncomingHandler());
 
     class IncomingHandler extends Handler {
@@ -101,6 +106,32 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
+    protected void sendPauseMessageToService() {
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_PAUSE);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void sendResumeMessageToService() {
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_RESUME);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void sendSetAsForegroundMessageToService() {
         if (musicBound && mService != null) {
             try {
@@ -144,15 +175,15 @@ public class MusicServiceActivity extends ToolbarActivity {
     }
 
     protected void pausedSong(int currentSong){
-
+        state = STATE_PAUSED;
     }
 
     protected void playingSong(int currentSong){
-
+        state = STATE_PLAYING;
     }
 
     protected void finishedPlayingSong(int currentSong){
-
+        state = STATE_STOPED;
     }
 
 

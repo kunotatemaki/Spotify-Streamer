@@ -78,7 +78,27 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
             .commit();
     }
 
+    @Override
+    public void playingSong(int currentSong){
+        super.playingSong(currentSong);
+        if(mControlsFragment != null){
+            mControlsFragment.setPauseButton();
+        }
+    }
 
+    @Override
+    public void pausedSong(int currentSong){
+        super.pausedSong(currentSong);
+        if(mControlsFragment != null){
+            mControlsFragment.setPlayButton();
+        }
+    }
+
+    protected void setSongInfo(ListItem song){
+        if(mControlsFragment != null){
+            mControlsFragment.setSongInfo(song);
+        }
+    }
 
 
 }

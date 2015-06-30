@@ -228,6 +228,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
         showPlaybackControls();
+        setSongInfo(item);
         /*Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable("artist_item", item);
@@ -264,6 +265,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void playingSong(int currentSong){
+        super.playingSong(currentSong);
         if(topTracksFragment != null){
             topTracksFragment.setPlayingSong(currentSong);
         }
@@ -271,6 +273,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void pausedSong(int currentSong){
+        super.pausedSong(currentSong);
         if(topTracksFragment != null){
             topTracksFragment.setPausedSong(currentSong);
         }
@@ -278,6 +281,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void finishedPlayingSong(int currentSong){
+        super.finishedPlayingSong(currentSong);
         if(topTracksFragment != null){
             topTracksFragment.setFinishedPlayingSong(currentSong);
         }

@@ -40,6 +40,8 @@ public class MusicService extends Service implements
     private List<ListItem> songs;
     //current position
     private int songPosn;
+    //previous song played
+    private int previouSong;
 
     List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
     static final int MSG_REGISTER_CLIENT = 1;
@@ -55,6 +57,8 @@ public class MusicService extends Service implements
     static final int MSG_FINISHED_PLAYING_SONG = 11;
     static final int MSG_PLAYING_SONG = 12;
     static final int MSG_PAUSED_SONG = 13;
+    static final int MSG_RESUME = 14;
+
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
 
@@ -67,13 +71,15 @@ public class MusicService extends Service implements
         super.onCreate();
         //initialize position
         songPosn=0;
+        previouSong = songPosn;
         //create player
-        player = new MediaPlayer();
+
         initMusicPlayer();
     }
 
     public void initMusicPlayer(){
         //set player properties
+        player = new MediaPlayer();
         //wakelock
         player.setWakeMode(getApplicationContext(),
                 PowerManager.PARTIAL_WAKE_LOCK);
@@ -130,6 +136,12 @@ public class MusicService extends Service implements
                 case MSG_PLAY:
                     playSong();
                     break;
+                case MSG_PAUSE:
+                    pauseSong();
+                    break;
+                case MSG_RESUME:
+                    resumeSong();
+                    break;
                 case MSG_SET_CURRENT_SONG:
                     songPosn = msg.arg1;
                     break;
@@ -161,6 +173,7 @@ public class MusicService extends Service implements
         //start playback
         mp.start();
         sendSongPlaying(songPosn);
+        previouSong = songPosn;
     }
 
     public class MusicBinder extends Binder {
@@ -171,7 +184,9 @@ public class MusicService extends Service implements
 
     private void playSong(){
         //play a song
-        player.reset();
+        if(player != null)  player.reset();
+        else    initMusicPlayer();
+        sendFinisihedPlayingSong(previouSong);
         //get song
         if(songPosn >= songs.size()){
             Utilities.showToast(this, getResources().getString(R.string.song_no_available));
@@ -187,6 +202,16 @@ public class MusicService extends Service implements
         }
         player.prepareAsync();
 
+    }
+
+    private void resumeSong(){
+        player.start();
+        sendSongPlaying(songPosn);
+    }
+
+    private void pauseSong(){
+        player.pause();
+        sendSongPaused(songPosn);
     }
 
 
@@ -220,6 +245,7 @@ public class MusicService extends Service implements
         if(player != null){
             player.stop();
             player.release();
+            player = null;
         }
     }
 
