@@ -11,12 +11,9 @@
         <item name="android:windowExitTransition">@transition/artist_item_transition</item>
         -->
         <!-- specify shared element transitions -->
-        <item name="android:windowSharedElementEnterTransition">
-            @transition/artist_item_transition
-        </item>
-        <item name="android:windowSharedElementExitTransition">
-            @transition/artist_item_transition
-        </item>
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
+
     </style>
 
 

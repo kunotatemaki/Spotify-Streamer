@@ -118,6 +118,15 @@ public class PlaybackControlsFragment extends Fragment {
         showSongInfo();
     }
 
+    public void buffering(){
+        mTitle.setText(getResources().getString(R.string.buffering));
+        mSubtitle.setText("");
+        Glide.with(getActivity())
+                .load(R.drawable.default_image)
+                .error(R.drawable.default_image)
+                .into(mAlbumArt);
+    }
+
     private void showSongInfo(){
         mTitle.setText(mSong.getTrackName());
         mSubtitle.setText(mSong.getAlbumName());
@@ -133,7 +142,7 @@ public class PlaybackControlsFragment extends Fragment {
             MediaControlsActivity activity;
             if(getActivity() instanceof MediaControlsActivity) activity = (MediaControlsActivity) getActivity();
             else    return;
-            switch (activity.state) {
+            switch (activity.currentSongState) {
                 case MediaControlsActivity.STATE_PAUSED:
                     activity.sendResumeMessageToService();
                     break;

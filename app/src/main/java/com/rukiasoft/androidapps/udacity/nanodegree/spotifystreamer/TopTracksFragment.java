@@ -39,6 +39,7 @@ import retrofit.client.Response;
 public class TopTracksFragment extends RefreshFragment {
 
     private static final String LIST_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.songlist";
+    private static final String ARTIST_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.artistitem";
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
     private ListItem artist;
@@ -72,7 +73,7 @@ public class TopTracksFragment extends RefreshFragment {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save play controls state
         savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>)((TrackListAdapter) trackList.getAdapter()).getTracks());
-
+        savedInstanceState.putParcelable(ARTIST_ITEM, artist);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -103,16 +104,7 @@ public class TopTracksFragment extends RefreshFragment {
             }
 
             loadArtistInformationForToolbar();
-            /*//Set artist image on toolbar
-            if(artistItemImage != null) {
-                Glide.with(getActivity())
-                        .load(artist.getArtistPicture())
-                        .error(R.drawable.default_image)
-                        .transform(new GlideCircleTransform(getActivity()))
-                        .into(artistItemImage);
-            }
-            if(toolbarSubtitle != null)
-                toolbarSubtitle.setText(artist.getArtistName());*/
+
         }
 
 
@@ -143,11 +135,16 @@ public class TopTracksFragment extends RefreshFragment {
             }
         });
 
-        if(savedInstanceState != null && savedInstanceState.containsKey(LIST_SONGS)){
-            List<ListItem> songs =  savedInstanceState.getParcelableArrayList(LIST_SONGS);
-            setTopTracks(songs);
+        if(savedInstanceState != null
+                &&savedInstanceState.containsKey(ARTIST_ITEM)
+                && savedInstanceState.containsKey(LIST_SONGS)) {
+            List<ListItem> songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
+            ListItem artist = savedInstanceState.getParcelable(ARTIST_ITEM);
+            setTopTracks(songs, artist.getArtistId());
         }else {
-            searchTopTracks(artist.getArtistId());
+            if(artist != null) {
+                searchTopTracks(artist.getArtistId());
+            }
         }
         disableRefreshLayoutSwipe();
         return view;
@@ -156,16 +153,17 @@ public class TopTracksFragment extends RefreshFragment {
     /**
      * save the list of tracks returned by the search into a local List
      * @param tracks list of tracks
+     * @param id id of the artist (in order to store it on service)
      */
-    private void setTopTracks(List<ListItem> tracks){
+    private void setTopTracks(List<ListItem> tracks, String id){
 
         tracksListAdapter.setItems(tracks);
         //go to first position
         if(trackList != null && trackList.getLayoutManager() != null)
             trackList.getLayoutManager().scrollToPosition(0);
         //set tracks in service
-        //TODO comprobar la nueva clase de activity
-        ((SearchActivity)getActivity()).setTracks(tracks);
+        if(getActivity() instanceof MusicServiceActivity)
+            ((MusicServiceActivity) getActivity()).sendSetSongListMessageToService(tracks, id);
 
     }
 
@@ -177,7 +175,7 @@ public class TopTracksFragment extends RefreshFragment {
      * Search for an artist's top tracks using Spotify's wrapper
      * @param id spotify artist's id
      */
-    private void searchTopTracks(String id){
+    private void searchTopTracks(final String id){
         Map<String, Object> map = new HashMap<>();
         map.put("country", Locale.getDefault().getCountry());
 
@@ -212,9 +210,7 @@ public class TopTracksFragment extends RefreshFragment {
                     public void run() {
                         //hide indefiniteProgressBar
                         hideRefreshLayoutSwipeProgress();
-                        setTopTracks(trackItems);
-                        if(getActivity() instanceof MusicServiceActivity)
-                            ((MusicServiceActivity) getActivity()).sendSetCurrentSongMessageToService(null);
+                        setTopTracks(trackItems, id);
                     }
                 });
             }
@@ -233,7 +229,7 @@ public class TopTracksFragment extends RefreshFragment {
         if(toolbarSubtitle != null)
             toolbarSubtitle.setText(artist.getArtistName());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && addTransitionListener()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP/* && addTransitionListener()*/) {
             // If we're running on Lollipop and we have added a listener to the shared element
             // transition, load the thumbnail. The listener will load the full-size image when
             // the transition is complete.

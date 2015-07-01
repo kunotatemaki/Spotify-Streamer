@@ -18,23 +18,25 @@ public class MusicServiceActivity extends ToolbarActivity {
     static final int STATE_PLAYING = 1;
     static final int STATE_PAUSED = 2;
     static final int STATE_STOPED = 3;
+    static final int STATE_BUFFERING = 4;
+    private static final String STATE_ACTIVITY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.stateactivity";
 
     //protected MusicService musicSrv;
     private Intent playIntent;
     private boolean musicBound=false;
     Messenger mService = null;
-    protected int state;
+    protected int currentSongState;
     final Messenger mMessenger = new Messenger(new IncomingHandler());
 
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            int currentSong = 0;
+            int currentSong;
             Bundle bundle;
             switch (msg.what) {
                 case MusicService.MSG_PAUSED_SONG:
-                    bundle = msg.getData();
-                    pausedSong(bundle);
+                    currentSong = msg.arg1;
+                    pausedSong(currentSong);
                     break;
                 case MusicService.MSG_PLAYING_SONG:
                     bundle = msg.getData();
@@ -43,6 +45,9 @@ public class MusicServiceActivity extends ToolbarActivity {
                 case MusicService.MSG_FINISHED_PLAYING_SONG:
                     currentSong = msg.arg1;
                     finishedPlayingSong(currentSong);
+                    break;
+                case MusicService.MSG_BUFFERING:
+                    bufferingSong();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -89,6 +94,17 @@ public class MusicServiceActivity extends ToolbarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVITY)){
+            currentSongState = savedInstanceState.getInt(STATE_ACTIVITY);
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        // Save activity recreated
+        savedInstanceState.putInt(STATE_ACTIVITY, currentSongState);
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -96,7 +112,8 @@ public class MusicServiceActivity extends ToolbarActivity {
         super.onStart();
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
-            bindService(playIntent, musicConnection, getApplicationContext().BIND_AUTO_CREATE);
+            getApplicationContext();
+            bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
             startService(playIntent);
         }
     }
@@ -158,7 +175,7 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
-    protected void sendSetAsForegroundMessageToService() {
+    /*protected void sendSetAsForegroundMessageToService() {
         if (musicBound && mService != null) {
             try {
                 Message msg = Message.obtain(null, MusicService.MSG_SET_AS_FOREGROUND);
@@ -169,18 +186,12 @@ public class MusicServiceActivity extends ToolbarActivity {
                 e.printStackTrace();
             }
         }
-    }
+    }*/
 
-    protected void sendSetCurrentSongMessageToService(Integer position) {
+    protected void sendSetCurrentSongMessageToService(int position) {
         if (musicBound && mService != null) {
             try {
-                Message msg = Message.obtain(null, MusicService.MSG_SET_CURRENT_SONG);
-                if (position != null){
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(MusicService.SONG_POSITION, position);
-                    msg.setData(bundle);
-                }
-
+                Message msg = Message.obtain(null, MusicService.MSG_SET_CURRENT_SONG, position, 0);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
             }
@@ -190,11 +201,12 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
-    protected void sendSetSongListMessageToService(List<ListItem> songs) {
+    protected void sendSetSongListMessageToService(List<ListItem> songs, String id) {
         if (musicBound && mService != null) {
             try {
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList("list_of_songs", (ArrayList<ListItem>)songs);
+                bundle.putParcelableArrayList(MusicService.SONG_LIST, (ArrayList<ListItem>)songs);
+                bundle.putString(MusicService.ARTIST_ID, id);
                 Message msg = Message.obtain(null, MusicService.MSG_SET_SONG_LIST);
                 msg.setData(bundle);
                 msg.replyTo = mMessenger;
@@ -206,16 +218,20 @@ public class MusicServiceActivity extends ToolbarActivity {
         }
     }
 
-    protected void pausedSong(Bundle bundle){
-        state = STATE_PAUSED;
+    protected void pausedSong(int currentSong){
+        currentSongState = STATE_PAUSED;
     }
 
     protected void playingSong(Bundle bundle){
-        state = STATE_PLAYING;
+        currentSongState = STATE_PLAYING;
     }
 
     protected void finishedPlayingSong(int currentSong){
-        state = STATE_STOPED;
+        currentSongState = STATE_STOPED;
+    }
+
+    protected void bufferingSong(){
+        currentSongState = STATE_BUFFERING;
     }
 
 

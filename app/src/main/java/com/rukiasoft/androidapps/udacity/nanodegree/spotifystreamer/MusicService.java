@@ -34,6 +34,8 @@ public class MusicService extends Service implements
     private static final int NOTIFICATION_ID = 999;
     public final static String SONG_INFO = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songinfo";
     public final static String SONG_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songposition";
+    public final static String SONG_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songlist";
+    public final static String ARTIST_ID = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.artistid";
 
     //media player
     private MediaPlayer player;
@@ -41,7 +43,7 @@ public class MusicService extends Service implements
     private List<ListItem> songs;
     private ListItem currentPlayingSong;
     //current position
-    private Integer songPosn;
+    private int songPosn;
     //previous song played
     private int previouSong;
 
@@ -55,16 +57,19 @@ public class MusicService extends Service implements
     static final int MSG_PREV = 7;
     static final int MSG_SET_CURRENT_SONG = 8;
     static final int MSG_SET_SONG_LIST = 9;
-    static final int MSG_SET_AS_FOREGROUND  = 10;
+    //static final int MSG_SET_AS_FOREGROUND  = 10;
     static final int MSG_FINISHED_PLAYING_SONG = 11;
     static final int MSG_PLAYING_SONG = 12;
     static final int MSG_PAUSED_SONG = 13;
     static final int MSG_RESUME = 14;
+    static final int MSG_BUFFERING = 15;
 
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
 
-    private final IBinder musicBind = new MusicBinder();
+    //private final IBinder musicBind = new MusicBinder();
+    private String artistId = "";
+    WifiManager.WifiLock wifiLock;
 
 
     @Override
@@ -72,7 +77,7 @@ public class MusicService extends Service implements
         //create the service
         super.onCreate();
         //initialize position
-        songPosn=0;
+        songPosn = 0;
         previouSong = songPosn;
         //create player
 
@@ -88,10 +93,8 @@ public class MusicService extends Service implements
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         //wifi lock
-        WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(getApplicationContext().WIFI_SERVICE))
+        wifiLock = ((WifiManager) getSystemService(getApplicationContext().WIFI_SERVICE))
                 .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-        wifiLock.acquire();
-        //TODO liberar el wifilock cuando proceda
 
         //Listeners
         player.setOnPreparedListener(this);
@@ -127,9 +130,7 @@ public class MusicService extends Service implements
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
-                    //if playing when activity is created, send info in order to show controls
                     if(player != null && player.isPlaying()) {
-                        songPosn = null;
                         sendSongPlaying(currentPlayingSong, songPosn);
                     }
                     break;
@@ -137,7 +138,14 @@ public class MusicService extends Service implements
                     mClients.remove(msg.replyTo);
                     break;
                 case MSG_SET_SONG_LIST:
-                    List<ListItem> songs = msg.getData().getParcelableArrayList("list_of_songs");
+                    List<ListItem> songs = msg.getData().getParcelableArrayList(SONG_LIST);
+                    if(msg.getData().containsKey(ARTIST_ID)){
+                        if(!artistId.equals(msg.getData().getString(ARTIST_ID))){
+                            //new artist id => new list of tracks. don't update play/pause events on current playing song
+                            artistId = msg.getData().getString(ARTIST_ID);
+                            songPosn = -1;
+                        }
+                    }
                     setList(songs);
                     break;
                 case MSG_PLAY:
@@ -150,15 +158,11 @@ public class MusicService extends Service implements
                     resumeSong();
                     break;
                 case MSG_SET_CURRENT_SONG:
-                    Bundle bundle = msg.getData();
-                    if(bundle != null && bundle.containsKey(MusicService.SONG_POSITION)){
-                        songPosn = bundle.getInt(MusicService.SONG_POSITION);
-                    }else
-                        songPosn = null;
+                    songPosn = msg.arg1;
                     break;
-                case MSG_SET_AS_FOREGROUND:
+                /*case MSG_SET_AS_FOREGROUND:
                     setAsForeground();
-                    break;
+                    break;*/
                 default:
                     super.handleMessage(msg);
             }
@@ -170,8 +174,11 @@ public class MusicService extends Service implements
         LogHelper.d(TAG, "onCompletion");
         sendFinisihedPlayingSong(songPosn);
         songPosn++;
-        if(songPosn < songs.size()) playSong();
-        else releaseMediaPlayer();
+        if(songPosn < songs.size()){
+            playSong();
+        }else {
+            releaseMediaPlayer();
+        }
     }
 
     @Override
@@ -182,17 +189,18 @@ public class MusicService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
+        setAsForeground();
         mp.start();
         currentPlayingSong = songs.get(songPosn);
         sendSongPlaying(currentPlayingSong, songPosn);
         previouSong = songPosn;
     }
 
-    public class MusicBinder extends Binder {
+    /*public class MusicBinder extends Binder {
         MusicService getService() {
             return MusicService.this;
         }
-    }
+    }*/
 
     private void playSong(){
         //play a song
@@ -212,6 +220,8 @@ public class MusicService extends Service implements
         catch(Exception e){
             LogHelper.e(TAG, "Error setting data source", e);
         }
+        sendBufferingSong();
+        wifiLock.acquire();
         player.prepareAsync();
 
     }
@@ -219,11 +229,13 @@ public class MusicService extends Service implements
     private void resumeSong(){
         player.start();
         sendSongPlaying(currentPlayingSong, songPosn);
+        wifiLock.acquire();
     }
 
     private void pauseSong(){
         player.pause();
         sendSongPaused(songPosn);
+        wifiLock.release();
     }
 
 
@@ -259,6 +271,8 @@ public class MusicService extends Service implements
             player.release();
             player = null;
         }
+        wifiLock.release();
+        stopForeground(true);
     }
 
     private void sendFinisihedPlayingSong(int currentSong){
@@ -301,13 +315,20 @@ public class MusicService extends Service implements
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
                 // Send data as an Integer
-                Message msg = Message.obtain(null, MusicService.MSG_PLAYING_SONG);
-                if(currentSong != null) {
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(SONG_POSITION, currentSong);
-                    msg.setData(bundle);
-                }
-                mClients.get(i).send(msg);
+                mClients.get(i).send(Message.obtain(null, MSG_PAUSED_SONG, currentSong, 0));
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+    private void sendBufferingSong(){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data as an Integer
+                mClients.get(i).send(Message.obtain(null, MSG_BUFFERING));
             }
             catch (RemoteException e) {
                 // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.

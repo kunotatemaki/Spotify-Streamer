@@ -25,7 +25,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
-    static final String STATE_ACTIVITY = "first_created";
     private Boolean showSearchIcon = true;
 
 
@@ -221,7 +220,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
 
         sendSetCurrentSongMessageToService(position);
-        sendSetAsForegroundMessageToService();
+        //sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
         showPlaybackControls();
         //setSongInfo(item);
@@ -255,24 +254,22 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         super.onDestroy();
     }
 
-    public void setTracks(List<ListItem> tracks){
-        sendSetSongListMessageToService(tracks);
-    }
-
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
         if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
             int currentSong = bundle.getInt(MusicService.SONG_POSITION);
-            topTracksFragment.setPlayingSong(currentSong);
+            if(topTracksFragment != null) {
+                topTracksFragment.setPlayingSong(currentSong);
+            }
         }
     }
 
     @Override
-    public void pausedSong(Bundle bundle){
-        super.pausedSong(bundle );
-        if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
-            topTracksFragment.setPausedSong(bundle.getInt(MusicService.SONG_POSITION));
+    public void pausedSong(int currentSong){
+        super.pausedSong(currentSong);
+        if(topTracksFragment != null){
+            topTracksFragment.setPausedSong(currentSong);
         }
     }
 

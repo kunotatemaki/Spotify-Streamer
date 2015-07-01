@@ -114,8 +114,8 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     }
 
     @Override
-    public void pausedSong(Bundle bundle){
-        super.pausedSong(bundle);
+    public void pausedSong(int currentSong){
+        super.pausedSong(currentSong);
         if(mControlsFragment != null){
             mControlsFragment.setPlayButton();
         }
@@ -127,5 +127,12 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         }
     }
 
+    @Override
+    public void bufferingSong(){
+        super.bufferingSong();
+        if(mControlsFragment != null){
+            mControlsFragment.buffering();
+        }
+    }
 
 }
