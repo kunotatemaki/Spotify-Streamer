@@ -94,10 +94,10 @@ public class TopTracksFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         if(null != toolbar_top_track_list) {
-            ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar_top_track_list);
+            ((ToolbarAndRefreshActivity)getActivity()).setSupportActionBar(toolbar_top_track_list);
 
-            if(((AppCompatActivity)getActivity()).getSupportActionBar() != null) {
-                ((AppCompatActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            if(((ToolbarAndRefreshActivity)getActivity()).getSupportActionBar() != null) {
+                ((ToolbarAndRefreshActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
             }
 
             if(toolbarBAckImage != null) {

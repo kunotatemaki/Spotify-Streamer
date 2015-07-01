@@ -63,6 +63,7 @@ public class MusicService extends Service implements
     static final int MSG_RESUME = 14;
     static final int MSG_BUFFERING = 15;
 
+
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
 

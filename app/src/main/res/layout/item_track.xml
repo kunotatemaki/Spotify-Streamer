@@ -14,7 +14,7 @@
         android:paddingTop="@dimen/picture_margin"
         android:layout_centerVertical="true"
         android:src="@drawable/default_image"
-        android:transitionName="@string/track_name_imageview"/>
+        android:transitionName="@string/track_pic_imageview"/>
     <TextView
         android:id="@+id/track_item_song"
         android:layout_width="fill_parent"

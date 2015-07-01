@@ -40,7 +40,7 @@ public class ArtistListFragment extends Fragment {
     private ArtistListSearchClickListener mListener;
     private static final int TOP_TRACK_REQUEST = 153;
 
-    @InjectView(R.id.toolbar_artist_list) Toolbar toolbar_artist_list;
+    @InjectView(R.id.toolbar_artist_list) Toolbar toolbarArtistList;
     @InjectView(R.id.artist_list) RecyclerView recView;
     //@InjectView(R.id.swipe_container_artist_list)
     //SwipeRefreshLayout refreshLayoutArtistListFragment;
@@ -89,9 +89,9 @@ public class ArtistListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.inject(this, view);
-        if(null != toolbar_artist_list) {
+        if(null != toolbarArtistList) {
             if(getActivity() instanceof SearchActivity){
-                ((SearchActivity) getActivity()).setToolbarInActivity(toolbar_artist_list, true, true, true);
+                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarArtistList, true, true, true);
             }
         }
 
@@ -112,7 +112,7 @@ public class ArtistListFragment extends Fragment {
                 List<View> sharedViews = new ArrayList<>();
                 sharedViews.add(v.findViewById(R.id.artist_item_image));
                 sharedViews.add(v.findViewById(R.id.artist_item_name));
-                sharedViews.add(toolbar_artist_list);
+                sharedViews.add(toolbarArtistList);
                 mCallback.onArtistListFragmentItemSelected(item, sharedViews);
                 //Start top track list activity
                 /*int position = recView.getChildAdapterPosition(v);
@@ -129,7 +129,7 @@ public class ArtistListFragment extends Fragment {
                                     getResources().getString(R.string.artist_name_imageview)),
                             new Pair<>(v.findViewById(R.id.artist_item_name),
                                     getResources().getString(R.string.artist_name_textview)),
-                            new Pair<View, String>(toolbar_artist_list,
+                            new Pair<View, String>(toolbarArtistList,
                                     getResources().getString(R.string.toolbar_toptracks_view)));
                     startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST, activityOptions.toBundle());
                 } else {

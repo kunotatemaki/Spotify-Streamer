@@ -53,7 +53,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
         LogHelper.d(TAG, "Activity onStart");
         mControlsFragment = (PlaybackControlsFragment) getFragmentManager()
@@ -103,6 +103,8 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
+        if(!MusicServiceActivityVisible)
+            return;
         if(mControlsFragment != null){
             showPlaybackControls();
             mControlsFragment.setPauseButton();
@@ -116,6 +118,8 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     @Override
     public void pausedSong(int currentSong){
         super.pausedSong(currentSong);
+        if(!MusicServiceActivityVisible)
+            return;
         if(mControlsFragment != null){
             mControlsFragment.setPlayButton();
         }
@@ -130,6 +134,8 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     @Override
     public void bufferingSong(){
         super.bufferingSong();
+        if(!MusicServiceActivityVisible)
+            return;
         if(mControlsFragment != null){
             mControlsFragment.buffering();
         }

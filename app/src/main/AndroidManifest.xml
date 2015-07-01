@@ -47,10 +47,7 @@
             android:name=".MusicService"
             android:label="Music Service" />
 
-        <activity
-            android:name=".MusicServiceActivity"
-            android:label="@string/title_activity_music_service" >
-        </activity>
+
     </application>
 
 </manifest>

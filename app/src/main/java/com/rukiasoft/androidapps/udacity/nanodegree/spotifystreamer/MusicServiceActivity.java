@@ -20,6 +20,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     static final int STATE_STOPED = 3;
     static final int STATE_BUFFERING = 4;
     private static final String STATE_ACTIVITY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.stateactivity";
+    protected Boolean MusicServiceActivityVisible;
 
     //protected MusicService musicSrv;
     private Intent playIntent;
@@ -136,6 +137,18 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onResume(){
+        super.onPostResume();
+        MusicServiceActivityVisible = true;
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        MusicServiceActivityVisible = false;
+    }
+
     protected void sendPlayMessageToService() {
         if (musicBound && mService != null) {
             try {
@@ -220,18 +233,22 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     protected void pausedSong(int currentSong){
         currentSongState = STATE_PAUSED;
+        hideRefreshLayoutSwipeProgress();
     }
 
     protected void playingSong(Bundle bundle){
         currentSongState = STATE_PLAYING;
+        hideRefreshLayoutSwipeProgress();
     }
 
     protected void finishedPlayingSong(int currentSong){
         currentSongState = STATE_STOPED;
+        hideRefreshLayoutSwipeProgress();
     }
 
     protected void bufferingSong(){
         currentSongState = STATE_BUFFERING;
+        showRefreshLayoutSwipeProgress();
     }
 
 

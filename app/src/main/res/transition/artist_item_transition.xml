@@ -19,7 +19,6 @@
     two different transitions which are targeting specific views.
 -->
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android">
-    <changeTransform/>
     <!-- changeBounds is used for the TextViews which are shared -->
     <changeBounds />
 

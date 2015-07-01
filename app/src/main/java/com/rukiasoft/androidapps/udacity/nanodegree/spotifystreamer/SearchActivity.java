@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.SearchRecentSuggestions;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.transition.TransitionInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ public class SearchActivity extends MediaControlsActivity implements ArtistListF
 ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTracksFragmentSelectionListener{
 
     private static final String TAG = LogHelper.makeLogTag(SearchActivity.class);
+    private static final int FULL_SCREEN_PLAYER_CODE = 151;
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
@@ -225,25 +228,25 @@ showRefreshLayoutSwipeProgress();
         sendPlayMessageToService();
         showPlaybackControls();
         //setSongInfo(item);
-        /*Intent topTracksIntent = new Intent(this, FullScreenPlayerActivity.class);
+        Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putParcelable("artist_item", item);
-        topTracksIntent.putExtras(bundle);
+        bundle.putParcelable(MusicService.SONG_INFO, item);
+        fullPlayerIntent.putExtras(bundle);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
 
                     // Now we provide a list of Pair items which contain the view we can transitioning
                     // from, and the name of the view it is transitioning to, in the launched activity
                     new Pair<>(sharedElements.get(0),
-                            getResources().getString(R.string.track_name_imageview)),
+                            getResources().getString(R.string.track_pic_imageview)),
                     new Pair<>(sharedElements.get(1),
                             getResources().getString(R.string.song_name_textview)),
-                    new Pair<View, String>(sharedElements.get(2),
+                    new Pair<>(sharedElements.get(2),
                             getResources().getString(R.string.album_name_textview)));
-            startActivity(topTracksIntent, activityOptions.toBundle());
+            startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE, activityOptions.toBundle());
         } else {
-            startActivity(topTracksIntent);
-        }*/
+            startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE);
+        }
     }
 
 
@@ -258,6 +261,8 @@ showRefreshLayoutSwipeProgress();
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
+        if(!MusicServiceActivityVisible)
+            return;
         if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
             int currentSong = bundle.getInt(MusicService.SONG_POSITION);
             if(topTracksFragment != null) {
@@ -269,6 +274,8 @@ showRefreshLayoutSwipeProgress();
     @Override
     public void pausedSong(int currentSong){
         super.pausedSong(currentSong);
+        if(!MusicServiceActivityVisible)
+            return;
         if(topTracksFragment != null){
             topTracksFragment.setPausedSong(currentSong);
         }
@@ -277,6 +284,8 @@ showRefreshLayoutSwipeProgress();
     @Override
     public void finishedPlayingSong(int currentSong){
         super.finishedPlayingSong(currentSong);
+        if(!MusicServiceActivityVisible)
+            return;
         if(topTracksFragment != null){
             topTracksFragment.setFinishedPlayingSong(currentSong);
         }
