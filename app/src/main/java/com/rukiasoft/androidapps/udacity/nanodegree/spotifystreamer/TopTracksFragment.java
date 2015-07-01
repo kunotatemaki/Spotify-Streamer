@@ -1,9 +1,11 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
+import android.app.Fragment;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 import java.util.ArrayList;
@@ -36,10 +39,11 @@ import retrofit.RetrofitError;
 import retrofit.client.Response;
 
 
-public class TopTracksFragment extends RefreshFragment {
+public class TopTracksFragment extends Fragment {
 
     private static final String LIST_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.songlist";
     private static final String ARTIST_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.artistitem";
+    private static final String TAG = LogHelper.makeLogTag(TopTracksFragment.class);
     private TrackListAdapter tracksListAdapter;
     private SpotifyService spotify;
     private ListItem artist;
@@ -50,6 +54,9 @@ public class TopTracksFragment extends RefreshFragment {
     @InjectView(R.id.toolbar_subtitle) TextView toolbarSubtitle;
     @InjectView(R.id.artist_item_image) ImageView artistItemImage;
     @InjectView(R.id.tracks_list) RecyclerView trackList;
+    @InjectView(R.id.swipe_container)
+    protected SwipeRefreshLayout refreshLayout;
+    private Boolean loaded;
 
     public interface TopTracksFragmentSelectionListener {
         void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements);
@@ -135,18 +142,22 @@ public class TopTracksFragment extends RefreshFragment {
             }
         });
 
+
+        if(getActivity() instanceof ToolbarAndRefreshActivity) {
+            ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
+            ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
+        }
+
         if(savedInstanceState != null
                 &&savedInstanceState.containsKey(ARTIST_ITEM)
                 && savedInstanceState.containsKey(LIST_SONGS)) {
             List<ListItem> songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
             ListItem artist = savedInstanceState.getParcelable(ARTIST_ITEM);
             setTopTracks(songs, artist.getArtistId());
-        }else {
-            if(artist != null) {
-                searchTopTracks(artist.getArtistId());
-            }
+            loaded = true;
+        }else{
+            loaded = false;
         }
-        disableRefreshLayoutSwipe();
         return view;
     }
 
@@ -167,6 +178,15 @@ public class TopTracksFragment extends RefreshFragment {
 
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        if(!loaded && artist != null){
+            searchTopTracks(artist.getArtistId());
+        }
+
+    }
+
     public void setArtist(ListItem artist){
         this.artist = artist;
     }
@@ -180,7 +200,8 @@ public class TopTracksFragment extends RefreshFragment {
         map.put("country", Locale.getDefault().getCountry());
 
         //show indefiniteProgressBar
-        showRefreshLayoutSwipeProgress();
+        if(getActivity() instanceof ToolbarAndRefreshActivity)
+            ((ToolbarAndRefreshActivity) getActivity()).showRefreshLayoutSwipeProgress();
 
         spotify.getArtistTopTrack(id, map, new Callback<Tracks>() {
 
@@ -209,7 +230,8 @@ public class TopTracksFragment extends RefreshFragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        hideRefreshLayoutSwipeProgress();
+                        if(getActivity() instanceof ToolbarAndRefreshActivity)
+                            ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
                         setTopTracks(trackItems, id);
                     }
                 });
@@ -219,7 +241,8 @@ public class TopTracksFragment extends RefreshFragment {
             public void failure(RetrofitError error) {
                 //TODO - different messages for different type of errors??
                 //hide indefiniteProgressBar
-                hideRefreshLayoutSwipeProgress();
+                if(getActivity() instanceof ToolbarAndRefreshActivity)
+                    ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
                 Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
             }
         });
@@ -229,7 +252,7 @@ public class TopTracksFragment extends RefreshFragment {
         if(toolbarSubtitle != null)
             toolbarSubtitle.setText(artist.getArtistName());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP/* && addTransitionListener()*/) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP /*&& addTransitionListener*/) {
             // If we're running on Lollipop and we have added a listener to the shared element
             // transition, load the thumbnail. The listener will load the full-size image when
             // the transition is complete.
@@ -277,8 +300,8 @@ public class TopTracksFragment extends RefreshFragment {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private boolean addTransitionListener() {
 
-        final Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
-        //final Transition transition = getSharedElementEnterTransition();
+        //final Transition transition = getActivity().getWindow().getSharedElementEnterTransition();
+        final Transition transition = getSharedElementEnterTransition();
 
         if (transition != null) {
             // There is an entering shared element transition so add a listener to it
@@ -294,23 +317,25 @@ public class TopTracksFragment extends RefreshFragment {
 
                 @Override
                 public void onTransitionStart(Transition transition) {
-                    // No-op
+                    LogHelper.d(TAG, "onTransitionStart");
+
                 }
 
                 @Override
                 public void onTransitionCancel(Transition transition) {
                     // Make sure we remove ourselves as a listener
+                    LogHelper.d(TAG, "onTransitionStart");
                     transition.removeListener(this);
                 }
 
                 @Override
                 public void onTransitionPause(Transition transition) {
-                    // No-op
+                    LogHelper.d(TAG, "onTransitionStart");
                 }
 
                 @Override
                 public void onTransitionResume(Transition transition) {
-                    // No-op
+                    LogHelper.d(TAG, "onTransitionStart");
                 }
             });
             return true;

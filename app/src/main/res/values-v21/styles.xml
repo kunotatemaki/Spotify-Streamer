@@ -6,10 +6,10 @@
         <!-- enable window content transitions -->
         <item name="android:windowContentTransitions">true</item>
 
-        <!-- specify enter and exit transitions
+        <!-- specify enter and exit transitions-->
         <item name="android:windowEnterTransition">@transition/artist_item_transition</item>
         <item name="android:windowExitTransition">@transition/artist_item_transition</item>
-        -->
+
         <!-- specify shared element transitions -->
         <item name="android:windowAllowEnterTransitionOverlap">true</item>
         <item name="android:windowAllowReturnTransitionOverlap">true</item>

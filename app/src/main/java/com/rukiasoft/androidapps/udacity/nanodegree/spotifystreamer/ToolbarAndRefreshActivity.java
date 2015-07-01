@@ -16,6 +16,7 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -28,11 +29,14 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilit
 /**
  * Base activity for activities that need to show a Refresh Layout and a Custom Toolbar
  */
-public abstract class ToolbarActivity extends AppCompatActivity{
+public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
 
-    private static final String TAG = LogHelper.makeLogTag(ToolbarActivity.class);
+    private static final String TAG = LogHelper.makeLogTag(ToolbarAndRefreshActivity.class);
 
     private android.support.v7.widget.Toolbar mToolbar;
+
+    protected SwipeRefreshLayout refreshLayout;
+    private Boolean showing = false;
 
 
     @Override
@@ -72,6 +76,7 @@ public abstract class ToolbarActivity extends AppCompatActivity{
             getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
             getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
         }
+
     }
 
     /**
@@ -89,6 +94,64 @@ public abstract class ToolbarActivity extends AppCompatActivity{
         }
     }
 
+    public void setRefreshLayout(SwipeRefreshLayout _refreshLayout){
+        refreshLayout = _refreshLayout;
+        if (refreshLayout == null) {
+            throw new IllegalStateException("Mising RefreshLayout. Cannot continue.");
+        }
+        //configure swipeRefreshLayout
+        setRefreshLayoutColorScheme(getResources().getColor(R.color.color_scheme_1_1),
+                getResources().getColor(R.color.color_scheme_1_2),
+                getResources().getColor(R.color.color_scheme_1_3),
+                getResources().getColor(R.color.color_scheme_1_4));
+    }
 
+    /**
+     * It shows the SwipeRefreshLayout progress
+     */
+    protected void showRefreshLayoutSwipeProgress() {
+        refreshLayout.setRefreshing(true);
+        showing = true;
+    }
+
+    /**
+     * It shows the SwipeRefreshLayout progress if needed
+     */
+    protected void showRefreshLayoutSwipeProgressIfNeeded() {
+        if(showing){
+            refreshLayout.setRefreshing(false);
+            refreshLayout.setRefreshing(true);
+        }
+    }
+
+    /**
+     * It shows the SwipeRefreshLayout progress
+     */
+    protected void hideRefreshLayoutSwipeProgress() {
+        refreshLayout.setRefreshing(false);
+        showing = false;
+    }
+
+    /**
+     * Enables swipe gesture
+     */
+    protected void enableRefreshLayoutSwipe() {
+        refreshLayout.setEnabled(true);
+    }
+
+    /**
+     * Disables swipe gesture. It prevents manual gestures but keeps the option tu show
+     * refreshing programatically.
+     */
+    protected  void disableRefreshLayoutSwipe() {
+        refreshLayout.setEnabled(false);
+    }
+
+    /**
+     * Set colors of refreshlayout
+     */
+    private void setRefreshLayoutColorScheme(int colorRes1, int colorRes2, int colorRes3, int colorRes4) {
+        refreshLayout.setColorSchemeColors(colorRes1, colorRes2, colorRes3, colorRes4);
+    }
 
 }

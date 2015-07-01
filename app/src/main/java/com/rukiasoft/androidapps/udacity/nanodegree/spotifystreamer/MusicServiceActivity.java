@@ -13,7 +13,7 @@ import android.os.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MusicServiceActivity extends ToolbarActivity {
+public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     static final int STATE_PLAYING = 1;
     static final int STATE_PAUSED = 2;

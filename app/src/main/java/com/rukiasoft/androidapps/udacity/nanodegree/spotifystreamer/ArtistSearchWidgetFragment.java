@@ -57,8 +57,8 @@ public class ArtistSearchWidgetFragment extends Fragment {
         }
         Utilities.hideSoftKeyboard(getActivity());
         //get the previous toolbar (ArtistListFragment) back
-        if(getActivity() instanceof ToolbarActivity){
-            ((ToolbarActivity) getActivity()).restorePreviousToolbar(true, true);
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((ToolbarAndRefreshActivity) getActivity()).restorePreviousToolbar(true, true);
             ((SearchActivity) getActivity()).setShowSearchIcon(true);
         }
         super.onDetach();

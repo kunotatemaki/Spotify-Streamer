@@ -118,6 +118,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void onBackPressed(){
+
         if (hideSearchWidget()) return; //if searchview is shown, close it
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             finish();
@@ -218,7 +219,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
-
+showRefreshLayoutSwipeProgress();
         sendSetCurrentSongMessageToService(position);
         //sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
