@@ -222,7 +222,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
-showRefreshLayoutSwipeProgress();
         sendSetCurrentSongMessageToService(position);
         //sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
@@ -242,7 +241,9 @@ showRefreshLayoutSwipeProgress();
                     new Pair<>(sharedElements.get(1),
                             getResources().getString(R.string.song_name_textview)),
                     new Pair<>(sharedElements.get(2),
-                            getResources().getString(R.string.album_name_textview)));
+                            getResources().getString(R.string.album_name_textview)),
+                    new Pair<>(sharedElements.get(3),
+                            getResources().getString(R.string.artist_name_textview)));
             startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE, activityOptions.toBundle());
         } else {
             startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE);
@@ -261,33 +262,42 @@ showRefreshLayoutSwipeProgress();
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
+        boolean updateView;
         if(!MusicServiceActivityVisible)
-            return;
-        if(bundle.containsKey(MusicService.SONG_POSITION) && topTracksFragment != null){
-            int currentSong = bundle.getInt(MusicService.SONG_POSITION);
-            if(topTracksFragment != null) {
-                topTracksFragment.setPlayingSong(currentSong);
-            }
+            updateView = false;
+        else
+            updateView = true;
+        if(topTracksFragment != null){
+            topTracksFragment.setPlayingSong(bundle, updateView);
+        }
+
+    }
+
+    @Override
+    public void pausedSong(Bundle bundle){
+        super.pausedSong(bundle);
+        boolean updateView;
+        if(!MusicServiceActivityVisible)
+            updateView = false;
+        else
+            updateView = true;
+
+        if(topTracksFragment != null){
+            topTracksFragment.setPausedSong(bundle, updateView);
         }
     }
 
     @Override
-    public void pausedSong(int currentSong){
-        super.pausedSong(currentSong);
+    public void finishedPlayingSong(Bundle bundle){
+        super.finishedPlayingSong(bundle);
+        boolean updateView;
         if(!MusicServiceActivityVisible)
-            return;
-        if(topTracksFragment != null){
-            topTracksFragment.setPausedSong(currentSong);
-        }
-    }
+            updateView = false;
+        else
+            updateView = true;
 
-    @Override
-    public void finishedPlayingSong(int currentSong){
-        super.finishedPlayingSong(currentSong);
-        if(!MusicServiceActivityVisible)
-            return;
-        if(topTracksFragment != null){
-            topTracksFragment.setFinishedPlayingSong(currentSong);
+        if (topTracksFragment != null){
+            topTracksFragment.setFinishedPlayingSong(bundle, updateView);
         }
     }
 }

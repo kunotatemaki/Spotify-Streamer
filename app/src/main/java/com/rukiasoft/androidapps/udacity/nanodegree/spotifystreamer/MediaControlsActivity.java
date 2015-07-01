@@ -103,21 +103,21 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
-        if(!MusicServiceActivityVisible)
-            return;
-        if(mControlsFragment != null){
+        ListItem song;
+        if(!bundle.containsKey(MusicService.SONG_INFO)) return;
+        song = bundle.getParcelable(MusicService.SONG_INFO);
+        if(!MusicServiceActivityVisible) {
+            setSongInfo(song, false);
+        }else if(mControlsFragment != null){
             showPlaybackControls();
             mControlsFragment.setPauseButton();
-            if(bundle.containsKey(MusicService.SONG_INFO)){
-                ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
-                setSongInfo(song);
-            }
+            setSongInfo(song, true);
         }
     }
 
     @Override
-    public void pausedSong(int currentSong){
-        super.pausedSong(currentSong);
+    public void pausedSong(Bundle bundle){
+        super.pausedSong(bundle);
         if(!MusicServiceActivityVisible)
             return;
         if(mControlsFragment != null){
@@ -125,9 +125,9 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         }
     }
 
-    private void setSongInfo(ListItem song){
+    private void setSongInfo(ListItem song, boolean updateView){
         if(mControlsFragment != null){
-            mControlsFragment.setSongInfo(song);
+            mControlsFragment.setSongInfo(song, updateView);
         }
     }
 

@@ -90,7 +90,7 @@ public class ArtistListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.inject(this, view);
         if(null != toolbarArtistList) {
-            if(getActivity() instanceof SearchActivity){
+            if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarArtistList, true, true, true);
             }
         }

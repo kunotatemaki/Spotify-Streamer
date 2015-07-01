@@ -8,6 +8,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,6 +36,7 @@ public class MusicService extends Service implements
     public final static String SONG_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songposition";
     public final static String SONG_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songlist";
     public final static String ARTIST_ID = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.artistid";
+    public final static String SEEKBAR_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.seekbarposition";
 
     //media player
     private MediaPlayer player;
@@ -56,7 +58,7 @@ public class MusicService extends Service implements
     static final int MSG_PREV = 7;
     static final int MSG_SET_CURRENT_SONG = 8;
     static final int MSG_SET_SONG_LIST = 9;
-    //static final int MSG_SET_AS_FOREGROUND  = 10;
+    static final int MSG_SEEKBAR_POSITION  = 10;
     static final int MSG_FINISHED_PLAYING_SONG = 11;
     static final int MSG_PLAYING_SONG = 12;
     static final int MSG_PAUSED_SONG = 13;
@@ -71,6 +73,31 @@ public class MusicService extends Service implements
     private String artistId = "";
     WifiManager.WifiLock wifiLock;
 
+    private class SeekBarUpdateTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+            while(!isCancelled()){
+                try {
+                    Thread.sleep(1000);
+                    publishProgress(null);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        protected void onProgressUpdate(Void... params) {
+            sendSeekBarPosition();
+        }
+
+        protected void onPostExecute(Void... params) {
+
+        }
+    }
+
+    SeekBarUpdateTask seekBarUpdateTask;
 
     @Override
     public void onCreate(){
@@ -131,7 +158,7 @@ public class MusicService extends Service implements
                 case MSG_REGISTER_CLIENT:
                     mClients.add(msg.replyTo);
                     if(player != null && player.isPlaying()) {
-                        sendSongPlaying(currentPlayingSong, songPosn);
+                        sendSongPlaying(currentPlayingSong, songPosn, false);
                     }
                     break;
                 case MSG_UNREGISTER_CLIENT:
@@ -143,7 +170,7 @@ public class MusicService extends Service implements
                         if(!artistId.equals(msg.getData().getString(ARTIST_ID))){
                             //new artist id => new list of tracks. don't update play/pause events on current playing song
                             artistId = msg.getData().getString(ARTIST_ID);
-                            songPosn = -1;
+                            songPosn = 0;
                         }
                     }
                     setList(songs);
@@ -171,6 +198,7 @@ public class MusicService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        cancelTask();
         LogHelper.d(TAG, "onCompletion");
         sendFinisihedPlayingSong(songPosn);
         songPosn++;
@@ -190,9 +218,10 @@ public class MusicService extends Service implements
     public void onPrepared(MediaPlayer mp) {
         //start playback
         setAsForeground();
+        executeTask();
         mp.start();
         currentPlayingSong = songs.get(songPosn);
-        sendSongPlaying(currentPlayingSong, songPosn);
+        sendSongPlaying(currentPlayingSong, songPosn, true);
         previouSong = songPosn;
     }
 
@@ -227,13 +256,17 @@ public class MusicService extends Service implements
     }
 
     private void resumeSong(){
+        executeTask();
         player.start();
-        sendSongPlaying(currentPlayingSong, songPosn);
+        setAsForeground();
+        sendSongPlaying(currentPlayingSong, songPosn, false);
         wifiLock.acquire();
     }
 
     private void pauseSong(){
+        cancelTask();
         player.pause();
+        stopForeground(false);
         sendSongPaused(songPosn);
         wifiLock.release();
     }
@@ -267,6 +300,7 @@ public class MusicService extends Service implements
 
     private void releaseMediaPlayer(){
         if(player != null){
+            cancelTask();
             player.stop();
             player.release();
             player = null;
@@ -278,8 +312,13 @@ public class MusicService extends Service implements
     private void sendFinisihedPlayingSong(int currentSong){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
-                // Send data as an Integer
-                mClients.get(i).send(Message.obtain(null, MSG_FINISHED_PLAYING_SONG, currentSong, 0));
+                // Send data
+                Bundle bundle = new Bundle();
+                bundle.putInt(SONG_POSITION, currentSong);
+                bundle.putString(ARTIST_ID, artistId);
+                Message msg = Message.obtain(null, MusicService.MSG_FINISHED_PLAYING_SONG);
+                msg.setData(bundle);
+                mClients.get(i).send(msg);
             }
             catch (RemoteException e) {
                 // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
@@ -292,14 +331,18 @@ public class MusicService extends Service implements
      * send info to activity to show artist playing
      * @param currentSong position of the song in the tracklist
      */
-    private void sendSongPlaying(ListItem song, Integer currentSong){
+    private void sendSongPlaying(ListItem song, int currentSong, boolean start){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
                 // Send data
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(SONG_INFO, song);
-                if(currentSong != null)
-                    bundle.putInt(SONG_POSITION, currentSong);
+                bundle.putInt(SONG_POSITION, currentSong);
+                bundle.putString(ARTIST_ID, artistId);
+                if(!start)
+                    bundle.putInt(SEEKBAR_POSITION, player.getCurrentPosition());
+                else
+                    bundle.putInt(SEEKBAR_POSITION, 0);
                 Message msg = Message.obtain(null, MusicService.MSG_PLAYING_SONG);
                 msg.setData(bundle);
                 mClients.get(i).send(msg);
@@ -314,8 +357,13 @@ public class MusicService extends Service implements
     private void sendSongPaused(Integer currentSong){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
-                // Send data as an Integer
-                mClients.get(i).send(Message.obtain(null, MSG_PAUSED_SONG, currentSong, 0));
+                // Send data
+                Bundle bundle = new Bundle();
+                bundle.putInt(SONG_POSITION, currentSong);
+                bundle.putString(ARTIST_ID, artistId);
+                Message msg = Message.obtain(null, MusicService.MSG_PAUSED_SONG);
+                msg.setData(bundle);
+                mClients.get(i).send(msg);
             }
             catch (RemoteException e) {
                 // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
@@ -335,6 +383,29 @@ public class MusicService extends Service implements
                 mClients.remove(i);
             }
         }
+    }
+
+    private void sendSeekBarPosition(){
+        int timePlayed = player.getCurrentPosition();
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data as an Integer
+                mClients.get(i).send(Message.obtain(null, MSG_SEEKBAR_POSITION, timePlayed, 0));
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+    private void cancelTask(){
+        seekBarUpdateTask.cancel(true);
+    }
+
+    private void executeTask(){
+        seekBarUpdateTask = new SeekBarUpdateTask();
+        seekBarUpdateTask.execute();
     }
 
 

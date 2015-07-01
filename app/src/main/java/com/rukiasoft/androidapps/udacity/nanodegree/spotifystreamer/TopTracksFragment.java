@@ -6,7 +6,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -57,6 +56,7 @@ public class TopTracksFragment extends Fragment {
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
     private Boolean loaded;
+    private String artistId;    //TODO comprobar el id para ver si actualizo o no
 
     public interface TopTracksFragmentSelectionListener {
         void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements);
@@ -94,12 +94,9 @@ public class TopTracksFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         if(null != toolbar_top_track_list) {
-            ((ToolbarAndRefreshActivity)getActivity()).setSupportActionBar(toolbar_top_track_list);
-
-            if(((ToolbarAndRefreshActivity)getActivity()).getSupportActionBar() != null) {
-                ((ToolbarAndRefreshActivity)getActivity()).getSupportActionBar().setDisplayShowTitleEnabled(false);
+            if(getActivity() instanceof ToolbarAndRefreshActivity){
+                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbar_top_track_list, false, false, false);
             }
-
             if(toolbarBAckImage != null) {
                 //make arroy+image clickable (as Whatsapp do)
                 toolbarBAckImage.setOnClickListener(new View.OnClickListener() {
@@ -111,7 +108,6 @@ public class TopTracksFragment extends Fragment {
             }
 
             loadArtistInformationForToolbar();
-
         }
 
 
@@ -135,6 +131,7 @@ public class TopTracksFragment extends Fragment {
                 sharedViews.add(v.findViewById(R.id.track_item_image));
                 sharedViews.add(v.findViewById(R.id.track_item_song));
                 sharedViews.add(v.findViewById(R.id.track_item_album));
+                sharedViews.add(toolbar_top_track_list.findViewById(R.id.toolbar_subtitle));
                 mCallback.onTopTracksFragmentItemSelected(item, position, sharedViews);
 
                 //TODO pasar toda la lista
@@ -168,6 +165,7 @@ public class TopTracksFragment extends Fragment {
      */
     private void setTopTracks(List<ListItem> tracks, String id){
 
+        artistId = id;
         tracksListAdapter.setItems(tracks);
         //go to first position
         if(trackList != null && trackList.getLayoutManager() != null)
@@ -182,8 +180,10 @@ public class TopTracksFragment extends Fragment {
     public void onResume(){
         super.onResume();
         if(!loaded && artist != null){
-            searchTopTracks(artist.getArtistId());
+            searchTopTracks(artist);
         }
+        if(trackList.getAdapter() != null)
+            trackList.getAdapter().notifyDataSetChanged();
 
     }
 
@@ -193,9 +193,9 @@ public class TopTracksFragment extends Fragment {
 
     /**
      * Search for an artist's top tracks using Spotify's wrapper
-     * @param id spotify artist's id
+     * @param artist spotify artist info
      */
-    private void searchTopTracks(final String id){
+    private void searchTopTracks(final ListItem artist){
         Map<String, Object> map = new HashMap<>();
         map.put("country", Locale.getDefault().getCountry());
 
@@ -203,16 +203,20 @@ public class TopTracksFragment extends Fragment {
         if(getActivity() instanceof ToolbarAndRefreshActivity)
             ((ToolbarAndRefreshActivity) getActivity()).showRefreshLayoutSwipeProgress();
 
-        spotify.getArtistTopTrack(id, map, new Callback<Tracks>() {
+        spotify.getArtistTopTrack(artist.getArtistId(), map, new Callback<Tracks>() {
 
             @Override
             public void success(Tracks tracks, Response response) {
                 final List<ListItem> trackItems = new ArrayList<>();
                 for (int i = 0; i < tracks.tracks.size(); i++) {
                     ListItem item = new ListItem();
+                    item.setArtistName(artist.getArtistName());
                     item.setTrackName(tracks.tracks.get(i).name);
                     item.setAlbumName(tracks.tracks.get(i).album.name);
                     item.setPreviewUrl(tracks.tracks.get(i).preview_url);
+                    //in this case, instead of duration, we use 30s (preview) => 30000ms
+                    //item.setDuration(tracks.tracks.get(i).duration_ms);
+                    item.setDuration(30000);
                     for (int j = 0; j < tracks.tracks.get(i).album.images.size(); j++) {
                         if (j == 0) {
                             item.setThumbnailLarge(tracks.tracks.get(i).album.images.get(j).url);
@@ -232,7 +236,7 @@ public class TopTracksFragment extends Fragment {
                         //hide indefiniteProgressBar
                         if(getActivity() instanceof ToolbarAndRefreshActivity)
                             ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
-                        setTopTracks(trackItems, id);
+                        setTopTracks(trackItems, artist.getArtistId());
                     }
                 });
             }
@@ -362,15 +366,18 @@ public class TopTracksFragment extends Fragment {
         return tracksListAdapter.getTracks();
     }
 
-    public void setPlayingSong(int currentSong){
-        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PLAYING);
+    public void setPlayingSong(Bundle bundle, boolean updateView){
+        int currentSong = bundle.getInt(MusicService.SONG_POSITION);
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PLAYING, updateView);
     }
 
-    public void setPausedSong(int currentSong){
-        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PAUSED);
+    public void setPausedSong(Bundle bundle, boolean updateView){
+        int currentSong = bundle.getInt(MusicService.SONG_POSITION);
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PAUSED, updateView);
     }
 
-    public void setFinishedPlayingSong(int currentSong) {
-        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_STOPPED);
+    public void setFinishedPlayingSong(Bundle bundle, boolean updateView) {
+        int currentSong = bundle.getInt(MusicService.SONG_POSITION);
+        ((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_STOPPED, updateView);
     }
 }

@@ -5,41 +5,22 @@ import android.app.Fragment;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import kaaes.spotify.webapi.android.SpotifyApi;
-import kaaes.spotify.webapi.android.SpotifyService;
-import kaaes.spotify.webapi.android.models.Tracks;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 
 public class FullScreenPlayerFragment extends Fragment {
@@ -52,14 +33,13 @@ public class FullScreenPlayerFragment extends Fragment {
     @InjectView(R.id.prev) ImageView mSkipPrev;
     @InjectView(R.id.next) ImageView mSkipNext;
     @InjectView(R.id.play_pause) ImageView mPlayPause;
-    @InjectView(R.id.startText) TextView mStart;
-    @InjectView(R.id.endText) TextView mEnd;
     @InjectView(R.id.seekBar1)
     SeekBar mSeekbar;
     @InjectView(R.id.line1) TextView mLine1;
     @InjectView(R.id.line2) TextView mLine2;
     @InjectView(R.id.line3) TextView mLine3;
-    @InjectView(R.id.controllers) View mControllers;
+    @InjectView(R.id.startText) TextView startText;
+    @InjectView(R.id.endText) TextView endText;
     @InjectView(R.id.background_image) ImageView mBackgroundImage;
     @InjectView(R.id.toolbar_full_screen_player) Toolbar toolbarFullPlayer;
     private Drawable mPauseDrawable;
@@ -67,7 +47,8 @@ public class FullScreenPlayerFragment extends Fragment {
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
     private Boolean loaded;
-
+    private boolean fragmentVisible;
+    private int seekbarPosition;
 
 
     public FullScreenPlayerFragment() {
@@ -85,7 +66,8 @@ public class FullScreenPlayerFragment extends Fragment {
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save play controls state
         //savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>)((TrackListAdapter) trackList.getAdapter()).getTracks());
-        //savedInstanceState.putParcelable(ARTIST_ITEM, artist);
+        if(song != null)
+            savedInstanceState.putParcelable(MusicService.SONG_INFO, song);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -99,8 +81,8 @@ public class FullScreenPlayerFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         if(null != toolbarFullPlayer) {
-            if(getActivity() instanceof SearchActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullPlayer, true, true, true);
+            if(getActivity() instanceof ToolbarAndRefreshActivity){
+                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullPlayer, true, false, false);
             }
         }
 
@@ -112,22 +94,16 @@ public class FullScreenPlayerFragment extends Fragment {
         mPauseDrawable = getActivity().getDrawable(R.drawable.ic_pause_white_48dp);
         mPlayDrawable = getActivity().getDrawable(R.drawable.ic_play_arrow_white_48dp);
 
-        /*if(savedInstanceState != null
-                &&savedInstanceState.containsKey(ARTIST_ITEM)
-                && savedInstanceState.containsKey(LIST_SONGS)) {
-            List<ListItem> songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
-            ListItem artist = savedInstanceState.getParcelable(ARTIST_ITEM);
-            setTopTracks(songs, artist.getArtistId());
-            loaded = true;
-        }else{
-            loaded = false;
-        }*/
+        if(savedInstanceState != null
+                &&savedInstanceState.containsKey(MusicService.SONG_INFO)) {
+            song = savedInstanceState.getParcelable(MusicService.SONG_INFO);
+        }
 
         mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 //TODO formatear el texto
-                mStart.setText(progress);
+                startText.setText(String.valueOf(progress));
             }
 
             @Override
@@ -150,8 +126,14 @@ public class FullScreenPlayerFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
+        fragmentVisible = true;
 
+    }
 
+    @Override
+    public void onPause(){
+        super.onPause();
+        fragmentVisible = false;
     }
 
     public void setSong(ListItem song){
@@ -165,6 +147,24 @@ public class FullScreenPlayerFragment extends Fragment {
 
         mLine2.setText(song.getAlbumName());
         mLine1.setText(song.getTrackName());
+        mLine3.setText(song.getArtistName());
+        endText.setText(String.valueOf(song.getDuration()));
+        mSeekbar.setMax((int)song.getDuration()/1000);
+
+        MusicServiceActivity activity;
+        if(getActivity() instanceof MusicServiceActivity)  {
+            activity = (MusicServiceActivity) getActivity();
+            switch (activity.currentSongState) {
+            case MediaControlsActivity.STATE_PAUSED:
+                mPlayPause.setImageDrawable(mPlayDrawable);
+                break;
+            case MediaControlsActivity.STATE_PLAYING:
+                mPlayPause.setImageDrawable(mPauseDrawable);
+                break;
+            default:
+                break;
+        }}
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && addTransitionListener()) {
             // If we're running on Lollipop and we have added a listener to the shared element
@@ -272,15 +272,27 @@ public class FullScreenPlayerFragment extends Fragment {
     }
 
 
-    public void setPlayingSong(int currentSong){
-        //((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PLAYING);
+    public void setPlayingSong(ListItem song){
+        this.song = song;
+
+        if(fragmentVisible)
+            loadComponents();
     }
 
-    public void setPausedSong(int currentSong){
-        //((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_PAUSED);
+    public void setPausedSong(){
+        if(fragmentVisible)
+            mPlayPause.setImageDrawable(mPlayDrawable);
     }
 
-    public void setFinishedPlayingSong(int currentSong) {
-        //((TrackListAdapter)trackList.getAdapter()).setItemState(currentSong, ListItem.FLAG_STOPPED);
+    public void setFinishedPlayingSong() {
+        if(fragmentVisible)
+            mPlayPause.setImageDrawable(mPlayDrawable);
     }
+
+    public void setSeekbarPosition(int position){
+        if(fragmentVisible)
+            mSeekbar.setProgress((int)position/1000);
+    }
+
+
 }

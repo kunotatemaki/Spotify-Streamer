@@ -32,23 +32,25 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     class IncomingHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            int currentSong;
             Bundle bundle;
             switch (msg.what) {
                 case MusicService.MSG_PAUSED_SONG:
-                    currentSong = msg.arg1;
-                    pausedSong(currentSong);
+                    bundle = msg.getData();
+                    pausedSong(bundle);
                     break;
                 case MusicService.MSG_PLAYING_SONG:
                     bundle = msg.getData();
                     playingSong(bundle);
                     break;
                 case MusicService.MSG_FINISHED_PLAYING_SONG:
-                    currentSong = msg.arg1;
-                    finishedPlayingSong(currentSong);
+                    bundle = msg.getData();
+                    finishedPlayingSong(bundle);
                     break;
                 case MusicService.MSG_BUFFERING:
                     bufferingSong();
+                    break;
+                case MusicService.MSG_SEEKBAR_POSITION:
+                    seekBarPositionReceived(msg.arg1);
                     break;
                 default:
                     super.handleMessage(msg);
@@ -139,7 +141,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     @Override
     public void onResume(){
-        super.onPostResume();
+        super.onResume();
         MusicServiceActivityVisible = true;
     }
 
@@ -231,7 +233,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         }
     }
 
-    protected void pausedSong(int currentSong){
+    protected void pausedSong(Bundle bundle){
         currentSongState = STATE_PAUSED;
         hideRefreshLayoutSwipeProgress();
     }
@@ -241,7 +243,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         hideRefreshLayoutSwipeProgress();
     }
 
-    protected void finishedPlayingSong(int currentSong){
+    protected void finishedPlayingSong(Bundle bundle){
         currentSongState = STATE_STOPED;
         hideRefreshLayoutSwipeProgress();
     }
@@ -249,6 +251,10 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     protected void bufferingSong(){
         currentSongState = STATE_BUFFERING;
         showRefreshLayoutSwipeProgress();
+    }
+
+    protected void seekBarPositionReceived(int position){
+
     }
 
 

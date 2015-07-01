@@ -1,7 +1,5 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.media.session.MediaController;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.IntDef;
@@ -22,6 +20,7 @@ public class ListItem implements Parcelable{
     private String thumbnailSmall;
     private String thumbnailLarge;
     private String previewUrl;
+    private long duration;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
@@ -82,6 +81,14 @@ public class ListItem implements Parcelable{
      */
     public boolean isStopped() {
         return (mFlags & FLAG_STOPPED) != 0;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
     }
 
     public String getArtistId() {
@@ -156,6 +163,7 @@ public class ListItem implements Parcelable{
         this.thumbnailLarge= in.readString();
         this.thumbnailSmall = in.readString();
         this.trackName = in.readString();
+        this.duration = in.readLong();
     }
 
     @Override
@@ -174,6 +182,7 @@ public class ListItem implements Parcelable{
         dest.writeString(getThumbnailLarge());
         dest.writeString(getThumbnailSmall());
         dest.writeString(getTrackName());
+        dest.writeLong(getDuration());
     }
 
     public static final Parcelable.Creator<ListItem> CREATOR = new Parcelable.Creator<ListItem>() {

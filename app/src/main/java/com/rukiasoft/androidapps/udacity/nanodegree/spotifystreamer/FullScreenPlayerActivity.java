@@ -16,32 +16,17 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.FragmentManager;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.media.MediaDescription;
-import android.media.MediaMetadata;
-import android.media.browse.MediaBrowser;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
-import android.support.annotation.NonNull;
 import android.view.View;
-import android.widget.SeekBar;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.ButterKnife;
-
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 
 /**
  * A full screen player that shows the current playing music with a background image
@@ -86,5 +71,50 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
 
     }
 
+    @Override
+    protected void pausedSong(Bundle bundle){
+        super.pausedSong(bundle);
+        if(fullScreenPlayerFragment != null)
+            fullScreenPlayerFragment.setPausedSong();
+    }
+
+    @Override
+    protected void playingSong(Bundle bundle){
+        super.playingSong(bundle);
+        if(fullScreenPlayerFragment != null && bundle.containsKey(MusicService.SONG_INFO)){
+            ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
+            fullScreenPlayerFragment.setPlayingSong(song);
+        }
+    }
+
+    @Override
+    protected void finishedPlayingSong(Bundle bundle){
+        super.finishedPlayingSong(bundle);
+        if(fullScreenPlayerFragment != null)
+            fullScreenPlayerFragment.setFinishedPlayingSong();
+    }
+
+    @Override
+    protected void seekBarPositionReceived(int position){
+        super.seekBarPositionReceived(position);
+        if(fullScreenPlayerFragment != null)
+            fullScreenPlayerFragment.setSeekbarPosition(position);
+    }
+
+    public void onPlayPauseClicked(View v){
+        LogHelper.d(TAG, "clicked");
+        MusicServiceActivity activity;
+        if(!(this instanceof MusicServiceActivity))  return;
+        switch (currentSongState) {
+            case MediaControlsActivity.STATE_PAUSED:
+                sendResumeMessageToService();
+                break;
+            case MediaControlsActivity.STATE_PLAYING:
+                sendPauseMessageToService();
+                break;
+            default:
+                break;
+        }
+    }
 
 }

@@ -15,7 +15,6 @@
  */
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -39,24 +38,32 @@ public class PlaybackControlsFragment extends Fragment {
 
     private static final String TAG = LogHelper.makeLogTag(PlaybackControlsFragment.class);
     private static final String SONG_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.songitem";
+    private static final String BUTTON_STATE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.buttonstate";
 
     @InjectView(R.id.play_pause_play_controls) ImageButton mPlayPause;
     @InjectView(R.id.song_play_controls) TextView mTitle;
     @InjectView(R.id.album_play_controls) TextView mSubtitle;
     @InjectView(R.id.album_art_play_controls) ImageView mAlbumArt;
     ListItem mSong;
+    Integer mPlayPauseResource = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.containsKey(SONG_ITEM))
-            mSong = savedInstanceState.getParcelable(SONG_ITEM);
+        if(savedInstanceState != null) {
+            if (savedInstanceState.containsKey(SONG_ITEM))
+                mSong = savedInstanceState.getParcelable(SONG_ITEM);
+            if (savedInstanceState.containsKey(BUTTON_STATE))
+                mPlayPauseResource = savedInstanceState.getInt(BUTTON_STATE);
+        }
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save play controls state
         savedInstanceState.putParcelable(SONG_ITEM, mSong);
+        if(mPlayPauseResource != null)
+            savedInstanceState.putInt(BUTTON_STATE, mPlayPauseResource);
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -68,6 +75,12 @@ public class PlaybackControlsFragment extends Fragment {
         ButterKnife.inject(this, rootView);
         mPlayPause.setEnabled(true);
         mPlayPause.setOnClickListener(mButtonListener);
+        if(mPlayPauseResource == null) {
+            setPlayButton();
+        }else{
+            mPlayPause.setImageDrawable(
+                    getActivity().getDrawable(mPlayPauseResource));
+        }
 
         if(mSong != null)
             showSongInfo();
@@ -90,6 +103,12 @@ public class PlaybackControlsFragment extends Fragment {
     }
 
     @Override
+    public void onResume(){
+        super.onResume();
+        if(mSong != null)
+            showSongInfo();
+    }
+    @Override
     public void onStart() {
         super.onStart();
         LogHelper.d(TAG, "fragment.onStart");
@@ -104,18 +123,20 @@ public class PlaybackControlsFragment extends Fragment {
     }
 
     public void setPlayButton(){
+        mPlayPauseResource = R.drawable.ic_play_arrow_black_36dp;
         mPlayPause.setImageDrawable(
-                getActivity().getDrawable(R.drawable.ic_play_arrow_black_36dp));
+                getActivity().getDrawable(mPlayPauseResource));
     }
 
     public void setPauseButton(){
-        Activity activity = getActivity();
-        mPlayPause.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pause_black_36dp));
+        mPlayPauseResource = R.drawable.ic_pause_black_36dp;
+        mPlayPause.setImageDrawable(
+                getActivity().getDrawable(mPlayPauseResource));
     }
 
-    public void setSongInfo(ListItem song){
+    public void setSongInfo(ListItem song, Boolean updateView){
         mSong = song;
-        showSongInfo();
+        if(updateView) showSongInfo();
     }
 
     public void buffering(){
@@ -139,8 +160,8 @@ public class PlaybackControlsFragment extends Fragment {
     private final View.OnClickListener mButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            MediaControlsActivity activity;
-            if(getActivity() instanceof MediaControlsActivity) activity = (MediaControlsActivity) getActivity();
+            MusicServiceActivity activity;
+            if(getActivity() instanceof MusicServiceActivity) activity = (MusicServiceActivity) getActivity();
             else    return;
             switch (activity.currentSongState) {
                 case MediaControlsActivity.STATE_PAUSED:
