@@ -119,7 +119,6 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         super.onStart();
         if(playIntent==null){
             playIntent = new Intent(this, MusicService.class);
-            getApplicationContext();
             bindService(playIntent, musicConnection, BIND_AUTO_CREATE);
             startService(playIntent);
         }

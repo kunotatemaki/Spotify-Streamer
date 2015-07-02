@@ -223,7 +223,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
         sendSetCurrentSongMessageToService(position);
-        //sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
         showPlaybackControls();
         //start FullPlayerScreen

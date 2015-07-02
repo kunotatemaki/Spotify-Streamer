@@ -1,10 +1,12 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.session.MediaController;
@@ -108,10 +110,10 @@ public class MusicService extends Service implements
             sendSeekBarPosition();
         }
 
-
     }
 
     SeekBarUpdateTask seekBarUpdateTask;
+
 
 
     private void handleIntent( Intent intent ) {
@@ -138,31 +140,63 @@ public class MusicService extends Service implements
         return new Notification.Action.Builder( icon, title, pendingIntent ).build();
     }
 
-    private void buildNotification( Notification.Action action ) {
+    private Notification buildNotification( Notification.Action action ) {
         Notification.MediaStyle style = new Notification.MediaStyle();
 
-        Intent intent = new Intent( getApplicationContext(), MusicService.class );
-        intent.setAction( ACTION_PLAY );
-        PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
+        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //TODO load icon
+        Bitmap theBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
+
         Notification.Builder builder = new Notification.Builder( this )
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle( "Media Title" )
-                .setContentText( "Media Artist" )
-                .setDeleteIntent( pendingIntent )
+                .setSmallIcon(android.R.drawable.ic_media_play)
+                .setContentTitle(currentPlayingSong.getTrackName())
+                .setContentText(currentPlayingSong.getAlbumName())
+                .setLargeIcon(theBitmap)
+                .setContentIntent(pi)
                 .setStyle(style);
+
 
         builder.addAction( generateAction( android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS ) );
         builder.addAction( action );
         builder.addAction( generateAction( android.R.drawable.ic_media_next, "Next", ACTION_NEXT ) );
-        style.setShowActionsInCompactView(0,1,2);
+        style.setShowActionsInCompactView(1);
 
-        NotificationManager notificationManager = (NotificationManager) getSystemService( this.NOTIFICATION_SERVICE );
-        notificationManager.notify( 1, builder.build() );
+       // NotificationManager notificationManager = (NotificationManager) getSystemService( this.NOTIFICATION_SERVICE );
+       // notificationManager.notify( 1, builder.build() );
+        return builder.build();
+    }
+
+
+
+
+    /**
+     * set the service as a foreground service
+     */
+    private void setAsForeground(){
+        String songName;
+        // assign the song name to songName
+        /*PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
+                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Builder builder = new Notification.Builder(
+                this);
+        Notification notification = builder.setContentIntent(pi)
+                .setSmallIcon(android.R.drawable.ic_media_play).setTicker("Reproductor spotify ticker")
+                .setAutoCancel(true).setContentTitle("reproductor spotify title")
+                .setContentText("reproductor spotify content text").build();
+        startForeground(NOTIFICATION_ID, notification);*/
+        Notification notification = buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
+        startForeground(NOTIFICATION_ID, notification);
+
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if( mManager == null ) {
+            mManager = (MediaSessionManager) this.getSystemService(Context.MEDIA_SESSION_SERVICE);
             initMediaSessions();
         }
 
@@ -181,57 +215,39 @@ public class MusicService extends Service implements
         mController =new MediaController(getApplicationContext(), mSession.getSessionToken());
 
         mSession.setCallback(new MediaSession.Callback(){
-                                 @Override
-                                 public void onPlay() {
-                                     super.onPlay();
-                                     LogHelper.d("MediaPlayerService", "onPlay");
-                                     buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                                 }
+                 @Override
+                 public void onPlay() {
+                     super.onPlay();
+                     LogHelper.d("MediaPlayerService", "onPlay");
+                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
+                 }
 
-                                 @Override
-                                 public void onPause() {
-                                     super.onPause();
-                                     LogHelper.d("MediaPlayerService", "onPause");
-                                     buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
-                                 }
+                 @Override
+                 public void onPause() {
+                     //super.onPause();
+                     LogHelper.d("MediaPlayerService", "onPause");
+                     //buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
+                 }
 
-                                 @Override
-                                 public void onSkipToNext() {
-                                     super.onSkipToNext();
-                                     LogHelper.e( "MediaPlayerService", "onSkipToNext");
-                                     //Change media here
-                                     buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                                 }
+                 @Override
+                 public void onSkipToNext() {
+                     //super.onSkipToNext();
+                     LogHelper.e( "MediaPlayerService", "onSkipToNext");
+                     skipToNext();
+                     //Change media here
+                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
+                 }
 
-                                 @Override
-                                 public void onSkipToPrevious() {
-                                     super.onSkipToPrevious();
-                                     LogHelper.d( "MediaPlayerService", "onSkipToPrevious");
-                                     //Change media here
-                                     buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                                 }
-                                /*
-                                 @Override
-                                 public void onStop() {
-                                     super.onStop();
-                                     Log.e( "MediaPlayerService", "onStop");
-                                     //Stop media player here
-                                     NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-                                     notificationManager.cancel( 1 );
-                                     Intent intent = new Intent( getApplicationContext(), MediaPlayerService.class );
-                                     stopService( intent );
-                                 }
+                 @Override
+                 public void onSkipToPrevious() {
+                     //super.onSkipToPrevious();
+                     LogHelper.d( "MediaPlayerService", "onSkipToPrevious");
+                     skipToPrev();
+                     //Change media here
+                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
+                 }
 
-                                 @Override
-                                 public void onSeekTo(long pos) {
-                                     super.onSeekTo(pos);
-                                 }
-
-                                 @Override
-                                 public void onSetRating(Rating rating) {
-                                     super.onSetRating(rating);
-                                 }*/
-                             }
+             }
         );
     }
 
@@ -368,10 +384,10 @@ public class MusicService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
-        setAsForeground();
         executeTask();
         mp.start();
         currentPlayingSong = songs.get(songPosn);
+        setAsForeground();
         sendSongPlaying(currentPlayingSong, songPosn, true);
         previouSong = songPosn;
     }
@@ -439,25 +455,7 @@ public class MusicService extends Service implements
         super.onDestroy();
     }
 
-    /**
-     * set the service as a foreground service
-     */
-    private void setAsForeground(){
-        String songName;
-        // assign the song name to songName
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        /*Notification.Builder builder = new Notification.Builder(
-                this);
-        Notification notification = builder.setContentIntent(pi)
-                .setSmallIcon(android.R.drawable.ic_media_play).setTicker("Reproductor spotify ticker")
-                .setAutoCancel(true).setContentTitle("reproductor spotify title")
-                .setContentText("reproductor spotify content text").build();
-        startForeground(NOTIFICATION_ID, notification);*/
 
-
-    }
 
     private void releaseMediaPlayer(){
         if(mMediaPlayer != null){
@@ -500,6 +498,7 @@ public class MusicService extends Service implements
             try {
                 // Send data
                 Bundle bundle = new Bundle();
+                song.setDuration(mMediaPlayer.getDuration());
                 bundle.putParcelable(SONG_INFO, song);
                 bundle.putInt(SONG_POSITION, currentSong);
                 if(songPosn == 0)   //first song, no prev

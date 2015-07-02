@@ -220,7 +220,7 @@ public class TopTracksFragment extends Fragment {
                     item.setPreviewUrl(tracks.tracks.get(i).preview_url);
                     //in this case, instead of duration, we use 30s (preview) => 30000ms
                     //item.setDuration(tracks.tracks.get(i).duration_ms);
-                    item.setDuration(30000);
+                    //item.setDuration(30000);
                     for (int j = 0; j < tracks.tracks.get(i).album.images.size(); j++) {
                         if (j == 0) {
                             item.setThumbnailLarge(tracks.tracks.get(i).album.images.get(j).url);
