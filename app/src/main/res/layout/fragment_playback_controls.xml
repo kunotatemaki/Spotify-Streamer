@@ -26,7 +26,8 @@
         android:layout_height="@dimen/playback_controls_albumart_size"
         android:scaleType="centerCrop"
         android:contentDescription="@string/currently_playing_song"
-        android:layout_alignParentStart="true"/>
+        android:layout_alignParentStart="true"
+        android:transitionName="@string/track_pic_imageview"/>
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="wrap_content"
@@ -45,7 +46,8 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/currently_playing_song"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="?android:attr/textColorPrimary"/>
+            android:textColor="?android:attr/textColorPrimary"
+            android:transitionName="@string/song_name_textview"/>
         <TextView
             android:id="@+id/album_play_controls"
             tools:text="John Doe and Band"
@@ -54,7 +56,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/currently_playing_artist"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:transitionName="@string/album_name_textview"/>
     </LinearLayout>
     <ImageButton
         android:id="@+id/play_pause_play_controls"

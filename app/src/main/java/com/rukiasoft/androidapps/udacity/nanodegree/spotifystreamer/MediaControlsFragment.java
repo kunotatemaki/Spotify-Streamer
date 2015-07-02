@@ -16,7 +16,11 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Fragment;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,9 +38,9 @@ import butterknife.InjectView;
 /**
  * A class that shows the Media Queue to the user.
  */
-public class PlaybackControlsFragment extends Fragment {
+public class MediaControlsFragment extends Fragment {
 
-    private static final String TAG = LogHelper.makeLogTag(PlaybackControlsFragment.class);
+    private static final String TAG = LogHelper.makeLogTag(MediaControlsFragment.class);
     private static final String SONG_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.songitem";
     private static final String BUTTON_STATE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.buttonstate";
 
@@ -75,12 +79,7 @@ public class PlaybackControlsFragment extends Fragment {
         ButterKnife.inject(this, rootView);
         mPlayPause.setEnabled(true);
         mPlayPause.setOnClickListener(mButtonListener);
-        if(mPlayPauseResource == null) {
-            setPlayButton();
-        }else{
-            mPlayPause.setImageDrawable(
-                    getActivity().getDrawable(mPlayPauseResource));
-        }
+
 
         if(mSong != null)
             showSongInfo();
@@ -89,17 +88,32 @@ public class PlaybackControlsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 //TODO lanzar la otra activity
-                /*Intent intent = new Intent(getActivity(), FullScreenPlayerActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                MediaMetadata metadata = getActivity().getMediaController().getMetadata();
-                if (metadata != null) {
-                    intent.putExtra(MusicPlayerActivity.EXTRA_CURRENT_MEDIA_DESCRIPTION,
-                        metadata.getDescription());
-                }
-                startActivity(intent);*/
+                startFullScreenActivity();
             }
         });
         return rootView;
+    }
+
+    private void startFullScreenActivity(){
+        Intent fullPlayerIntent = new Intent(getActivity(), FullScreenPlayerActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(MusicService.SONG_INFO, mSong);
+        fullPlayerIntent.putExtras(bundle);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+
+                    // Now we provide a list of Pair items which contain the view we can transitioning
+                    // from, and the name of the view it is transitioning to, in the launched activity
+                    new Pair<>((View)mAlbumArt,
+                            getActivity().getResources().getString(R.string.track_pic_imageview)),
+                    new Pair<>((View)mTitle,
+                            getActivity().getResources().getString(R.string.song_name_textview)),
+                    new Pair<>((View)mSubtitle,
+                            getActivity().getResources().getString(R.string.album_name_textview)));
+            startActivity(fullPlayerIntent, activityOptions.toBundle());
+        } else {
+            startActivity(fullPlayerIntent);
+        }
     }
 
     @Override
@@ -107,6 +121,12 @@ public class PlaybackControlsFragment extends Fragment {
         super.onResume();
         if(mSong != null)
             showSongInfo();
+        if(mPlayPauseResource == null) {
+            setPlayButton();
+        }else{
+            mPlayPause.setImageDrawable(
+                    getActivity().getDrawable(mPlayPauseResource));
+        }
     }
     @Override
     public void onStart() {
@@ -124,14 +144,18 @@ public class PlaybackControlsFragment extends Fragment {
 
     public void setPlayButton(){
         mPlayPauseResource = R.drawable.ic_play_arrow_black_36dp;
-        mPlayPause.setImageDrawable(
-                getActivity().getDrawable(mPlayPauseResource));
+        if(isVisible()) {
+            mPlayPause.setImageDrawable(
+                    getActivity().getDrawable(mPlayPauseResource));
+        }
     }
 
     public void setPauseButton(){
         mPlayPauseResource = R.drawable.ic_pause_black_36dp;
-        mPlayPause.setImageDrawable(
-                getActivity().getDrawable(mPlayPauseResource));
+        if(isVisible()) {
+            mPlayPause.setImageDrawable(
+                    getActivity().getDrawable(mPlayPauseResource));
+        }
     }
 
     public void setSongInfo(ListItem song, Boolean updateView){

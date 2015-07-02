@@ -17,7 +17,7 @@
     android:layout_alignParentBottom="true"
     custom:cardElevation="8dp">
 
-    <fragment android:name="com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.PlaybackControlsFragment"
+    <fragment android:name="com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.MediaControlsFragment"
         android:id="@+id/fragment_playback_controls"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -31,7 +31,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     private Boolean showingControls = false;
 
 
-    private PlaybackControlsFragment mControlsFragment;
+    private MediaControlsFragment mControlsFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     public void onResume() {
         super.onResume();
         LogHelper.d(TAG, "Activity onStart");
-        mControlsFragment = (PlaybackControlsFragment) getFragmentManager()
+        mControlsFragment = (MediaControlsFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_playback_controls);
         if (mControlsFragment == null) {
             throw new IllegalStateException("Mising fragment with id 'controls'. Cannot continue.");

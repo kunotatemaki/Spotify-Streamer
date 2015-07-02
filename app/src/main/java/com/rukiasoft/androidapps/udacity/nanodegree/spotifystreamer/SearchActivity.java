@@ -226,7 +226,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         //sendSetAsForegroundMessageToService();
         sendPlayMessageToService();
         showPlaybackControls();
-        //setSongInfo(item);
+        //start FullPlayerScreen
         Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable(MusicService.SONG_INFO, item);
