@@ -37,6 +37,8 @@ public class MusicService extends Service implements
     public final static String SONG_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.songlist";
     public final static String ARTIST_ID = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.artistid";
     public final static String SEEKBAR_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.seekbarposition";
+    public static final String FIRST_SONG = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.firstsong";
+    public static final String LAST_SONG = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.lastsong";
 
     //media player
     private MediaPlayer player;
@@ -53,7 +55,7 @@ public class MusicService extends Service implements
     static final int MSG_UNREGISTER_CLIENT = 2;
     static final int MSG_PLAY = 3;
     static final int MSG_PAUSE = 4;
-    static final int MSG_STOP = 5;
+    static final int MSG_SEEK_TO_EXACT_POSITION = 5;
     static final int MSG_NEXT = 6;
     static final int MSG_PREV = 7;
     static final int MSG_SET_CURRENT_SONG = 8;
@@ -64,7 +66,6 @@ public class MusicService extends Service implements
     static final int MSG_PAUSED_SONG = 13;
     static final int MSG_RESUME = 14;
     static final int MSG_BUFFERING = 15;
-
 
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
@@ -92,9 +93,7 @@ public class MusicService extends Service implements
             sendSeekBarPosition();
         }
 
-        protected void onPostExecute(Void... params) {
 
-        }
     }
 
     SeekBarUpdateTask seekBarUpdateTask;
@@ -187,9 +186,15 @@ public class MusicService extends Service implements
                 case MSG_SET_CURRENT_SONG:
                     songPosn = msg.arg1;
                     break;
-                /*case MSG_SET_AS_FOREGROUND:
-                    setAsForeground();
-                    break;*/
+                case MSG_PREV:
+                    skipToPrev();
+                    break;
+                case MSG_NEXT:
+                    skipToNext();
+                    break;
+                case MSG_SEEK_TO_EXACT_POSITION:
+                    seekToExactPosition(msg.arg1);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -256,19 +261,29 @@ public class MusicService extends Service implements
     }
 
     private void resumeSong(){
-        executeTask();
-        player.start();
-        setAsForeground();
-        sendSongPlaying(currentPlayingSong, songPosn, false);
-        wifiLock.acquire();
+        try {
+            executeTask();
+            player.start();
+            setAsForeground();
+            sendSongPlaying(currentPlayingSong, songPosn, false);
+            wifiLock.acquire();
+        }catch(IllegalStateException e){
+            e.printStackTrace();
+            playSong();     //reset and play again
+        }
     }
 
     private void pauseSong(){
-        cancelTask();
-        player.pause();
-        stopForeground(false);
-        sendSongPaused(songPosn);
-        wifiLock.release();
+        try {
+            cancelTask();
+            player.pause();
+            stopForeground(false);
+            sendSongPaused(songPosn);
+            wifiLock.release();
+        }catch(IllegalStateException e){
+            e.printStackTrace();
+            player.reset(); //reset player
+        }
     }
 
 
@@ -339,6 +354,10 @@ public class MusicService extends Service implements
                 bundle.putParcelable(SONG_INFO, song);
                 bundle.putInt(SONG_POSITION, currentSong);
                 bundle.putString(ARTIST_ID, artistId);
+                if(songPosn == 0)   //first song, no prev
+                    bundle.putBoolean(FIRST_SONG, true);
+                if(songPosn == songs.size()-1)   //last song, no next
+                    bundle.putBoolean(LAST_SONG, true);
                 if(!start)
                     bundle.putInt(SEEKBAR_POSITION, player.getCurrentPosition());
                 else
@@ -386,6 +405,7 @@ public class MusicService extends Service implements
     }
 
     private void sendSeekBarPosition(){
+        if(player == null)  return;
         int timePlayed = player.getCurrentPosition();
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
@@ -400,7 +420,10 @@ public class MusicService extends Service implements
     }
 
     private void cancelTask(){
-        seekBarUpdateTask.cancel(true);
+        if(seekBarUpdateTask != null) {
+            seekBarUpdateTask.cancel(true);
+            seekBarUpdateTask = null;
+        }
     }
 
     private void executeTask(){
@@ -408,6 +431,39 @@ public class MusicService extends Service implements
         seekBarUpdateTask.execute();
     }
 
+    private void skipToPrev(){
+        cancelTask();
+        LogHelper.d(TAG, "skipToPrev");
+        sendFinisihedPlayingSong(songPosn);
+        if(songPosn > 0) {
+            songPosn--;
+            if (songPosn < songs.size()) {
+                playSong();
+            } else {
+                releaseMediaPlayer();
+            }
+        }
+    }
 
+    private void skipToNext(){
+        cancelTask();
+        LogHelper.d(TAG, "skipToNext");
+        sendFinisihedPlayingSong(songPosn);
+        songPosn++;
+        if(songPosn < songs.size()){
+            playSong();
+        }else {
+            releaseMediaPlayer();
+        }
+    }
+
+    private void seekToExactPosition(int mseconds){
+        try {
+            player.seekTo(mseconds);
+        }catch (IllegalStateException e){
+            e.printStackTrace();
+            player.reset();
+        }
+    }
 }
 

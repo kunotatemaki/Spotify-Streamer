@@ -20,7 +20,7 @@ public class ListItem implements Parcelable{
     private String thumbnailSmall;
     private String thumbnailLarge;
     private String previewUrl;
-    private long duration;
+    private int duration;
 
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
@@ -30,17 +30,17 @@ public class ListItem implements Parcelable{
     /**
      * Flag: Indicates that the item is being played.
      */
-    public static final int FLAG_PLAYING = 1 << 0;
+    public static final int FLAG_PLAYING = 1;
 
     /**
      * Flag: Indicates that the item is paused.
      */
-    public static final int FLAG_PAUSED = 1 << 1;
+    public static final int FLAG_PAUSED = 2;
 
     /**
      * Flag: Indicates that the item is stopped.
      */
-    public static final int FLAG_STOPPED = 1 << 2;
+    public static final int FLAG_STOPPED = 4;
 
 
 
@@ -59,36 +59,14 @@ public class ListItem implements Parcelable{
         this.mFlags = mFlags;
     }
 
-    /**
-     * Returns whether this item is paused.
-     * @see #FLAG_PAUSED
-     */
-    public boolean isPaused() {
-        return (mFlags & FLAG_PAUSED) != 0;
-    }
 
-    /**
-     * Returns whether this item is playing.
-     * @see #FLAG_PLAYING
-     */
-    public boolean isPlaying() {
-        return (mFlags & FLAG_PLAYING) != 0;
-    }
-
-    /**
-     * Returns whether this item is stopped.
-     * @see #FLAG_PLAYING
-     */
-    public boolean isStopped() {
-        return (mFlags & FLAG_STOPPED) != 0;
-    }
-
-    public long getDuration() {
+    public int getDuration() {
         return duration;
     }
 
+    //store song lenght in seconds
     public void setDuration(long duration) {
-        this.duration = duration;
+        this.duration = (int)duration/1000;
     }
 
     public String getArtistId() {
@@ -163,7 +141,7 @@ public class ListItem implements Parcelable{
         this.thumbnailLarge= in.readString();
         this.thumbnailSmall = in.readString();
         this.trackName = in.readString();
-        this.duration = in.readLong();
+        this.duration = in.readInt();
     }
 
     @Override
@@ -182,7 +160,7 @@ public class ListItem implements Parcelable{
         dest.writeString(getThumbnailLarge());
         dest.writeString(getThumbnailSmall());
         dest.writeString(getTrackName());
-        dest.writeLong(getDuration());
+        dest.writeInt(getDuration());
     }
 
     public static final Parcelable.Creator<ListItem> CREATOR = new Parcelable.Creator<ListItem>() {

@@ -190,10 +190,10 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         }
     }
 
-    /*protected void sendSetAsForegroundMessageToService() {
+    protected void sendSkipToNextMessageToService() {
         if (musicBound && mService != null) {
             try {
-                Message msg = Message.obtain(null, MusicService.MSG_SET_AS_FOREGROUND);
+                Message msg = Message.obtain(null, MusicService.MSG_NEXT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
             }
@@ -201,12 +201,38 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
                 e.printStackTrace();
             }
         }
-    }*/
+    }
+
+    protected void sendSkipToPrevMessageToService() {
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_PREV);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     protected void sendSetCurrentSongMessageToService(int position) {
         if (musicBound && mService != null) {
             try {
                 Message msg = Message.obtain(null, MusicService.MSG_SET_CURRENT_SONG, position, 0);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void sendSeekToPosition(int mseconds) {
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_SEEK_TO_EXACT_POSITION, mseconds, 0);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
             }

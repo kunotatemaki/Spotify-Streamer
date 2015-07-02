@@ -83,7 +83,11 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
         super.playingSong(bundle);
         if(fullScreenPlayerFragment != null && bundle.containsKey(MusicService.SONG_INFO)){
             ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
-            fullScreenPlayerFragment.setPlayingSong(song);
+            boolean prevAvailable = true;
+            boolean nextAvailable = true;
+            if(bundle.containsKey(MusicService.FIRST_SONG)) prevAvailable = false;
+            if(bundle.containsKey(MusicService.LAST_SONG)) nextAvailable = false;
+            fullScreenPlayerFragment.setPlayingSong(song, prevAvailable, nextAvailable);
         }
     }
 
@@ -95,16 +99,14 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
     }
 
     @Override
-    protected void seekBarPositionReceived(int position){
-        super.seekBarPositionReceived(position);
+    protected void seekBarPositionReceived(int mseconds){
+        super.seekBarPositionReceived(mseconds);
         if(fullScreenPlayerFragment != null)
-            fullScreenPlayerFragment.setSeekbarPosition(position);
+            fullScreenPlayerFragment.setSeekbarPosition(mseconds);
     }
 
     public void onPlayPauseClicked(View v){
-        LogHelper.d(TAG, "clicked");
-        MusicServiceActivity activity;
-        if(!(this instanceof MusicServiceActivity))  return;
+        LogHelper.d(TAG, "playpause clicked");
         switch (currentSongState) {
             case MediaControlsActivity.STATE_PAUSED:
                 sendResumeMessageToService();
@@ -115,6 +117,16 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
             default:
                 break;
         }
+    }
+
+    public void onPrevClicked(View v){
+        LogHelper.d(TAG, "prev clicked");
+        sendSkipToPrevMessageToService();
+    }
+
+    public void onNextClicked(View v){
+        LogHelper.d(TAG, "prev clicked");
+        sendSkipToNextMessageToService();
     }
 
 }

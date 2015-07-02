@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -25,8 +26,8 @@ import butterknife.InjectView;
 
 public class FullScreenPlayerFragment extends Fragment {
 
-    //private static final String LIST_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.songlist";
-    //private static final String ARTIST_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.toptracksfragment.artistitem";
+    private static final String PREV_AVAILABLE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.fullscreenfragment.prevavailable";
+    private static final String NEXT_AVAILABLE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.fullscreenfragment.nextavailable";
     private static final String TAG = LogHelper.makeLogTag(FullScreenPlayerFragment.class);
     private ListItem song;
 
@@ -46,9 +47,10 @@ public class FullScreenPlayerFragment extends Fragment {
     private Drawable mPlayDrawable;
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
-    private Boolean loaded;
     private boolean fragmentVisible;
-    private int seekbarPosition;
+    private boolean prevAvailable;
+    private boolean nextAvailable;
+    private boolean updateSeekbar = true;
 
 
     public FullScreenPlayerFragment() {
@@ -68,6 +70,8 @@ public class FullScreenPlayerFragment extends Fragment {
         //savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>)((TrackListAdapter) trackList.getAdapter()).getTracks());
         if(song != null)
             savedInstanceState.putParcelable(MusicService.SONG_INFO, song);
+        savedInstanceState.putBoolean(PREV_AVAILABLE, prevAvailable);
+        savedInstanceState.putBoolean(NEXT_AVAILABLE, nextAvailable);
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -94,26 +98,30 @@ public class FullScreenPlayerFragment extends Fragment {
         mPauseDrawable = getActivity().getDrawable(R.drawable.ic_pause_white_48dp);
         mPlayDrawable = getActivity().getDrawable(R.drawable.ic_play_arrow_white_48dp);
 
-        if(savedInstanceState != null
-                &&savedInstanceState.containsKey(MusicService.SONG_INFO)) {
-            song = savedInstanceState.getParcelable(MusicService.SONG_INFO);
+        if(savedInstanceState != null){
+            if(savedInstanceState.containsKey(MusicService.SONG_INFO)) {
+                song = savedInstanceState.getParcelable(MusicService.SONG_INFO);
+            }
+            prevAvailable = savedInstanceState.getBoolean(PREV_AVAILABLE);
+            nextAvailable = savedInstanceState.getBoolean(NEXT_AVAILABLE);
         }
 
         mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                //TODO formatear el texto
-                startText.setText(String.valueOf(progress));
+                startText.setText(Utilities.formatSongTime(progress));
             }
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                //stopSeekbarUpdate();
+                updateSeekbar = false;
             }
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-                //seekTo(seekBar.getProgress());
+                updateSeekbar = true;
+                if(getActivity() instanceof MusicServiceActivity)
+                    ((MusicServiceActivity)getActivity()).sendSeekToPosition(seekBar.getProgress() * 1000);
             }
         });
 
@@ -148,8 +156,8 @@ public class FullScreenPlayerFragment extends Fragment {
         mLine2.setText(song.getAlbumName());
         mLine1.setText(song.getTrackName());
         mLine3.setText(song.getArtistName());
-        endText.setText(String.valueOf(song.getDuration()));
-        mSeekbar.setMax((int)song.getDuration()/1000);
+        endText.setText(Utilities.formatSongTime(song.getDuration()));
+        mSeekbar.setMax(song.getDuration());
 
         MusicServiceActivity activity;
         if(getActivity() instanceof MusicServiceActivity)  {
@@ -164,13 +172,22 @@ public class FullScreenPlayerFragment extends Fragment {
             default:
                 break;
         }}
+        if(nextAvailable)
+            mSkipNext.setVisibility(View.VISIBLE);
+        else
+            mSkipNext.setVisibility(View.INVISIBLE);
+
+        if(prevAvailable)
+            mSkipPrev.setVisibility(View.VISIBLE);
+        else
+            mSkipPrev.setVisibility(View.INVISIBLE);
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && addTransitionListener()) {
             // If we're running on Lollipop and we have added a listener to the shared element
             // transition, load the thumbnail. The listener will load the full-size image when
             // the transition is complete.
-            //loadThumbnail();
+            loadThumbnail();
         } else {
             // If all other cases we should just load the full-size image now
             loadFullSizeImage();
@@ -258,22 +275,11 @@ public class FullScreenPlayerFragment extends Fragment {
         return false;
     }
 
-    @Override
-    public void onActivityCreated(Bundle state) {
-        super.onActivityCreated(state);
 
-        /*try {
-            mCallback = (TopTracksFragmentSelectionListener) getActivity();
-        } catch (ClassCastException e) {
-            throw new ClassCastException(getActivity().toString()
-                    + " must implement SelectionListener");
-        }*/
-
-    }
-
-
-    public void setPlayingSong(ListItem song){
+    public void setPlayingSong(ListItem song, boolean prevAvailable, boolean nextAvailable){
         this.song = song;
+        this.prevAvailable = prevAvailable;
+        this.nextAvailable = nextAvailable;
 
         if(fragmentVisible)
             loadComponents();
@@ -285,13 +291,15 @@ public class FullScreenPlayerFragment extends Fragment {
     }
 
     public void setFinishedPlayingSong() {
-        if(fragmentVisible)
+        if(fragmentVisible) {
             mPlayPause.setImageDrawable(mPlayDrawable);
+            mSeekbar.setProgress(0);
+        }
     }
 
-    public void setSeekbarPosition(int position){
-        if(fragmentVisible)
-            mSeekbar.setProgress((int)position/1000);
+    public void setSeekbarPosition(long miliseconds){
+        if(fragmentVisible && updateSeekbar)
+            mSeekbar.setProgress((int)miliseconds/1000);
     }
 
 

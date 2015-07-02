@@ -93,6 +93,18 @@ public class TopTracksFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_top_tracks_list, container, false);
         ButterKnife.inject(this, view);
 
+        List<ListItem> songs = new ArrayList<>();
+        ListItem artist = new ListItem();
+        if(savedInstanceState != null
+                &&savedInstanceState.containsKey(ARTIST_ITEM)
+                && savedInstanceState.containsKey(LIST_SONGS)) {
+            songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
+            artist = savedInstanceState.getParcelable(ARTIST_ITEM);
+            loaded = true;
+        }else{
+            loaded = false;
+        }
+
         if(null != toolbar_top_track_list) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbar_top_track_list, false, false, false);
@@ -145,16 +157,10 @@ public class TopTracksFragment extends Fragment {
             ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
         }
 
-        if(savedInstanceState != null
-                &&savedInstanceState.containsKey(ARTIST_ITEM)
-                && savedInstanceState.containsKey(LIST_SONGS)) {
-            List<ListItem> songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
-            ListItem artist = savedInstanceState.getParcelable(ARTIST_ITEM);
+        if(loaded) {
             setTopTracks(songs, artist.getArtistId());
-            loaded = true;
-        }else{
-            loaded = false;
         }
+
         return view;
     }
 
@@ -253,6 +259,7 @@ public class TopTracksFragment extends Fragment {
     }
 
     private void loadArtistInformationForToolbar() {
+        if(artist == null)  return;
         if(toolbarSubtitle != null)
             toolbarSubtitle.setText(artist.getArtistName());
 
