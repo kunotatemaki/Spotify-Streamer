@@ -207,6 +207,12 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     }
 
     protected void sendSkipToPrevMessageToService() {
+        Intent intent = new Intent( getApplicationContext(), MusicService.class );
+        intent.setAction( MusicService.ACTION_PREVIOUS );
+        startService(intent);
+        //TODO hacer lo mismo para el resto de botones
+
+        /*PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
         if (musicBound && mService != null) {
             try {
                 Message msg = Message.obtain(null, MusicService.MSG_PREV);
@@ -216,7 +222,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
             catch (RemoteException e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     protected void sendSetCurrentSongMessageToService(int position) {

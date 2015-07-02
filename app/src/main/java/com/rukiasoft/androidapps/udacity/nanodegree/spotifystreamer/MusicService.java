@@ -136,6 +136,7 @@ public class MusicService extends Service implements
     private Notification.Action generateAction( int icon, String title, String intentAction ) {
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
         intent.setAction( intentAction );
+        //TODO probar lo mismo para los otros botones, a ver si elimino mensajes
         PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
         return new Notification.Action.Builder( icon, title, pendingIntent ).build();
     }
