@@ -2,9 +2,12 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
+import android.app.TaskStackBuilder;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
@@ -47,6 +50,7 @@ public class FullScreenPlayerFragment extends Fragment {
     private Drawable mPlayDrawable;
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
+    @InjectView(R.id.toolbar_full_screen_back_arrow_on_image) ImageView backArrow;
     private boolean fragmentVisible;
     private boolean prevAvailable;
     private boolean nextAvailable;
@@ -84,11 +88,18 @@ public class FullScreenPlayerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
         ButterKnife.inject(this, view);
 
-        if(null != toolbarFullPlayer) {
+        /*if(null != toolbarFullPlayer) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullPlayer, true, false, false);
             }
-        }
+        }*/
+        backArrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().onBackPressed();
+
+            }
+        });
 
         if(getActivity() instanceof ToolbarAndRefreshActivity) {
             ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
@@ -215,7 +226,7 @@ public class FullScreenPlayerFragment extends Fragment {
         if(mBackgroundImage != null) {
             Glide.with(getActivity())
                     .load(song.getThumbnailLarge())
-                    .error(R.drawable.default_image)
+                    .error(R.drawable.fullscreen_default)
                     .into(mBackgroundImage);
         }
     }

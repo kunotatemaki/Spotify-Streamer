@@ -43,7 +43,7 @@ public class MusicService extends Service implements
     //media player
     private MediaPlayer player;
     //song list
-    private List<ListItem> songs;
+    private List<ListItem> songs = new ArrayList<>();
     private ListItem currentPlayingSong;
     //current position
     private int songPosn;
@@ -66,6 +66,9 @@ public class MusicService extends Service implements
     static final int MSG_PAUSED_SONG = 13;
     static final int MSG_RESUME = 14;
     static final int MSG_BUFFERING = 15;
+    static final int MSG_ASK_CURRENT_PLAYING_SONG = 16;
+    static final int MSG_ASK_CURRENT_LIST = 17;
+    static final int MSG_SONG_LIST_SENT = 18;
 
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
@@ -164,15 +167,15 @@ public class MusicService extends Service implements
                     mClients.remove(msg.replyTo);
                     break;
                 case MSG_SET_SONG_LIST:
-                    List<ListItem> songs = msg.getData().getParcelableArrayList(SONG_LIST);
+                    List<ListItem> _songs = msg.getData().getParcelableArrayList(SONG_LIST);
                     if(msg.getData().containsKey(ARTIST_ID)){
                         if(!artistId.equals(msg.getData().getString(ARTIST_ID))){
                             //new artist id => new list of tracks. don't update play/pause events on current playing song
                             artistId = msg.getData().getString(ARTIST_ID);
-                            songPosn = 0;
+                            songPosn = -1;
                         }
                     }
-                    setList(songs);
+                    setList(_songs);
                     break;
                 case MSG_PLAY:
                     playSong();
@@ -194,6 +197,14 @@ public class MusicService extends Service implements
                     break;
                 case MSG_SEEK_TO_EXACT_POSITION:
                     seekToExactPosition(msg.arg1);
+                    break;
+                case MSG_ASK_CURRENT_PLAYING_SONG:
+                    if(currentPlayingSong != null)
+                        sendSongPlaying(currentPlayingSong, songPosn, false);
+                    break;
+                case MSG_ASK_CURRENT_LIST:
+                    if(songs != null)
+                        sendSongList();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -299,11 +310,9 @@ public class MusicService extends Service implements
     private void setAsForeground(){
         String songName;
         // assign the song name to songName
-        //TODO abrir la activity de pantalla completa
         PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), SearchActivity.class),
+                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
                 PendingIntent.FLAG_UPDATE_CURRENT);
-
         Notification.Builder builder = new Notification.Builder(
                 this);
         Notification notification = builder.setContentIntent(pi)
@@ -330,7 +339,8 @@ public class MusicService extends Service implements
                 // Send data
                 Bundle bundle = new Bundle();
                 bundle.putInt(SONG_POSITION, currentSong);
-                bundle.putString(ARTIST_ID, artistId);
+                if(currentPlayingSong != null)
+                    bundle.putString(ARTIST_ID, currentPlayingSong.getArtistId());
                 Message msg = Message.obtain(null, MusicService.MSG_FINISHED_PLAYING_SONG);
                 msg.setData(bundle);
                 mClients.get(i).send(msg);
@@ -344,7 +354,9 @@ public class MusicService extends Service implements
 
     /**
      * send info to activity to show artist playing
+     * @param song song info
      * @param currentSong position of the song in the tracklist
+     * @param start send player position if false, 0 if true;
      */
     private void sendSongPlaying(ListItem song, int currentSong, boolean start){
         for (int i=mClients.size()-1; i>=0; i--) {
@@ -353,7 +365,6 @@ public class MusicService extends Service implements
                 Bundle bundle = new Bundle();
                 bundle.putParcelable(SONG_INFO, song);
                 bundle.putInt(SONG_POSITION, currentSong);
-                bundle.putString(ARTIST_ID, artistId);
                 if(songPosn == 0)   //first song, no prev
                     bundle.putBoolean(FIRST_SONG, true);
                 if(songPosn == songs.size()-1)   //last song, no next
@@ -373,13 +384,33 @@ public class MusicService extends Service implements
         }
     }
 
+    /**
+     * send list of tracks
+     */
+    private void sendSongList(){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                // Send data
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArrayList(SONG_LIST, (ArrayList<ListItem>)songs);
+                Message msg = Message.obtain(null, MusicService.MSG_SONG_LIST_SENT);
+                msg.setData(bundle);
+                mClients.get(i).send(msg);
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
     private void sendSongPaused(Integer currentSong){
         for (int i=mClients.size()-1; i>=0; i--) {
             try {
                 // Send data
                 Bundle bundle = new Bundle();
                 bundle.putInt(SONG_POSITION, currentSong);
-                bundle.putString(ARTIST_ID, artistId);
+                bundle.putString(ARTIST_ID, currentPlayingSong.getArtistId());
                 Message msg = Message.obtain(null, MusicService.MSG_PAUSED_SONG);
                 msg.setData(bundle);
                 mClients.get(i).send(msg);

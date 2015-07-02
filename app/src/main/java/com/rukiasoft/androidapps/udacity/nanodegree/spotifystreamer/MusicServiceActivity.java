@@ -52,6 +52,10 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
                 case MusicService.MSG_SEEKBAR_POSITION:
                     seekBarPositionReceived(msg.arg1);
                     break;
+                case MusicService.MSG_SONG_LIST_SENT:
+                    bundle = msg.getData();
+                    songListReceived(bundle);
+                    break;
                 default:
                     super.handleMessage(msg);
             }
@@ -259,6 +263,32 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         }
     }
 
+    protected void sendAskForCurrentPlayingSongService(){
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_ASK_CURRENT_PLAYING_SONG);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    protected void sendAskForCurrentListService(){
+        if (musicBound && mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_ASK_CURRENT_LIST);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }
+            catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     protected void pausedSong(Bundle bundle){
         currentSongState = STATE_PAUSED;
         hideRefreshLayoutSwipeProgress();
@@ -282,6 +312,13 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     protected void seekBarPositionReceived(int position){
 
     }
+
+    protected void songListReceived(Bundle bundle){
+
+    }
+
+
+
 
 
 }

@@ -263,12 +263,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
         boolean updateView;
-        if(!MusicServiceActivityVisible)
-            updateView = false;
-        else
-            updateView = true;
         if(topTracksFragment != null){
-            topTracksFragment.setPlayingSong(bundle, updateView);
+            topTracksFragment.setPlayingSong(bundle);
         }
 
     }
@@ -277,13 +273,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void pausedSong(Bundle bundle){
         super.pausedSong(bundle);
         boolean updateView;
-        if(!MusicServiceActivityVisible)
-            updateView = false;
-        else
-            updateView = true;
-
         if(topTracksFragment != null){
-            topTracksFragment.setPausedSong(bundle, updateView);
+            topTracksFragment.setPausedSong(bundle);
         }
     }
 
@@ -291,13 +282,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void finishedPlayingSong(Bundle bundle){
         super.finishedPlayingSong(bundle);
         boolean updateView;
-        if(!MusicServiceActivityVisible)
-            updateView = false;
-        else
-            updateView = true;
-
         if (topTracksFragment != null){
-            topTracksFragment.setFinishedPlayingSong(bundle, updateView);
+            topTracksFragment.setFinishedPlayingSong(bundle);
         }
     }
 }

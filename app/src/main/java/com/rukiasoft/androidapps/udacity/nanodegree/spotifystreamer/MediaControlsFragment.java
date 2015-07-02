@@ -49,6 +49,7 @@ public class MediaControlsFragment extends Fragment {
     @InjectView(R.id.album_play_controls) TextView mSubtitle;
     @InjectView(R.id.album_art_play_controls) ImageView mAlbumArt;
     ListItem mSong;
+
     Integer mPlayPauseResource = null;
 
     @Override
@@ -158,12 +159,13 @@ public class MediaControlsFragment extends Fragment {
         }
     }
 
-    public void setSongInfo(ListItem song, Boolean updateView){
+    public void setSongInfo(ListItem song){
         mSong = song;
-        if(updateView) showSongInfo();
+        if(isVisible()) showSongInfo();
     }
 
     public void buffering(){
+        if(!isVisible()) return;
         mTitle.setText(getResources().getString(R.string.buffering));
         mSubtitle.setText("");
         Glide.with(getActivity())

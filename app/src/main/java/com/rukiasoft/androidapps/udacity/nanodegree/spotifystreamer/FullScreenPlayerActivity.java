@@ -35,12 +35,6 @@ import butterknife.ButterKnife;
 public class FullScreenPlayerActivity extends MusicServiceActivity {
     private static final String TAG = LogHelper.makeLogTag(FullScreenPlayerActivity.class);
 
-    private final ScheduledExecutorService mExecutorService =
-        Executors.newSingleThreadScheduledExecutor();
-
-    private ScheduledFuture<?> mScheduleFuture;
-    private PlaybackState mLastPlaybackState;
-
     private FullScreenPlayerFragment fullScreenPlayerFragment;
 
 
@@ -60,13 +54,15 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
             fm.beginTransaction().add(R.id.activity_full_player_container, fullScreenPlayerFragment, FullScreenPlayerFragment.class.getSimpleName()).commit();
             fm.executePendingTransactions();
         }
-        //get artist item
+
+        ListItem song;
         if(!getIntent().hasExtra(MusicService.SONG_INFO)){
             //no artist item. Finish Activity
-            setResult(RESULT_CANCELED);
-            finish();
+            sendAskForCurrentPlayingSongService();
+            song = new ListItem();
+        }else {
+            song = getIntent().getExtras().getParcelable(MusicService.SONG_INFO);
         }
-        ListItem song = getIntent().getExtras().getParcelable(MusicService.SONG_INFO);
         fullScreenPlayerFragment.setSong(song);
 
     }
