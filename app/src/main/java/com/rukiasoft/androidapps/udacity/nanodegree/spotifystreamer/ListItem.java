@@ -178,3 +178,7 @@ public class ListItem implements Parcelable{
 //http://stackoverflow.com/questions/14151661/mediaplayer-service-android
 
 //http://code.tutsplus.com/tutorials/create-a-music-player-on-android-song-playback--mobile-22778
+
+//http://www.binpress.com/tutorial/using-android-media-style-notifications-with-media-session-controls/165
+
+//http://developer.android.com/guide/topics/ui/notifiers/notifications.html
