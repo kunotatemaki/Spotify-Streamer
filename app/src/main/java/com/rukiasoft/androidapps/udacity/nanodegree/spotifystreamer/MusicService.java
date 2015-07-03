@@ -94,27 +94,43 @@ public class MusicService extends Service implements
     WifiManager.WifiLock wifiLock;
     private Bitmap defaultBitmap;
 
-    private class SeekBarUpdateTask extends AsyncTask<Void, Void, Void> {
-        protected Void doInBackground(Void... params) {
-            while(!isCancelled()){
-                try {
-                    Thread.sleep(1000);
-                    publishProgress(null);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    return null;
-                }
+
+    public class SeekBarUpdateBackgroundProcess implements Runnable {
+
+        Thread backgroundThread;
+
+        public void start() {
+            if (backgroundThread == null) {
+                backgroundThread = new Thread(this);
+                backgroundThread.start();
             }
-            return null;
         }
 
-        protected void onProgressUpdate(Void... params) {
-            sendSeekBarPosition();
+        public void stop() {
+            if (backgroundThread != null) {
+                backgroundThread.interrupt();
+            }
         }
 
+        public void run() {
+            try {
+                LogHelper.d("Thread starting.");
+                while (!backgroundThread.interrupted()) {
+                    sendSeekBarPosition();
+                    Thread.sleep(1000);
+                }
+                LogHelper.d("Thread stopping.");
+            } catch (InterruptedException ex) {
+                // important you respond to the InterruptedException and stop processing
+                // when its thrown!  Notice this is outside the while loop.
+                LogHelper.d("Thread shutting down");
+            } finally {
+                backgroundThread = null;
+            }
+        }
     }
 
-    SeekBarUpdateTask seekBarUpdateTask;
+    SeekBarUpdateBackgroundProcess seekBarUpdateBackgroundProcess;
 
     private class DownloadBitmapTask extends AsyncTask<Void, Void, Bitmap> {
         protected Bitmap doInBackground(Void... params) {
@@ -322,8 +338,6 @@ public class MusicService extends Service implements
         if(previousBitmap == null && !typeBuffering)
             updateIconNotification();
     }
-
-
 
     /**
      * set the service as a foreground service
@@ -676,15 +690,22 @@ public class MusicService extends Service implements
     }
 
     private void cancelTask(){
-        if(seekBarUpdateTask != null) {
+        if(seekBarUpdateBackgroundProcess != null) {
+            seekBarUpdateBackgroundProcess.stop();
+            //seekBarUpdateBackgroundProcess = null;
+        }
+        /*if(seekBarUpdateTask != null) {
             seekBarUpdateTask.cancel(true);
             seekBarUpdateTask = null;
-        }
+        }*/
     }
 
     private void executeTask(){
-        seekBarUpdateTask = new SeekBarUpdateTask();
-        seekBarUpdateTask.execute();
+        if(seekBarUpdateBackgroundProcess == null)
+            seekBarUpdateBackgroundProcess = new SeekBarUpdateBackgroundProcess();
+        seekBarUpdateBackgroundProcess.start();
+        /*seekBarUpdateTask = new SeekBarUpdateTask();
+        seekBarUpdateTask.execute();*/
     }
 
     private void skipToPrev(){
