@@ -114,27 +114,7 @@ public class ArtistListFragment extends Fragment {
                 sharedViews.add(v.findViewById(R.id.artist_item_name));
                 sharedViews.add(toolbarArtistList);
                 mCallback.onArtistListFragmentItemSelected(item, sharedViews);
-                //Start top track list activity
-                /*int position = recView.getChildAdapterPosition(v);
-                Intent topTracksIntent = new Intent(getActivity(), TopTracksActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("artist_item", artistListAdapter.getItem(position));
-                topTracksIntent.putExtras(bundle);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
 
-                            // Now we provide a list of Pair items which contain the view we can transitioning
-                            // from, and the name of the view it is transitioning to, in the launched activity
-                            new Pair<>(v.findViewById(R.id.artist_item_image),
-                                    getResources().getString(R.string.artist_name_imageview)),
-                            new Pair<>(v.findViewById(R.id.artist_item_name),
-                                    getResources().getString(R.string.artist_name_textview)),
-                            new Pair<View, String>(toolbarArtistList,
-                                    getResources().getString(R.string.toolbar_toptracks_view)));
-                    startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST, activityOptions.toBundle());
-                } else {
-                    startActivityForResult(topTracksIntent, TOP_TRACK_REQUEST);
-                }*/
             }
         });
 
@@ -152,10 +132,13 @@ public class ArtistListFragment extends Fragment {
      */
     private void setArtists(List<ListItem> artists){
 
-        artistListAdapter.setItems(artists);
+        if(artistListAdapter != null)
+            artistListAdapter.setItems(artists);
         //go to first position
-        if(recView != null && recView.getLayoutManager() != null)
-            recView.getLayoutManager().scrollToPosition(0);
+        if(isVisible()) {
+            if (recView != null && recView.getLayoutManager() != null)
+                recView.getLayoutManager().scrollToPosition(0);
+        }
 
     }
 

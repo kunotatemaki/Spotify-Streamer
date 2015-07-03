@@ -32,6 +32,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
 
 
     private MediaControlsFragment mControlsFragment;
+    private boolean resumed;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,7 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
     @Override
     public void onResume() {
         super.onResume();
+        resumed = true;
         LogHelper.d(TAG, "Activity onStart");
         mControlsFragment = (MediaControlsFragment) getFragmentManager()
                 .findFragmentById(R.id.fragment_playback_controls);
@@ -64,6 +66,12 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         if(!showingControls) hidePlaybackControls();
         else showPlaybackControls();
 
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        resumed = false;
     }
 
     @Override
@@ -145,10 +153,8 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         if(mControlsFragment != null){
             mControlsFragment.setPlayButton();
         }
-        if(mControlsFragment.isVisible())
-            hidePlaybackControls();
-        else
-            showingControls = false;
+        if(resumed && mControlsFragment != null)  hidePlaybackControls();
+        else  showingControls = false;
     }
 
 }

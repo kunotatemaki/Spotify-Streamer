@@ -169,10 +169,13 @@ public class TopTracksFragment extends Fragment {
      */
     private void setTopTracks(List<ListItem> tracks){
 
-        tracksListAdapter.setItems(tracks);
-        //go to first position
-        if(trackList != null && trackList.getLayoutManager() != null)
-            trackList.getLayoutManager().scrollToPosition(0);
+        if(tracksListAdapter != null)
+            tracksListAdapter.setItems(tracks);
+        if(isVisible()) {
+            //go to first position
+            if (trackList != null && trackList.getLayoutManager() != null)
+                trackList.getLayoutManager().scrollToPosition(0);
+        }
         //set tracks in service
         if(getActivity() instanceof MusicServiceActivity)
             ((MusicServiceActivity) getActivity()).sendSetSongListMessageToService(tracks, artist.getArtistId());
