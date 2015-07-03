@@ -1,6 +1,7 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -23,11 +24,13 @@ import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 
+import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by Raúl Feliz Alonso on 30/06/15.
@@ -53,26 +56,18 @@ public class MusicService extends Service implements
     private int songPosn;
     //previous song played
     private int previouSong;
+    private Bitmap previousBitmap = null;
 
     List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
     static final int MSG_REGISTER_CLIENT = 1;
     static final int MSG_UNREGISTER_CLIENT = 2;
     static final int MSG_FINISHING_SERVICE = 3;
-    //static final int MSG_PAUSE = 4;
-    //static final int MSG_SEEK_TO_EXACT_POSITION = 5;
-    //static final int MSG_NEXT = 6;
-    //static final int MSG_PREV = 7;
-    //static final int MSG_SET_CURRENT_SONG = 8;
-    //static final int MSG_SET_SONG_LIST = 9;
-    static final int MSG_SEEKBAR_POSITION  = 10;
-    static final int MSG_FINISHED_PLAYING_SONG = 11;
-    static final int MSG_PLAYING_SONG = 12;
-    static final int MSG_PAUSED_SONG = 13;
-    //static final int MSG_RESUME = 14;
-    static final int MSG_BUFFERING = 15;
-    //static final int MSG_ASK_CURRENT_PLAYING_SONG = 16;
-    //static final int MSG_ASK_CURRENT_LIST = 17;
-    static final int MSG_SONG_LIST_SENT = 18;
+    static final int MSG_SEEKBAR_POSITION  = 4;
+    static final int MSG_FINISHED_PLAYING_SONG = 5;
+    static final int MSG_PLAYING_SONG = 6;
+    static final int MSG_PAUSED_SONG = 7;
+    static final int MSG_BUFFERING = 8;
+    static final int MSG_SONG_LIST_SENT = 9;
 
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
 
@@ -97,6 +92,7 @@ public class MusicService extends Service implements
     //private final IBinder musicBind = new MusicBinder();
     private String artistId = "";
     WifiManager.WifiLock wifiLock;
+    private Bitmap defaultBitmap;
 
     private class SeekBarUpdateTask extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
@@ -109,7 +105,6 @@ public class MusicService extends Service implements
                     return null;
                 }
             }
-
             return null;
         }
 
@@ -121,7 +116,33 @@ public class MusicService extends Service implements
 
     SeekBarUpdateTask seekBarUpdateTask;
 
+    private class DownloadBitmapTask extends AsyncTask<Void, Void, Bitmap> {
+        protected Bitmap doInBackground(Void... params) {
+            try {
+                Bitmap bitmap = Glide.with(getApplicationContext())
+                        .load(currentPlayingSong.getThumbnailSmall())
+                        .asBitmap()
+                        .into(-1, -1)
+                        .get();
+                if(isCancelled()) return null;
+                return bitmap;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
 
+        protected void onPostExecute(Bitmap result) {
+            if(result != null){
+                previousBitmap = result;
+                showNotification(false, false, ACTION_PAUSE);
+            }
+        }
+    }
+
+    DownloadBitmapTask downloadBitmapTask;
 
     private void handleIntent( Intent intent ) {
         if( intent == null || intent.getAction() == null )
@@ -219,12 +240,19 @@ public class MusicService extends Service implements
     private Notification.Action generateAction( int icon, String title, String intentAction ) {
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
         intent.setAction( intentAction );
-        //TODO probar lo mismo para los otros botones, a ver si elimino mensajes
         PendingIntent pendingIntent = PendingIntent.getService(getApplicationContext(), 1, intent, 0);
         return new Notification.Action.Builder( icon, title, pendingIntent ).build();
     }
 
-    private Notification buildNotification( Notification.Action action ) {
+
+
+    private void updateIconNotification( ) {
+        if(downloadBitmapTask != null) downloadBitmapTask.cancel(true);
+        downloadBitmapTask = new DownloadBitmapTask();
+        downloadBitmapTask.execute();
+    }
+
+    private void showNotification(boolean isForeground, boolean typeBuffering, String mainAction){
         Notification.MediaStyle style = new Notification.MediaStyle();
 
         //action if notification is clicked
@@ -238,28 +266,62 @@ public class MusicService extends Service implements
         deleteIntent.setAction(ACTION_FINISH_SERVICE);
         PendingIntent deletePendingIntent = PendingIntent.getService(getApplicationContext(), 1, deleteIntent, 0);
 
-        //TODO load icon
-        Bitmap theBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
+        //load the largeIcon and set default drawable if null
+        Bitmap largeIcon;
+        if(typeBuffering || previousBitmap == null) {
+            largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
+        }else{
+            largeIcon = previousBitmap;
+        }
+
+        //TODO set visibility en función de las opciones
+        int lockScreenVisibility = Notification.VISIBILITY_SECRET;
+
+        String title;
+        String text  = "";
+        if(typeBuffering){
+            title = getResources().getString(R.string.buffering);
+        }else{
+            title = currentPlayingSong.getTrackName();
+            text = currentPlayingSong.getAlbumName();
+        }
 
         Notification.Builder builder = new Notification.Builder( this )
+                .setVisibility(lockScreenVisibility)
                 .setSmallIcon(android.R.drawable.ic_media_play)
-                .setContentTitle(currentPlayingSong.getTrackName())
-                .setContentText(currentPlayingSong.getAlbumName())
+                .setContentTitle(title)
+                .setContentText(text)
                 .setDeleteIntent(deletePendingIntent)
-                .setLargeIcon(theBitmap)
+                .setLargeIcon(largeIcon)
                 .setContentIntent(clickIntent)
                 .setStyle(style);
 
-        builder.addAction( generateAction( android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS ) );
-        builder.addAction( action );
-        builder.addAction( generateAction( android.R.drawable.ic_media_next, "Next", ACTION_NEXT ) );
-        style.setShowActionsInCompactView(1);
+        if(mainAction != null) {
+            builder.addAction(generateAction(android.R.drawable.ic_media_previous,
+                    getResources().getString(R.string.prev_notification_button), ACTION_PREVIOUS));
+            if(mainAction.equals(ACTION_PAUSE)) {
+                builder.addAction(generateAction(android.R.drawable.ic_media_pause,
+                        getResources().getString(R.string.pause_notification_button), ACTION_PAUSE));
+            }else{
+                builder.addAction(generateAction(android.R.drawable.ic_media_play,
+                        getResources().getString(R.string.play_notification_button), ACTION_RESUME));
+            }
+            builder.addAction(generateAction(android.R.drawable.ic_media_next,
+                    getResources().getString(R.string.next_notification_button), ACTION_NEXT));
+            style.setShowActionsInCompactView(1);
+        }
 
-        //loadLargeIcon();
 
-        return builder.build();
+        if(isForeground) {
+            startForeground(NOTIFICATION_ID, builder.build());
+        }else {
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(NOTIFICATION_ID, builder.build());
+        }
+        if(previousBitmap == null && !typeBuffering)
+            updateIconNotification();
     }
-
 
 
 
@@ -267,9 +329,7 @@ public class MusicService extends Service implements
      * set the service as a foreground service
      */
     private void setAsForeground(){
-        Notification notification = buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
-        startForeground(NOTIFICATION_ID, notification);
-
+        showNotification(true, false, ACTION_PAUSE);
     }
 
     @Override
@@ -287,11 +347,11 @@ public class MusicService extends Service implements
     public void onCreate(){
         //create the service
         super.onCreate();
+        defaultBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
         //initialize position
         songPosn = 0;
         previouSong = songPosn;
         //create mMediaPlayer
-
         initMusicPlayer();
     }
 
@@ -302,8 +362,6 @@ public class MusicService extends Service implements
         mMediaPlayer.setWakeMode(getApplicationContext(),
                 PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-
 
         //Listeners
         mMediaPlayer.setOnPreparedListener(this);
@@ -342,6 +400,9 @@ public class MusicService extends Service implements
                     mClients.add(msg.replyTo);
                     if(mMediaPlayer != null && mMediaPlayer.isPlaying()) {
                         sendSongPlaying(currentPlayingSong, songPosn, false);
+                    }else{
+                        //send nothing played
+                        sendFinisihedPlayingSong(0);
                     }
                     break;
                 case MSG_UNREGISTER_CLIENT:
@@ -374,10 +435,11 @@ public class MusicService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
         //start playback
+        currentPlayingSong = songs.get(songPosn);
+        previousBitmap = null;
+        setAsForeground();
         executeTask();
         mp.start();
-        currentPlayingSong = songs.get(songPosn);
-        setAsForeground();
         sendSongPlaying(currentPlayingSong, songPosn, true);
         previouSong = songPosn;
     }
@@ -406,6 +468,7 @@ public class MusicService extends Service implements
         catch(Exception e){
             LogHelper.e(TAG, "Error setting data source", e);
         }
+        showNotification(true, true, null);
         sendBufferingSong();
         adquireWifiLock();
         mMediaPlayer.prepareAsync();
@@ -430,6 +493,7 @@ public class MusicService extends Service implements
             cancelTask();
             mMediaPlayer.pause();
             stopForeground(false);
+            showNotification(false, false, ACTION_RESUME);
             sendSongPaused(songPosn);
             releaseWifiLock();
         }catch(IllegalStateException e){

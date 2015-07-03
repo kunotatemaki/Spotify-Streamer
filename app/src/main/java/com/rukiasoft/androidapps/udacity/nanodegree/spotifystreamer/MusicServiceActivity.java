@@ -106,8 +106,11 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         if(savedInstanceState != null && savedInstanceState.containsKey(STATE_ACTIVITY)){
             currentSongState = savedInstanceState.getInt(STATE_ACTIVITY);
         }
-        if(getIntent().hasExtra(START_CONNECTION))
+        if(getIntent().hasExtra(START_CONNECTION)) {
+            //start connected. Show refresh and wait for service message to hide it
+            currentSongState = STATE_BUFFERING;
             connectToService();
+        }
     }
 
     @Override
@@ -150,6 +153,13 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     public void onResume(){
         super.onResume();
         MusicServiceActivityVisible = true;
+    }
+
+    @Override
+    public void onPostResume(){
+        super.onPostResume();
+        if(currentSongState == STATE_BUFFERING)
+            showRefreshLayoutSwipeProgress();
     }
 
     @Override

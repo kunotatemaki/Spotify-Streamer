@@ -145,7 +145,10 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         if(mControlsFragment != null){
             mControlsFragment.setPlayButton();
         }
-        showingControls = false;
+        if(mControlsFragment.isVisible())
+            hidePlaybackControls();
+        else
+            showingControls = false;
     }
 
 }

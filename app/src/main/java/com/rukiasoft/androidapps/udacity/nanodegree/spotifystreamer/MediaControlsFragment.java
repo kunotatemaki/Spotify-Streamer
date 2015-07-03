@@ -96,9 +96,11 @@ public class MediaControlsFragment extends Fragment {
     }
 
     private void startFullScreenActivity(){
+
         Intent fullPlayerIntent = new Intent(getActivity(), FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable(MusicService.SONG_INFO, mSong);
+        bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
         fullPlayerIntent.putExtras(bundle);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
