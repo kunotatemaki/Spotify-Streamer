@@ -101,6 +101,12 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
             fullScreenPlayerFragment.setSeekbarPosition(mseconds);
     }
 
+    @Override
+    protected void finishingService(){
+        super.finishingService();
+        finish();
+    }
+
     public void onPlayPauseClicked(View v){
         LogHelper.d(TAG, "playpause clicked");
         switch (currentSongState) {

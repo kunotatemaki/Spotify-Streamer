@@ -222,6 +222,10 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
+        if(!musicBound){
+            //connect again and sen
+            topTracksFragment.sendTopTracksToService();
+        }
         sendSetCurrentSongMessageToService(position);
         sendPlayMessageToService();
         showPlaybackControls();
@@ -229,6 +233,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putParcelable(MusicService.SONG_INFO, item);
+        bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
         fullPlayerIntent.putExtras(bundle);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,

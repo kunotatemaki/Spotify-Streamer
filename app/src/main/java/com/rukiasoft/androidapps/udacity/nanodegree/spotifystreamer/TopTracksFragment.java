@@ -179,6 +179,11 @@ public class TopTracksFragment extends Fragment {
         loaded = true;
     }
 
+    public void sendTopTracksToService(){
+        if(getActivity() instanceof MusicServiceActivity)
+            ((MusicServiceActivity) getActivity()).sendSetSongListMessageToService(((TrackListAdapter)trackList.getAdapter()).getTracks(), artist.getArtistId());
+    }
+
     @Override
     public void onResume(){
         super.onResume();

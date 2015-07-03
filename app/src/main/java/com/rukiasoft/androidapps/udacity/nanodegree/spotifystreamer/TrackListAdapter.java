@@ -105,6 +105,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
         return tracks.get(position);
     }
 
+
     @Override
     public TrackViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View itemView = LayoutInflater.from(viewGroup.getContext())

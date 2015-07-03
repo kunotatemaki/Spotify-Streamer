@@ -57,21 +57,21 @@ public class MusicService extends Service implements
     List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
     static final int MSG_REGISTER_CLIENT = 1;
     static final int MSG_UNREGISTER_CLIENT = 2;
-    static final int MSG_PLAY = 3;
-    static final int MSG_PAUSE = 4;
-    static final int MSG_SEEK_TO_EXACT_POSITION = 5;
-    static final int MSG_NEXT = 6;
-    static final int MSG_PREV = 7;
-    static final int MSG_SET_CURRENT_SONG = 8;
-    static final int MSG_SET_SONG_LIST = 9;
+    static final int MSG_FINISHING_SERVICE = 3;
+    //static final int MSG_PAUSE = 4;
+    //static final int MSG_SEEK_TO_EXACT_POSITION = 5;
+    //static final int MSG_NEXT = 6;
+    //static final int MSG_PREV = 7;
+    //static final int MSG_SET_CURRENT_SONG = 8;
+    //static final int MSG_SET_SONG_LIST = 9;
     static final int MSG_SEEKBAR_POSITION  = 10;
     static final int MSG_FINISHED_PLAYING_SONG = 11;
     static final int MSG_PLAYING_SONG = 12;
     static final int MSG_PAUSED_SONG = 13;
-    static final int MSG_RESUME = 14;
+    //static final int MSG_RESUME = 14;
     static final int MSG_BUFFERING = 15;
-    static final int MSG_ASK_CURRENT_PLAYING_SONG = 16;
-    static final int MSG_ASK_CURRENT_LIST = 17;
+    //static final int MSG_ASK_CURRENT_PLAYING_SONG = 16;
+    //static final int MSG_ASK_CURRENT_LIST = 17;
     static final int MSG_SONG_LIST_SENT = 18;
 
     final Messenger mMessenger = new Messenger(new IncomingHandler()); // Target we publish for clients to send messages to IncomingHandler.
@@ -80,6 +80,13 @@ public class MusicService extends Service implements
     public static final String ACTION_PAUSE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_pause";
     public static final String ACTION_NEXT = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_next";
     public static final String ACTION_PREVIOUS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_previous";
+    public static final String ACTION_SET_CURRENT_SONG = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_set_current_song";
+    public static final String ACTION_RESUME = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_resume";
+    public static final String ACTION_SEEK_TO_EXACT_POSITION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_seek_to_exact_position";
+    public static final String ACTION_ASK_CURRENT_PLAYING_SONG = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_ask_current_playing_song";
+    public static final String ACTION_ASK_CURRENT_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_ask_current_list";
+    public static final String ACTION_FINISH_SERVICE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_finish_service";
+    public static final String ACTION_SET_SONG_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_set_song_list";
 
     //media mMediaPlayer
     private MediaPlayer mMediaPlayer;
@@ -124,13 +131,89 @@ public class MusicService extends Service implements
 
         if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
             mController.getTransportControls().play();
-        } else if( action.equalsIgnoreCase( ACTION_PAUSE ) ) {
+        }else if( action.equalsIgnoreCase( ACTION_PAUSE ) ) {
             mController.getTransportControls().pause();
-        } else if( action.equalsIgnoreCase( ACTION_PREVIOUS ) ) {
+        }else if( action.equalsIgnoreCase( ACTION_PREVIOUS ) ) {
             mController.getTransportControls().skipToPrevious();
-        } else if( action.equalsIgnoreCase( ACTION_NEXT ) ) {
+        }else if( action.equalsIgnoreCase( ACTION_NEXT ) ) {
             mController.getTransportControls().skipToNext();
+        }else if( action.equalsIgnoreCase( ACTION_FINISH_SERVICE ) ) {
+            finishService();
+        }else if( action.equalsIgnoreCase( ACTION_SET_CURRENT_SONG ) ) {
+            songPosn = intent.getIntExtra(SONG_POSITION, 0);
+        }else if( action.equalsIgnoreCase( ACTION_SEEK_TO_EXACT_POSITION ) ) {
+            seekToExactPosition(intent.getIntExtra(SONG_POSITION, 0));
+        }else if( action.equalsIgnoreCase( ACTION_ASK_CURRENT_PLAYING_SONG ) ) {
+            if(currentPlayingSong != null)
+                sendSongPlaying(currentPlayingSong, songPosn, false);
+        }else if( action.equalsIgnoreCase( ACTION_ASK_CURRENT_LIST ) ) {
+            if(songs != null)
+                sendSongList();
+        }else if( action.equalsIgnoreCase( ACTION_RESUME) ) {
+            resumeSong();
+        }else if( action.equalsIgnoreCase( ACTION_SET_SONG_LIST) ) {
+            List<ListItem> _songs = intent.getParcelableArrayListExtra(SONG_LIST);
+            if(intent.getExtras().containsKey(ARTIST_ID)){
+                if(!artistId.equals(intent.getStringExtra(ARTIST_ID))){
+                    //new artist id => new list of tracks. don't update play/pause events on current playing song
+                    artistId = intent.getStringExtra(ARTIST_ID);
+                    songPosn = -1;
+                }
+            }
+            setList(_songs);
         }
+
+    }
+
+    private void initMediaSessions() {
+        songPosn = 0;
+        previouSong = songPosn;
+        //create mMediaPlayer
+
+        initMusicPlayer();
+
+        mSession = new MediaSession(getApplicationContext(), "simple player session");
+        mController =new MediaController(getApplicationContext(), mSession.getSessionToken());
+
+        mSession.setCallback(new MediaSession.Callback(){
+                                 @Override
+                                 public void onPlay() {
+                                     super.onPlay();
+                                     LogHelper.d("MediaPlayerService", "onPlay");
+                                     playSong();
+                                 }
+                                 @Override
+                                 public void onPause() {
+                                     super.onPause();
+                                     LogHelper.d("MediaPlayerService", "onPause");
+                                     pauseSong();
+                                 }
+
+                                 @Override
+                                 public void onSkipToNext() {
+                                     super.onSkipToNext();
+                                     LogHelper.e( "MediaPlayerService", "onSkipToNext");
+                                     skipToNext();
+                                 }
+                                 @Override
+                                 public void onSkipToPrevious() {
+                                     super.onSkipToPrevious();
+                                     LogHelper.d( "MediaPlayerService", "onSkipToPrevious");
+                                     skipToPrev();
+                                 }
+                             }
+        );
+    }
+
+    /**
+     * finish service
+     */
+    private void finishService(){
+        //send message indicating the song playing is finished
+        sendFinisihedPlayingSong(songPosn);
+        sendFinisihingService();
+        //finish service
+        this.stopSelf();
     }
 
     private Notification.Action generateAction( int icon, String title, String intentAction ) {
@@ -144,9 +227,16 @@ public class MusicService extends Service implements
     private Notification buildNotification( Notification.Action action ) {
         Notification.MediaStyle style = new Notification.MediaStyle();
 
-        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
+        //action if notification is clicked
+        Intent launchIntent = new Intent( getApplicationContext(), FullScreenPlayerActivity.class );
+        launchIntent.putExtra(MusicServiceActivity.START_CONNECTION, true);
+        PendingIntent clickIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        //action if notification is descarted
+        Intent deleteIntent = new Intent( getApplicationContext(), MusicService.class );
+        deleteIntent.setAction(ACTION_FINISH_SERVICE);
+        PendingIntent deletePendingIntent = PendingIntent.getService(getApplicationContext(), 1, deleteIntent, 0);
 
         //TODO load icon
         Bitmap theBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
@@ -155,18 +245,18 @@ public class MusicService extends Service implements
                 .setSmallIcon(android.R.drawable.ic_media_play)
                 .setContentTitle(currentPlayingSong.getTrackName())
                 .setContentText(currentPlayingSong.getAlbumName())
+                .setDeleteIntent(deletePendingIntent)
                 .setLargeIcon(theBitmap)
-                .setContentIntent(pi)
+                .setContentIntent(clickIntent)
                 .setStyle(style);
-
 
         builder.addAction( generateAction( android.R.drawable.ic_media_previous, "Previous", ACTION_PREVIOUS ) );
         builder.addAction( action );
         builder.addAction( generateAction( android.R.drawable.ic_media_next, "Next", ACTION_NEXT ) );
         style.setShowActionsInCompactView(1);
 
-       // NotificationManager notificationManager = (NotificationManager) getSystemService( this.NOTIFICATION_SERVICE );
-       // notificationManager.notify( 1, builder.build() );
+        //loadLargeIcon();
+
         return builder.build();
     }
 
@@ -177,18 +267,6 @@ public class MusicService extends Service implements
      * set the service as a foreground service
      */
     private void setAsForeground(){
-        String songName;
-        // assign the song name to songName
-        /*PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0,
-                new Intent(getApplicationContext(), FullScreenPlayerActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification.Builder builder = new Notification.Builder(
-                this);
-        Notification notification = builder.setContentIntent(pi)
-                .setSmallIcon(android.R.drawable.ic_media_play).setTicker("Reproductor spotify ticker")
-                .setAutoCancel(true).setContentTitle("reproductor spotify title")
-                .setContentText("reproductor spotify content text").build();
-        startForeground(NOTIFICATION_ID, notification);*/
         Notification notification = buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
         startForeground(NOTIFICATION_ID, notification);
 
@@ -203,53 +281,6 @@ public class MusicService extends Service implements
 
         handleIntent( intent );
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    private void initMediaSessions() {
-        songPosn = 0;
-        previouSong = songPosn;
-        //create mMediaPlayer
-
-        initMusicPlayer();
-
-        mSession = new MediaSession(getApplicationContext(), "simple player session");
-        mController =new MediaController(getApplicationContext(), mSession.getSessionToken());
-
-        mSession.setCallback(new MediaSession.Callback(){
-                 @Override
-                 public void onPlay() {
-                     super.onPlay();
-                     LogHelper.d("MediaPlayerService", "onPlay");
-                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                 }
-
-                 @Override
-                 public void onPause() {
-                     //super.onPause();
-                     LogHelper.d("MediaPlayerService", "onPause");
-                     //buildNotification(generateAction(android.R.drawable.ic_media_play, "Play", ACTION_PLAY));
-                 }
-
-                 @Override
-                 public void onSkipToNext() {
-                     //super.onSkipToNext();
-                     LogHelper.e( "MediaPlayerService", "onSkipToNext");
-                     skipToNext();
-                     //Change media here
-                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                 }
-
-                 @Override
-                 public void onSkipToPrevious() {
-                     //super.onSkipToPrevious();
-                     LogHelper.d( "MediaPlayerService", "onSkipToPrevious");
-                     skipToPrev();
-                     //Change media here
-                     //buildNotification( generateAction( android.R.drawable.ic_media_pause, "Pause", ACTION_PAUSE ) );
-                 }
-
-             }
-        );
     }
 
     @Override
@@ -272,9 +303,7 @@ public class MusicService extends Service implements
                 PowerManager.PARTIAL_WAKE_LOCK);
         mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
-        //wifi lock
-        wifiLock = ((WifiManager) getSystemService(getApplicationContext().WIFI_SERVICE))
-                .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+
 
         //Listeners
         mMediaPlayer.setOnPreparedListener(this);
@@ -317,46 +346,6 @@ public class MusicService extends Service implements
                     break;
                 case MSG_UNREGISTER_CLIENT:
                     mClients.remove(msg.replyTo);
-                    break;
-                case MSG_SET_SONG_LIST:
-                    List<ListItem> _songs = msg.getData().getParcelableArrayList(SONG_LIST);
-                    if(msg.getData().containsKey(ARTIST_ID)){
-                        if(!artistId.equals(msg.getData().getString(ARTIST_ID))){
-                            //new artist id => new list of tracks. don't update play/pause events on current playing song
-                            artistId = msg.getData().getString(ARTIST_ID);
-                            songPosn = -1;
-                        }
-                    }
-                    setList(_songs);
-                    break;
-                case MSG_PLAY:
-                    playSong();
-                    break;
-                case MSG_PAUSE:
-                    pauseSong();
-                    break;
-                case MSG_RESUME:
-                    resumeSong();
-                    break;
-                case MSG_SET_CURRENT_SONG:
-                    songPosn = msg.arg1;
-                    break;
-                case MSG_PREV:
-                    skipToPrev();
-                    break;
-                case MSG_NEXT:
-                    skipToNext();
-                    break;
-                case MSG_SEEK_TO_EXACT_POSITION:
-                    seekToExactPosition(msg.arg1);
-                    break;
-                case MSG_ASK_CURRENT_PLAYING_SONG:
-                    if(currentPlayingSong != null)
-                        sendSongPlaying(currentPlayingSong, songPosn, false);
-                    break;
-                case MSG_ASK_CURRENT_LIST:
-                    if(songs != null)
-                        sendSongList();
                     break;
                 default:
                     super.handleMessage(msg);
@@ -418,7 +407,7 @@ public class MusicService extends Service implements
             LogHelper.e(TAG, "Error setting data source", e);
         }
         sendBufferingSong();
-        wifiLock.acquire();
+        adquireWifiLock();
         mMediaPlayer.prepareAsync();
 
     }
@@ -429,7 +418,7 @@ public class MusicService extends Service implements
             mMediaPlayer.start();
             setAsForeground();
             sendSongPlaying(currentPlayingSong, songPosn, false);
-            wifiLock.acquire();
+            adquireWifiLock();
         }catch(IllegalStateException e){
             e.printStackTrace();
             playSong();     //reset and play again
@@ -442,7 +431,7 @@ public class MusicService extends Service implements
             mMediaPlayer.pause();
             stopForeground(false);
             sendSongPaused(songPosn);
-            wifiLock.release();
+            releaseWifiLock();
         }catch(IllegalStateException e){
             e.printStackTrace();
             mMediaPlayer.reset(); //reset mMediaPlayer
@@ -457,7 +446,6 @@ public class MusicService extends Service implements
     }
 
 
-
     private void releaseMediaPlayer(){
         if(mMediaPlayer != null){
             cancelTask();
@@ -465,8 +453,31 @@ public class MusicService extends Service implements
             mMediaPlayer.release();
             mMediaPlayer = null;
         }
-        wifiLock.release();
+        releaseWifiLock();
         stopForeground(true);
+    }
+
+    /**
+     * adquires wifilock and create it if necessary
+     */
+    private void adquireWifiLock(){
+        if(wifiLock == null){
+            //initialize wifi lock
+            wifiLock = ((WifiManager) getSystemService(getApplicationContext().WIFI_SERVICE))
+                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+        }
+        //adquire
+        if(!wifiLock.isHeld())
+            wifiLock.acquire();
+
+    }
+
+    /**
+     * release wifilock
+     */
+    private void releaseWifiLock(){
+        if(wifiLock.isHeld())
+            wifiLock.release();
     }
 
     private void sendFinisihedPlayingSong(int currentSong){
@@ -479,6 +490,19 @@ public class MusicService extends Service implements
                     bundle.putString(ARTIST_ID, currentPlayingSong.getArtistId());
                 Message msg = Message.obtain(null, MusicService.MSG_FINISHED_PLAYING_SONG);
                 msg.setData(bundle);
+                mClients.get(i).send(msg);
+            }
+            catch (RemoteException e) {
+                // The client is dead. Remove it from the list; we are going through the list from back to front so this is safe to do inside the loop.
+                mClients.remove(i);
+            }
+        }
+    }
+
+    private void sendFinisihingService(){
+        for (int i=mClients.size()-1; i>=0; i--) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_FINISHING_SERVICE);
                 mClients.get(i).send(msg);
             }
             catch (RemoteException e) {

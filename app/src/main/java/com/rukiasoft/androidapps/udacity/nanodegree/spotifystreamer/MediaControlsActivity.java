@@ -139,4 +139,13 @@ public abstract class MediaControlsActivity extends MusicServiceActivity {
         }
     }
 
+    @Override
+    protected void finishingService(){
+        super.finishingService();
+        if(mControlsFragment != null){
+            mControlsFragment.setPlayButton();
+        }
+        showingControls = false;
+    }
+
 }
