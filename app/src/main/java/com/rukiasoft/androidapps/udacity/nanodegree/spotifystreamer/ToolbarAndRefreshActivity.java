@@ -15,6 +15,9 @@
  */
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
 
 /**
@@ -37,6 +39,13 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
 
     protected SwipeRefreshLayout refreshLayout;
     private Boolean showing = false;
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        PreferenceManager.setDefaultValues(this, R.xml.options, false);
+    }
 
 
     @Override
@@ -55,7 +64,8 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
                 onBackPressed();
                 return true;
             case R.id.action_settings:
-                Utilities.showToast(this, getResources().getString(R.string.coming_soon));
+                Intent finalIntent = new Intent(this, SettingsActivity.class);
+                startActivity(finalIntent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

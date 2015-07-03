@@ -135,16 +135,18 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     @Override
     protected void onDestroy() {
-        unbindService(musicConnection);
+        if(musicBound)
+            unbindService(musicConnection);
         musicBound = false;
-        try {
-            Message msg = Message.obtain(null, MusicService.MSG_UNREGISTER_CLIENT);
-            msg.replyTo = mMessenger;
-            mService.send(msg);
-        }
-        catch (RemoteException e) {
-            e.printStackTrace();
-            // In this case the service has crashed before we could even do anything with it
+        if(mService != null) {
+            try {
+                Message msg = Message.obtain(null, MusicService.MSG_UNREGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+                // In this case the service has crashed before we could even do anything with it
+            }
         }
         super.onDestroy();
     }

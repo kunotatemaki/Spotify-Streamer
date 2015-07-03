@@ -2,10 +2,10 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
-import java.text.SimpleDateFormat;
 
 /**
  * Created by Raúl Feliz on 2014 for the Udacity Nanodegree.
@@ -51,6 +51,13 @@ public class Utilities {
 
     public static String formatSongTime(int seconds){
         return String.format("%02d:%02d", seconds / 60, seconds % 60);
+    }
+
+    public static Boolean getBooleanFromPreferences(Context context, String name) {
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getBoolean(name, false);
+
     }
 }
 

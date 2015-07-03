@@ -290,8 +290,13 @@ public class MusicService extends Service implements
             largeIcon = previousBitmap;
         }
 
+        int lockScreenVisibility;
         //TODO set visibility en función de las opciones
-        int lockScreenVisibility = Notification.VISIBILITY_SECRET;
+        if(Utilities.getBooleanFromPreferences(getApplicationContext(), "option_screen_on")){
+            lockScreenVisibility = Notification.VISIBILITY_PUBLIC;
+        }else{
+            lockScreenVisibility = Notification.VISIBILITY_SECRET;
+        }
 
         String title;
         String text  = "";

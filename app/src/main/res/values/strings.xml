@@ -62,4 +62,8 @@
     <string name="prev_notification_button">Prev</string>
     <string name="next_notification_button">Next</string>
     <string name="pause_notification_button">Pause</string>
+    <string name="category_application">Application Settings</string>
+    <string name="show_controls_in_lockscreen">Media controls are shown on lockscreen</string>
+    <string name="hide_controls_in_lockscreen">Don\'t show media controls on lockscreen</string>
+    <string name="controls_in_lockSscreen">Media Controls on Lockscreen</string>
 </resources>

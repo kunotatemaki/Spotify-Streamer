@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="@string/category_application">
+        <CheckBoxPreference
+            android:key="option_screen_on"
+            android:title="@string/controls_in_lockSscreen"
+            android:summaryOn="@string/show_controls_in_lockscreen"
+            android:summaryOff="@string/hide_controls_in_lockscreen"
+            android:defaultValue="true" />
+    </PreferenceCategory>
+</PreferenceScreen>
