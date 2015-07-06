@@ -4,6 +4,7 @@
     <string name="coming_soon">coming soon</string>
     <string name="search_hint">Search Artist</string>
     <string name="action_search">Search</string>
+    <string name="action_share">Share</string>
     <string name="action_delete_searches">Delete search history</string>
     <string name="delete_recent_searches_question">Are you sure?</string>
     <string name="Delete">Delete</string>
@@ -66,4 +67,5 @@
     <string name="show_controls_in_lockscreen">Media controls are shown on lockscreen</string>
     <string name="hide_controls_in_lockscreen">Don\'t show media controls on lockscreen</string>
     <string name="controls_in_lockSscreen">Media Controls on Lockscreen</string>
+    <string name="share_intent_chooser">share using</string>
 </resources>

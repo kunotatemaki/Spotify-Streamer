@@ -3,6 +3,7 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.session.MediaController;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -246,39 +247,63 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         startService(intent);
     }
 
+    /**
+     * called when service send a message indicating that the song has been paused.
+     * @param bundle info with the song paused
+     */
     protected void pausedSong(Bundle bundle){
         currentSongState = STATE_PAUSED;
         hideRefreshLayoutSwipeProgress();
     }
 
+    /**
+     * called when service send a message indicating it starts playing the song.
+     * @param bundle song's info
+     */
     protected void playingSong(Bundle bundle){
         currentSongState = STATE_PLAYING;
         hideRefreshLayoutSwipeProgress();
     }
 
+    /**
+     * called when service send a message indicating the playing song ends
+     * @param bundle song's info
+     */
     protected void finishedPlayingSong(Bundle bundle){
         currentSongState = STATE_STOPPED;
         hideRefreshLayoutSwipeProgress();
     }
 
+    /**
+     * called when service send a message indicating it is buffering the song
+     */
     protected void bufferingSong(){
         currentSongState = STATE_BUFFERING;
         showRefreshLayoutSwipeProgress();
     }
 
+    /**
+     * called when service send a message with the seekbar position
+     * @param position of the seekbar
+     */
     protected void seekBarPositionReceived(int position){
 
     }
 
+    /**
+     * called when service send a message indicating the song list has been sent
+     * @param bundle song list info
+     */
     protected void songListReceived(Bundle bundle){
 
     }
 
+    /**
+     * the service has been finished
+     */
     protected void finishingService(){
 
     }
-
-
 
 
 }

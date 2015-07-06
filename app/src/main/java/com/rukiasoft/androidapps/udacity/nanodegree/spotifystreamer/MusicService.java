@@ -83,11 +83,8 @@ public class MusicService extends Service implements
     public static final String ACTION_FINISH_SERVICE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_finish_service";
     public static final String ACTION_SET_SONG_LIST = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicservice.action_set_song_list";
 
-    //media mMediaPlayer
     private MediaPlayer mMediaPlayer;
     private MediaSessionManager mManager;
-    private MediaSession mSession;
-    private MediaController mController;
 
     //private final IBinder musicBind = new MusicBinder();
     private String artistId = "";
@@ -142,9 +139,7 @@ public class MusicService extends Service implements
                         .get();
                 if(isCancelled()) return null;
                 return bitmap;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             }
             return null;
@@ -167,13 +162,13 @@ public class MusicService extends Service implements
         String action = intent.getAction();
 
         if( action.equalsIgnoreCase( ACTION_PLAY ) ) {
-            mController.getTransportControls().play();
+            playSong();
         }else if( action.equalsIgnoreCase( ACTION_PAUSE ) ) {
-            mController.getTransportControls().pause();
+            pauseSong();
         }else if( action.equalsIgnoreCase( ACTION_PREVIOUS ) ) {
-            mController.getTransportControls().skipToPrevious();
+            skipToPrev();
         }else if( action.equalsIgnoreCase( ACTION_NEXT ) ) {
-            mController.getTransportControls().skipToNext();
+            skipToNext();
         }else if( action.equalsIgnoreCase( ACTION_FINISH_SERVICE ) ) {
             finishService();
         }else if( action.equalsIgnoreCase( ACTION_SET_CURRENT_SONG ) ) {
@@ -202,7 +197,7 @@ public class MusicService extends Service implements
 
     }
 
-    private void initMediaSessions() {
+    /*private void initMediaSessions() {
         songPosn = 0;
         previouSong = songPosn;
         //create mMediaPlayer
@@ -240,7 +235,7 @@ public class MusicService extends Service implements
                                  }
                              }
         );
-    }
+    }*/
 
     /**
      * finish service
@@ -285,13 +280,12 @@ public class MusicService extends Service implements
         //load the largeIcon and set default drawable if null
         Bitmap largeIcon;
         if(typeBuffering || previousBitmap == null) {
-            largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.default_image);
+            largeIcon = defaultBitmap;
         }else{
             largeIcon = previousBitmap;
         }
 
         int lockScreenVisibility;
-        //TODO set visibility en función de las opciones
         if(Utilities.getBooleanFromPreferences(getApplicationContext(), "option_screen_on")){
             lockScreenVisibility = Notification.VISIBILITY_PUBLIC;
         }else{
@@ -355,7 +349,12 @@ public class MusicService extends Service implements
     public int onStartCommand(Intent intent, int flags, int startId) {
         if( mManager == null ) {
             mManager = (MediaSessionManager) this.getSystemService(Context.MEDIA_SESSION_SERVICE);
-            initMediaSessions();
+            //initMediaSessions();
+            songPosn = 0;
+            previouSong = songPosn;
+            //create mMediaPlayer
+
+            initMusicPlayer();
         }
 
         handleIntent( intent );
@@ -407,7 +406,7 @@ public class MusicService extends Service implements
     public boolean onUnbind(Intent intent){
         //mMediaPlayer.stop();
         //mMediaPlayer.release();
-        mSession.release();
+        //mSession.release();
         return false;
     }
 
@@ -546,7 +545,7 @@ public class MusicService extends Service implements
     private void adquireWifiLock(){
         if(wifiLock == null){
             //initialize wifi lock
-            wifiLock = ((WifiManager) getSystemService(getApplicationContext().WIFI_SERVICE))
+            wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                     .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
         }
         //adquire

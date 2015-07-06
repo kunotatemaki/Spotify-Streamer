@@ -195,6 +195,7 @@ public class MediaControlsFragment extends Fragment {
                 case MediaControlsActivity.STATE_PAUSED:
                     activity.sendResumeMessageToService();
                     break;
+                case MediaControlsActivity.STATE_STOPPED:
                 case MediaControlsActivity.STATE_PLAYING:
                     activity.sendPauseMessageToService();
                     break;

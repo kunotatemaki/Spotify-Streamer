@@ -145,7 +145,6 @@ public class TopTracksFragment extends Fragment {
                 sharedViews.add(toolbar_top_track_list.findViewById(R.id.toolbar_subtitle));
                 mCallback.onTopTracksFragmentItemSelected(item, position, sharedViews);
 
-                //TODO pasar toda la lista
 
             }
         });
@@ -208,7 +207,8 @@ public class TopTracksFragment extends Fragment {
      */
     private void searchTopTracks(final ListItem artist){
         Map<String, Object> map = new HashMap<>();
-        map.put("country", Locale.getDefault().getCountry());
+        //map.put("country", Locale.getDefault().getCountry());
+        map.put("country", "AB");
 
         //show indefiniteProgressBar
         if(getActivity() instanceof ToolbarAndRefreshActivity)

@@ -39,6 +39,7 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
 
     protected SwipeRefreshLayout refreshLayout;
     private Boolean showing = false;
+    private Integer menuSettings = null;
 
 
     @Override
@@ -51,9 +52,10 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_activity, menu);
+        if(menuSettings != null)
+            getMenuInflater().inflate(menuSettings, menu);
         return true;
-        //TODO dar la posibilidad de no poner menús
+
     }
 
     @Override
@@ -87,7 +89,10 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
             getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
             getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
         }
+    }
 
+    public void setMenuSettings(int id){
+        menuSettings = id;
     }
 
     /**

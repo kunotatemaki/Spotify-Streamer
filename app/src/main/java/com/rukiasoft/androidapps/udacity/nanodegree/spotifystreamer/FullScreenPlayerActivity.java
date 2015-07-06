@@ -78,12 +78,14 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
     protected void playingSong(Bundle bundle){
         super.playingSong(bundle);
         if(fullScreenPlayerFragment != null && bundle.containsKey(MusicService.SONG_INFO)){
+            //show player with information of the song
             ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
             boolean prevAvailable = true;
             boolean nextAvailable = true;
             if(bundle.containsKey(MusicService.FIRST_SONG)) prevAvailable = false;
             if(bundle.containsKey(MusicService.LAST_SONG)) nextAvailable = false;
             fullScreenPlayerFragment.setPlayingSong(song, prevAvailable, nextAvailable);
+            //share intent with song info
         }
     }
 

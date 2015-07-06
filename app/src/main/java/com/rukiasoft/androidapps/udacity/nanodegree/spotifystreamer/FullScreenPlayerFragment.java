@@ -2,16 +2,19 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
 import android.app.Fragment;
-import android.app.TaskStackBuilder;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -45,12 +48,11 @@ public class FullScreenPlayerFragment extends Fragment {
     @InjectView(R.id.startText) TextView startText;
     @InjectView(R.id.endText) TextView endText;
     @InjectView(R.id.background_image) ImageView mBackgroundImage;
-    @InjectView(R.id.toolbar_full_screen_player) Toolbar toolbarFullPlayer;
     private Drawable mPauseDrawable;
     private Drawable mPlayDrawable;
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
-    @InjectView(R.id.toolbar_full_screen_back_arrow_on_image) ImageView backArrow;
+    @InjectView(R.id.toolbar_full_screen_player) Toolbar toolbarFullScreenPlayer;
     private boolean fragmentVisible;
     private boolean prevAvailable;
     private boolean nextAvailable;
@@ -64,8 +66,7 @@ public class FullScreenPlayerFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-
-
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -79,7 +80,18 @@ public class FullScreenPlayerFragment extends Fragment {
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_full_player_fragment, menu);
 
+        MenuItem menuItem = menu.findItem(R.id.action_share);
+
+        ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+
+        if(mShareActionProvider != null){
+            mShareActionProvider.setShareIntent(createShareUrlIntent());
+        }
+    }
 
 
     @Override
@@ -88,18 +100,12 @@ public class FullScreenPlayerFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
         ButterKnife.inject(this, view);
 
-        /*if(null != toolbarFullPlayer) {
+        if(null != toolbarFullScreenPlayer) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullPlayer, true, false, false);
-            }
-        }*/
-        backArrow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().onBackPressed();
+                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullScreenPlayer, true, false, false);
 
             }
-        });
+        }
 
         if(getActivity() instanceof ToolbarAndRefreshActivity) {
             ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
@@ -311,6 +317,16 @@ public class FullScreenPlayerFragment extends Fragment {
     public void setSeekbarPosition(long miliseconds){
         if(fragmentVisible && updateSeekbar)
             mSeekbar.setProgress((int)miliseconds/1000);
+    }
+
+    private Intent createShareUrlIntent(){
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        shareIntent.setType("text/html");
+        shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, song.getPreviewUrl());
+        return shareIntent;
+        //startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_intent_chooser)));
+
     }
 
 

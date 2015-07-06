@@ -92,6 +92,7 @@ public class ArtistListFragment extends Fragment {
         if(null != toolbarArtistList) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarArtistList, true, true, true);
+                ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(R.menu.menu_activity);
             }
         }
 

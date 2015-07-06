@@ -182,3 +182,6 @@ public class ListItem implements Parcelable{
 //http://www.binpress.com/tutorial/using-android-media-style-notifications-with-media-session-controls/165
 
 //http://developer.android.com/guide/topics/ui/notifiers/notifications.html
+//https://discussions.udacity.com/t/dialogfragment-is-dismissed-on-rotation-on-tablets/22851
+
+//http://www.reigndesign.com/blog/using-your-own-sqlite-database-in-android-applications/
