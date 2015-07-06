@@ -185,3 +185,5 @@ public class ListItem implements Parcelable{
 //https://discussions.udacity.com/t/dialogfragment-is-dismissed-on-rotation-on-tablets/22851
 
 //http://www.reigndesign.com/blog/using-your-own-sqlite-database-in-android-applications/
+
+//http://stackoverflow.com/questions/8499351/how-to-read-csv-file-in-android
