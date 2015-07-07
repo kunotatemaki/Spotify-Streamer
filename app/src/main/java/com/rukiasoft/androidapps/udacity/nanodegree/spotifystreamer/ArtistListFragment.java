@@ -8,7 +8,6 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,7 +39,6 @@ public class ArtistListFragment extends Fragment {
     private ArtistListSearchClickListener mListener;
     private static final int TOP_TRACK_REQUEST = 153;
 
-    @Bind(R.id.toolbar_artist_list) Toolbar toolbarArtistList;
     @Bind(R.id.artist_list) RecyclerView recView;
     @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
@@ -49,7 +47,7 @@ public class ArtistListFragment extends Fragment {
     }
 
     public interface ArtistListFragmentSelectionListener {
-        void onArtistListFragmentItemSelected(ListItem item, List<View> sharedElements);
+        void onArtistListFragmentItemSelected(ListItem item);
     }
 
     private ArtistListFragmentSelectionListener mCallback;
@@ -87,15 +85,11 @@ public class ArtistListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
         ButterKnife.bind(this, view);
-        if(null != toolbarArtistList) {
-            if(getActivity() instanceof ToolbarAndRefreshActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarArtistList, true, true, true);
-                if(!((ToolbarAndRefreshActivity) getActivity()).mIsLargeLayout)
-                    ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(R.menu.menu_activity);
-                else
-                    ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(null);
-            }
+
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((ToolbarAndRefreshActivity) getActivity()).setToolbarWithCustomView(false);
         }
+
         if(artistListAdapter == null) {
             artistListAdapter = new ArtistListAdapter();
         }
@@ -110,11 +104,7 @@ public class ArtistListFragment extends Fragment {
             public void onClick(View v) {
                 int position = recView.getChildAdapterPosition(v);
                 ListItem item = artistListAdapter.getItem(position);
-                List<View> sharedViews = new ArrayList<>();
-                sharedViews.add(v.findViewById(R.id.artist_item_image));
-                sharedViews.add(v.findViewById(R.id.artist_item_name));
-                sharedViews.add(toolbarArtistList);
-                mCallback.onArtistListFragmentItemSelected(item, sharedViews);
+                mCallback.onArtistListFragmentItemSelected(item);
 
             }
         });
@@ -164,18 +154,7 @@ public class ArtistListFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onPrepareOptionsMenu(Menu menu) {
-        // If the nav drawer is open, hide action items related to the content view
-        MenuItem searchIcon = menu.findItem(R.id.action_search);
 
-        if(getActivity() instanceof SearchActivity){
-            Boolean showIcon = ((SearchActivity) getActivity()).getShowSearchIcon();
-            searchIcon.setVisible(showIcon);
-        }
-
-        super.onPrepareOptionsMenu(menu);
-    }
 
     /**
      * Search for an artist using Spotify's wrapper

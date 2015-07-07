@@ -2,7 +2,6 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
 import android.app.DialogFragment;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -101,12 +100,12 @@ public class FullScreenPlayerFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
         ButterKnife.bind(this, view);
 
-        if(null != toolbarFullScreenPlayer) {
+        /*if(null != toolbarFullScreenPlayer) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullScreenPlayer, true, false, false);
 
             }
-        }
+        }*/
 
         if(getActivity() instanceof ToolbarAndRefreshActivity) {
             ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);

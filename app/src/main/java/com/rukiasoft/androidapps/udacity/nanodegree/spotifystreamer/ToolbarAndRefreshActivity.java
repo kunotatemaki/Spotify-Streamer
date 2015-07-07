@@ -18,14 +18,19 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
+
+import butterknife.Bind;
 
 
 /**
@@ -35,11 +40,18 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
 
     private static final String TAG = LogHelper.makeLogTag(ToolbarAndRefreshActivity.class);
 
+    @Bind(R.id.toolbar)Toolbar toolbar;
+    @Bind(R.id.toolbar_back_image)
+    RelativeLayout toolbarBackImage;
+    @Bind(R.id.toolbar_subtitle)
+    TextView toolbarSubtitle;
+    @Bind(R.id.toolbar_artist_item_on_back_image)
+    ImageView artistItemImage;
+
     private android.support.v7.widget.Toolbar mToolbar;
 
     protected SwipeRefreshLayout refreshLayout;
     private Boolean showing = false;
-    private Integer menuSettings = null;
     public boolean mIsLargeLayout;     //tablet or phone
 
 
@@ -56,8 +68,7 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if(menuSettings != null)
-            getMenuInflater().inflate(menuSettings, menu);
+        getMenuInflater().inflate(R.menu.menu_activity, menu);
         return true;
 
     }
@@ -78,41 +89,20 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
         }
     }
 
-
-    /**
-     * Set the toolbar included in the fragment layout as the actionbar
-     * @param toolbar toolbar to be added as actionbar
-     * @param backIcon  true if back arrow is wanted
-     * @param showTitle true if app name has to be showed
-     * @param save true if we want to store toolbar as the toolbar variable stored
-     */
-    public void setToolbarInActivity(@NonNull Toolbar toolbar, Boolean backIcon, Boolean showTitle, Boolean save){
-        if(save) mToolbar = toolbar;
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
-            getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
-        }
-    }
-
-    public void setMenuSettings(Integer id){
-        menuSettings = id;
-    }
-
-    /**
-     * Restore the saved actionbar
-     * @param backIcon true if back arrow is wanted
-     * @param showTitle true if app name has to be showed
-     */
-    public void restorePreviousToolbar(Boolean backIcon, Boolean showTitle){
-        if(mToolbar != null){
-            setSupportActionBar(mToolbar);
-            if (getSupportActionBar() != null) {
-                getSupportActionBar().setDisplayHomeAsUpEnabled(backIcon);
-                getSupportActionBar().setDisplayShowTitleEnabled(showTitle);
+    public void setToolbarWithCustomView(boolean value){
+        getSupportActionBar().setDisplayHomeAsUpEnabled(!value);
+        getSupportActionBar().setDisplayShowTitleEnabled(!value);
+        if(toolbarBackImage != null) {
+            if(value){
+                toolbarBackImage.setVisibility(View.VISIBLE);
+            }else{
+                toolbarBackImage.setVisibility(View.GONE);
             }
         }
+
     }
+
+
 
     public void setRefreshLayout(SwipeRefreshLayout _refreshLayout){
         refreshLayout = _refreshLayout;

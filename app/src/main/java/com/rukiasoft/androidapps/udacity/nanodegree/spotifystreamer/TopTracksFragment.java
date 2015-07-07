@@ -8,14 +8,11 @@ import android.os.Handler;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideCircleTransform;
@@ -46,11 +43,6 @@ public class TopTracksFragment extends Fragment {
     private SpotifyService spotify;
     private ListItem artist;
 
-    @Bind(R.id.toolbar_top_track_list) Toolbar toolbarTopTrackList;
-    @Bind(R.id.toolbar_back_image)
-    RelativeLayout toolbarBackImage;
-    @Bind(R.id.toolbar_subtitle) TextView toolbarSubtitle;
-    @Bind(R.id.artist_item_image) ImageView artistItemImage;
     @Bind(R.id.tracks_list) RecyclerView trackList;
     @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
@@ -102,23 +94,9 @@ public class TopTracksFragment extends Fragment {
             loaded = false;
         }
 
-        if(null != toolbarTopTrackList) {
-            if(getActivity() instanceof ToolbarAndRefreshActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarTopTrackList, false, false, false);
-            }
-            if(toolbarBackImage != null) {
-                //make arroy+image clickable (as Whatsapp do)
-                toolbarBackImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getActivity().onBackPressed();
-                    }
-                });
-            }
 
-            loadArtistInformationForToolbar();
-        }
 
+        loadArtistInformationForToolbar();
 
         trackList.setHasFixedSize(true);
         if(tracksListAdapter == null) {
@@ -140,7 +118,9 @@ public class TopTracksFragment extends Fragment {
                 sharedViews.add(v.findViewById(R.id.track_item_image));
                 sharedViews.add(v.findViewById(R.id.track_item_song));
                 sharedViews.add(v.findViewById(R.id.track_item_album));
-                sharedViews.add(toolbarTopTrackList.findViewById(R.id.toolbar_subtitle));
+                if(getActivity() instanceof SearchActivity) {
+                    sharedViews.add(((SearchActivity) getActivity()).toolbarSubtitle);
+                }
                 mCallback.onTopTracksFragmentItemSelected(item, position, sharedViews);
 
 
@@ -275,8 +255,10 @@ public class TopTracksFragment extends Fragment {
 
     private void loadArtistInformationForToolbar() {
         if(artist == null)  return;
-        if(toolbarSubtitle != null)
-            toolbarSubtitle.setText(artist.getArtistName());
+        if(!(getActivity() instanceof SearchActivity))  return;
+
+        if(((SearchActivity) getActivity()).toolbarSubtitle != null)
+            ((SearchActivity) getActivity()).toolbarSubtitle.setText(artist.getArtistName());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP /*&& addTransitionListener*/) {
             // If we're running on Lollipop and we have added a listener to the shared element
@@ -293,12 +275,12 @@ public class TopTracksFragment extends Fragment {
      * Load the item's thumbnail image into our {@link ImageView}.
      */
     private void loadThumbnail() {
-        if(artistItemImage != null) {
+        if(((SearchActivity) getActivity()).artistItemImage != null) {
             Glide.with(getActivity())
                     .load(artist.getArtistPicture())
                     .error(R.drawable.default_image)
                     .transform(new GlideCircleTransform(getActivity()))
-                    .into(artistItemImage);
+                    .into(((SearchActivity) getActivity()).artistItemImage);
         }
     }
 
@@ -307,12 +289,12 @@ public class TopTracksFragment extends Fragment {
      */
     private void loadFullSizeImage() {
 
-        if(artistItemImage != null) {
+        if(((SearchActivity) getActivity()).artistItemImage != null) {
             Glide.with(getActivity())
                     .load(artist.getArtistPicture())
                     .error(R.drawable.default_image)
                     .transform(new GlideCircleTransform(getActivity()))
-                    .into(artistItemImage);
+                    .into(((SearchActivity) getActivity()).artistItemImage);
         }
     }
 

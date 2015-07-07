@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
@@ -30,7 +31,10 @@ public class ArtistSearchWidgetFragment extends Fragment {
     private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
     private static final String IS_ANIMATED = "animated";
     Boolean animated = false;
-    @Bind(R.id.toolbar_search) Toolbar toolbar_search;
+    @Bind(R.id.toolbar_search) Toolbar toolbarSearch;
+    @Bind(R.id.back_arrow_on_search)
+    ImageView backArrowOnSearch;
+    @Bind(R.id.searchview_widget) SearchView searchView;
 
     public ArtistSearchWidgetFragment() {
         // Required empty public constructor
@@ -58,8 +62,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         Utilities.hideSoftKeyboard(getActivity());
         //get the previous toolbar (ArtistListFragment) back
         if(getActivity() instanceof ToolbarAndRefreshActivity){
-            ((ToolbarAndRefreshActivity) getActivity()).restorePreviousToolbar(true, true);
-            ((SearchActivity) getActivity()).setShowSearchIcon(true);
+            ((SearchActivity) getActivity()).getSupportActionBar().show();
         }
         super.onDetach();
 
@@ -75,12 +78,19 @@ public class ArtistSearchWidgetFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
         ButterKnife.bind(this, view);
-        if(null != toolbar_search) {
-            if(getActivity() instanceof SearchActivity){
-                ((SearchActivity) getActivity()).setToolbarInActivity(toolbar_search, true, false, false);
-            }
+
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((ToolbarAndRefreshActivity) getActivity()).getSupportActionBar().hide();
         }
-        SearchView searchView = (SearchView) view.findViewById(R.id.searchview_widget);
+        if(backArrowOnSearch != null) {
+            //make arroy+image clickable (as Whatsapp do)
+            backArrowOnSearch.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
         // Assumes current activity is the searchable activity
@@ -97,26 +107,26 @@ public class ArtistSearchWidgetFragment extends Fragment {
                     if(!animated){
                         animated = true;
                     }else{
-                        toolbar_search.setVisibility(View.VISIBLE);
+                        toolbarSearch.setVisibility(View.VISIBLE);
                         return;
                     }
                     v.removeOnLayoutChangeListener(this);
                     // get the top right corner of the view for the clipping circle
-                    int cx = toolbar_search.getLeft() + toolbar_search.getRight();
-                    int cy = toolbar_search.getTop() + toolbar_search.getBottom();
+                    int cx = toolbarSearch.getLeft() + toolbarSearch.getRight();
+                    int cy = toolbarSearch.getTop() + toolbarSearch.getBottom();
 
                     Animator animator = ViewAnimationUtils.createCircularReveal(
-                            toolbar_search,
+                            toolbarSearch,
                             cx,
                             cy,
                             0,
-                            (float) Math.hypot(toolbar_search.getWidth(), toolbar_search.getHeight()));
+                            (float) Math.hypot(toolbarSearch.getWidth(), toolbarSearch.getHeight()));
 
                     // Set a natural ease-in/ease-out interpolator.
                     animator.setInterpolator(new AccelerateDecelerateInterpolator());
 
                     // make the view visible and start the animation
-                    toolbar_search.setVisibility(View.VISIBLE);
+                    toolbarSearch.setVisibility(View.VISIBLE);
                     animator.start();
                 }
             });

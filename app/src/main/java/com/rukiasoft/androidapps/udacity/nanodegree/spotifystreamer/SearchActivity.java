@@ -11,7 +11,6 @@ import android.provider.SearchRecentSuggestions;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
-import android.transition.TransitionInflater;
 import android.view.View;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
@@ -29,19 +28,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
-    private Boolean showSearchIcon = true;
 
-
-
-
-    public Boolean getShowSearchIcon() {
-        return showSearchIcon;
-    }
-
-    public void setShowSearchIcon(Boolean showSearchIcon) {
-        this.showSearchIcon = showSearchIcon;
-        invalidateOptionsMenu();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,6 +36,18 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         setContentView(R.layout.activity_search);
         ButterKnife.bind(this);
 
+        //set the toolbar
+        setSupportActionBar(toolbar);
+
+        if(toolbarBackImage != null) {
+            //make arroy+image clickable (as Whatsapp do)
+            toolbarBackImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    onBackPressed();
+                }
+            });
+        }
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
@@ -177,8 +176,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
                 .commit();
         fm.executePendingTransactions();
 
-        setShowSearchIcon(false);
-
     }
 
     /**
@@ -191,7 +188,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
 
     @Override
-    public void onArtistListFragmentItemSelected(ListItem item, List<View> sharedElements) {
+    public void onArtistListFragmentItemSelected(ListItem item) {
         hideSearchWidget();
         FragmentManager fm = getFragmentManager();
         topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
@@ -208,30 +205,11 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             return;
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            artistListFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
+        FragmentTransaction ft = fm.beginTransaction()
+            .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+            .addToBackStack(null);
+        ft.commit();
 
-            // Create new fragment to add (Fragment B)
-
-            topTracksFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
-
-            // Add Fragment B
-            FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
-                    .addToBackStack(null)
-                    .addSharedElement(sharedElements.get(0), getResources().getString(R.string.artist_name_imageview))
-                    .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
-                    .addSharedElement(sharedElements.get(2), getResources().getString(R.string.toolbar_toptracks_view));
-            ft.commit();
-            //TODO check why animation is not working
-
-        }
-        else {
-            FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
-                    .addToBackStack(null);
-            ft.commit();
-        }
     }
 
     @Override
