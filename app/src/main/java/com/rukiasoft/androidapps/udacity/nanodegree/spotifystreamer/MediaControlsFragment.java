@@ -88,7 +88,6 @@ public class MediaControlsFragment extends Fragment {
         rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO lanzar la otra activity
                 startFullScreenActivity();
             }
         });

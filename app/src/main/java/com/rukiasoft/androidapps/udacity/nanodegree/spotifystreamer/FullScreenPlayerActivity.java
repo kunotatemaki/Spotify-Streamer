@@ -123,13 +123,19 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
         }
     }
 
+    /**
+     * prev button clicked
+     */
     public void onPrevClicked(View v){
         LogHelper.d(TAG, "prev clicked");
         sendSkipToPrevMessageToService();
     }
 
+    /**
+     * next button clicked
+     */
     public void onNextClicked(View v){
-        LogHelper.d(TAG, "prev clicked");
+        LogHelper.d(TAG, "next clicked");
         sendSkipToNextMessageToService();
     }
 

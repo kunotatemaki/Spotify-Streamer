@@ -14,6 +14,7 @@
     <string name="search_content_description">Search</string>
     <string name="error_passing_artist">Something went wrong. Try again!</string>
     <string name="no_response">No response from server. Try it Again.</string>
+    <string name="no_response_zips">No response from server. Try another zip code in Settings</string>
     <string name="artist_name_imageview" translatable="false">artist_name_imageview</string>
     <string name="artist_name_textview" translatable="false">artist_name_textview</string>
     <string name="toolbar_toptracks_view" translatable="false">toolbar_toptracks_view</string>
@@ -68,4 +69,6 @@
     <string name="hide_controls_in_lockscreen">Don\'t show media controls on lockscreen</string>
     <string name="controls_in_lockSscreen">Media Controls on Lockscreen</string>
     <string name="share_intent_chooser">share using</string>
+    <string name="pref_zipCodeTitle">Select your country</string>
+    <string name="pref_zipCodeDialogTitle">Choose your country</string>
 </resources>

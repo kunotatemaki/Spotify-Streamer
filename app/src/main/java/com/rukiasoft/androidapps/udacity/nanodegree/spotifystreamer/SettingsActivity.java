@@ -6,6 +6,8 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.MenuItem;
 
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
@@ -24,8 +26,6 @@ public class SettingsActivity extends AppCompatActivity {
 
         setContentView(R.layout.settings_activity);
         ButterKnife.inject(this);
-
-
 
         if (toolbarSettings != null) {
             setSupportActionBar(toolbarSettings);

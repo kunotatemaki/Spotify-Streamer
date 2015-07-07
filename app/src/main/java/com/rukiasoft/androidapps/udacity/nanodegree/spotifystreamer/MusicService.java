@@ -286,7 +286,7 @@ public class MusicService extends Service implements
         }
 
         int lockScreenVisibility;
-        if(Utilities.getBooleanFromPreferences(getApplicationContext(), "option_screen_on")){
+        if(Utilities.getBooleanFromPreferences(getApplicationContext(), "pref_optionScreenOn")){
             lockScreenVisibility = Notification.VISIBILITY_PUBLIC;
         }else{
             lockScreenVisibility = Notification.VISIBILITY_SECRET;

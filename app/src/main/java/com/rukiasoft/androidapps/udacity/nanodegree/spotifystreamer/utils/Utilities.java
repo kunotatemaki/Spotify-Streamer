@@ -3,9 +3,22 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.preference.PreferenceManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import com.opencsv.CSVReader;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Created by Raúl Feliz on 2014 for the Udacity Nanodegree.
@@ -59,5 +72,43 @@ public class Utilities {
         return preferences.getBoolean(name, false);
 
     }
+
+    public static String getZipFromPreferences(Context context) {
+        //Load zip from preferences. If not set, load default locale
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.getString("pref_zipCode", Locale.getDefault().getCountry());
+
+    }
+
+    /**
+     * Read the countries and their zip codes from a file stored in assets folder
+     */
+    public static Map<String, String> readZipCodes(Context context){
+        AssetManager assetManager = context.getAssets();
+        Map<String, String> map = new HashMap<>();
+        map.put("country", Locale.getDefault().getCountry());
+        try {
+            InputStream csvStream = assetManager.open("iso_3166_2_countries.csv");
+            InputStreamReader csvStreamReader = new InputStreamReader(csvStream);
+            CSVReader csvReader = new CSVReader(csvStreamReader);
+            String[] line;
+
+            // throw away the header
+            csvReader.readNext();
+
+            while ((line = csvReader.readNext()) != null) {
+                map.put(line[1], line[10]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //sorted map
+        Map<String, String> treeMap = new TreeMap<>(map);
+
+        return treeMap;
+    }
+
+
+
 }
 

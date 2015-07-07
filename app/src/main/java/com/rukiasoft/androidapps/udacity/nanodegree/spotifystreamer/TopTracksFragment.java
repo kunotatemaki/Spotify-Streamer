@@ -25,7 +25,6 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilit
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import butterknife.ButterKnife;
@@ -93,7 +92,6 @@ public class TopTracksFragment extends Fragment {
         ButterKnife.inject(this, view);
 
         List<ListItem> songs = new ArrayList<>();
-        ListItem artist = new ListItem();
         if(savedInstanceState != null
                 &&savedInstanceState.containsKey(ARTIST_ITEM)
                 && savedInstanceState.containsKey(LIST_SONGS)) {
@@ -207,8 +205,9 @@ public class TopTracksFragment extends Fragment {
      */
     private void searchTopTracks(final ListItem artist){
         Map<String, Object> map = new HashMap<>();
+        String zip = Utilities.getZipFromPreferences(getActivity());
+        map.put("country", zip);
         //map.put("country", Locale.getDefault().getCountry());
-        map.put("country", "AB");
 
         //show indefiniteProgressBar
         if(getActivity() instanceof ToolbarAndRefreshActivity)
@@ -256,10 +255,18 @@ public class TopTracksFragment extends Fragment {
             @Override
             public void failure(RetrofitError error) {
                 //TODO - different messages for different type of errors??
-                //hide indefiniteProgressBar
-                if(getActivity() instanceof ToolbarAndRefreshActivity)
-                    ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
-                Utilities.showToast(getActivity(), getResources().getString(R.string.no_response));
+                Handler mainHandler = new Handler(getActivity().getMainLooper());
+                mainHandler.post(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        //hide indefiniteProgressBar
+                        if(getActivity() instanceof ToolbarAndRefreshActivity)
+                            ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
+                        Utilities.showToast(getActivity(), getResources().getString(R.string.no_response_zips));
+                    }
+                });
+
             }
         });
     }

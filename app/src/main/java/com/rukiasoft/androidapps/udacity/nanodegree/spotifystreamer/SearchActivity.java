@@ -209,7 +209,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
                     .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
                     .addSharedElement(sharedElements.get(2), getResources().getString(R.string.toolbar_toptracks_view));
             ft.commit();
-            //TODO check why it is not working
+            //TODO check why animation is not working
 
         }
         else {

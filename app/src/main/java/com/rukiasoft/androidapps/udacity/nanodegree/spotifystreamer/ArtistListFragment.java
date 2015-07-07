@@ -42,8 +42,6 @@ public class ArtistListFragment extends Fragment {
 
     @InjectView(R.id.toolbar_artist_list) Toolbar toolbarArtistList;
     @InjectView(R.id.artist_list) RecyclerView recView;
-    //@InjectView(R.id.swipe_container_artist_list)
-    //SwipeRefreshLayout refreshLayoutArtistListFragment;
     @InjectView(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
 
