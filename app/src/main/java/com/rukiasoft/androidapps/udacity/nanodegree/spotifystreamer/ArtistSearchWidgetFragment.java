@@ -21,8 +21,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 
 public class ArtistSearchWidgetFragment extends Fragment {
@@ -30,7 +30,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
     private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
     private static final String IS_ANIMATED = "animated";
     Boolean animated = false;
-    @InjectView(R.id.toolbar_search) Toolbar toolbar_search;
+    @Bind(R.id.toolbar_search) Toolbar toolbar_search;
 
     public ArtistSearchWidgetFragment() {
         // Required empty public constructor
@@ -74,7 +74,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         }
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_search_widget, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         if(null != toolbar_search) {
             if(getActivity() instanceof SearchActivity){
                 ((SearchActivity) getActivity()).setToolbarInActivity(toolbar_search, true, false, false);

@@ -40,12 +40,16 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     protected SwipeRefreshLayout refreshLayout;
     private Boolean showing = false;
     private Integer menuSettings = null;
+    public boolean mIsLargeLayout;     //tablet or phone
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         PreferenceManager.setDefaultValues(this, R.xml.options, false);
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
+
     }
 
 
@@ -91,7 +95,7 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
         }
     }
 
-    public void setMenuSettings(int id){
+    public void setMenuSettings(Integer id){
         menuSettings = id;
     }
 

@@ -15,8 +15,8 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideC
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
@@ -37,9 +37,9 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     public static class TrackViewHolder
             extends RecyclerView.ViewHolder {
 
-        @InjectView(R.id.track_item_song) TextView trackName;
-        @InjectView(R.id.track_item_album) TextView albumName;
-        @InjectView(R.id.track_item_image) ImageView albumPic;
+        @Bind(R.id.track_item_song) TextView trackName;
+        @Bind(R.id.track_item_album) TextView albumName;
+        @Bind(R.id.track_item_image) ImageView albumPic;
 
         private static ColorStateList sColorStatePlaying;
         private static ColorStateList sColorStateNotPlaying;
@@ -47,7 +47,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
         private final Context context;
         public TrackViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.inject(this, itemView);
+            ButterKnife.bind(this, itemView);
             context = itemView.getContext();
             if (sColorStateNotPlaying == null || sColorStatePlaying == null) {
                 initializeColorStateLists(context);

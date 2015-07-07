@@ -42,7 +42,7 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_full_player);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         FragmentManager fm = getFragmentManager();
         fullScreenPlayerFragment = (FullScreenPlayerFragment) fm.findFragmentByTag(FullScreenPlayerFragment.class.getSimpleName());

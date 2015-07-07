@@ -31,8 +31,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 
 /**
@@ -44,10 +44,10 @@ public class MediaControlsFragment extends Fragment {
     private static final String SONG_ITEM = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.songitem";
     private static final String BUTTON_STATE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.playbackcontrolsfragment.buttonstate";
 
-    @InjectView(R.id.play_pause_play_controls) ImageButton mPlayPause;
-    @InjectView(R.id.song_play_controls) TextView mTitle;
-    @InjectView(R.id.album_play_controls) TextView mSubtitle;
-    @InjectView(R.id.album_art_play_controls) ImageView mAlbumArt;
+    @Bind(R.id.play_pause_play_controls) ImageButton mPlayPause;
+    @Bind(R.id.song_play_controls) TextView mTitle;
+    @Bind(R.id.album_play_controls) TextView mSubtitle;
+    @Bind(R.id.album_art_play_controls) ImageView mAlbumArt;
     ListItem mSong;
 
     Integer mPlayPauseResource = null;
@@ -77,7 +77,7 @@ public class MediaControlsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
-        ButterKnife.inject(this, rootView);
+        ButterKnife.bind(this, rootView);
         mPlayPause.setEnabled(true);
 
 

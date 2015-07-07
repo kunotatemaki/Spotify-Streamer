@@ -21,8 +21,8 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilit
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.ArtistsPager;
@@ -40,9 +40,9 @@ public class ArtistListFragment extends Fragment {
     private ArtistListSearchClickListener mListener;
     private static final int TOP_TRACK_REQUEST = 153;
 
-    @InjectView(R.id.toolbar_artist_list) Toolbar toolbarArtistList;
-    @InjectView(R.id.artist_list) RecyclerView recView;
-    @InjectView(R.id.swipe_container)
+    @Bind(R.id.toolbar_artist_list) Toolbar toolbarArtistList;
+    @Bind(R.id.artist_list) RecyclerView recView;
+    @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
 
     public ArtistListFragment() {
@@ -86,14 +86,16 @@ public class ArtistListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artists_list, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
         if(null != toolbarArtistList) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
                 ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarArtistList, true, true, true);
-                ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(R.menu.menu_activity);
+                if(!((ToolbarAndRefreshActivity) getActivity()).mIsLargeLayout)
+                    ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(R.menu.menu_activity);
+                else
+                    ((ToolbarAndRefreshActivity) getActivity()).setMenuSettings(null);
             }
         }
-
         if(artistListAdapter == null) {
             artistListAdapter = new ArtistListAdapter();
         }

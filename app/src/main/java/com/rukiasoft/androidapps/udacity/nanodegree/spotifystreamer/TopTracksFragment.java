@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import kaaes.spotify.webapi.android.SpotifyApi;
 import kaaes.spotify.webapi.android.SpotifyService;
 import kaaes.spotify.webapi.android.models.Tracks;
@@ -46,13 +46,13 @@ public class TopTracksFragment extends Fragment {
     private SpotifyService spotify;
     private ListItem artist;
 
-    @InjectView(R.id.toolbar_top_track_list) Toolbar toolbar_top_track_list;
-    @InjectView(R.id.toolbar_back_image)
-    RelativeLayout toolbarBAckImage;
-    @InjectView(R.id.toolbar_subtitle) TextView toolbarSubtitle;
-    @InjectView(R.id.artist_item_image) ImageView artistItemImage;
-    @InjectView(R.id.tracks_list) RecyclerView trackList;
-    @InjectView(R.id.swipe_container)
+    @Bind(R.id.toolbar_top_track_list) Toolbar toolbarTopTrackList;
+    @Bind(R.id.toolbar_back_image)
+    RelativeLayout toolbarBackImage;
+    @Bind(R.id.toolbar_subtitle) TextView toolbarSubtitle;
+    @Bind(R.id.artist_item_image) ImageView artistItemImage;
+    @Bind(R.id.tracks_list) RecyclerView trackList;
+    @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
     private Boolean loaded;
 
@@ -89,7 +89,7 @@ public class TopTracksFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_top_tracks_list, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         List<ListItem> songs = new ArrayList<>();
         if(savedInstanceState != null
@@ -102,13 +102,13 @@ public class TopTracksFragment extends Fragment {
             loaded = false;
         }
 
-        if(null != toolbar_top_track_list) {
+        if(null != toolbarTopTrackList) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbar_top_track_list, false, false, false);
+                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarTopTrackList, false, false, false);
             }
-            if(toolbarBAckImage != null) {
+            if(toolbarBackImage != null) {
                 //make arroy+image clickable (as Whatsapp do)
-                toolbarBAckImage.setOnClickListener(new View.OnClickListener() {
+                toolbarBackImage.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         getActivity().onBackPressed();
@@ -140,7 +140,7 @@ public class TopTracksFragment extends Fragment {
                 sharedViews.add(v.findViewById(R.id.track_item_image));
                 sharedViews.add(v.findViewById(R.id.track_item_song));
                 sharedViews.add(v.findViewById(R.id.track_item_album));
-                sharedViews.add(toolbar_top_track_list.findViewById(R.id.toolbar_subtitle));
+                sharedViews.add(toolbarTopTrackList.findViewById(R.id.toolbar_subtitle));
                 mCallback.onTopTracksFragmentItemSelected(item, position, sharedViews);
 
 

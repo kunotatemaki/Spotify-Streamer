@@ -8,8 +8,8 @@ import android.view.MenuItem;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 
 /**
@@ -17,7 +17,7 @@ import butterknife.InjectView;
  */
 public class SettingsActivity extends AppCompatActivity {
 
-    @InjectView(R.id.toolbar_settings) Toolbar toolbarSettings;
+    @Bind(R.id.toolbar_settings) Toolbar toolbarSettings;
 
 
     @Override
@@ -25,7 +25,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.settings_activity);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         if (toolbarSettings != null) {
             setSupportActionBar(toolbarSettings);

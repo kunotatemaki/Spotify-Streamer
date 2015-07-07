@@ -27,8 +27,8 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideC
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 
 public class FullScreenPlayerFragment extends DialogFragment {
@@ -38,22 +38,22 @@ public class FullScreenPlayerFragment extends DialogFragment {
     private static final String TAG = LogHelper.makeLogTag(FullScreenPlayerFragment.class);
     private ListItem song;
 
-    @InjectView(R.id.prev) ImageView mSkipPrev;
-    @InjectView(R.id.next) ImageView mSkipNext;
-    @InjectView(R.id.play_pause) ImageView mPlayPause;
-    @InjectView(R.id.seekBar1)
+    @Bind(R.id.prev) ImageView mSkipPrev;
+    @Bind(R.id.next) ImageView mSkipNext;
+    @Bind(R.id.play_pause) ImageView mPlayPause;
+    @Bind(R.id.seekBar1)
     SeekBar mSeekbar;
-    @InjectView(R.id.line1) TextView mLine1;
-    @InjectView(R.id.line2) TextView mLine2;
-    @InjectView(R.id.line3) TextView mLine3;
-    @InjectView(R.id.startText) TextView startText;
-    @InjectView(R.id.endText) TextView endText;
-    @InjectView(R.id.background_image) ImageView mBackgroundImage;
+    @Bind(R.id.line1) TextView mLine1;
+    @Bind(R.id.line2) TextView mLine2;
+    @Bind(R.id.line3) TextView mLine3;
+    @Bind(R.id.startText) TextView startText;
+    @Bind(R.id.endText) TextView endText;
+    @Bind(R.id.background_image) ImageView mBackgroundImage;
     private Drawable mPauseDrawable;
     private Drawable mPlayDrawable;
-    @InjectView(R.id.swipe_container)
+    @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
-    @InjectView(R.id.toolbar_full_screen_player) Toolbar toolbarFullScreenPlayer;
+    @Bind(R.id.toolbar_full_screen_player) Toolbar toolbarFullScreenPlayer;
     private boolean fragmentVisible;
     private boolean prevAvailable;
     private boolean nextAvailable;
@@ -99,7 +99,7 @@ public class FullScreenPlayerFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         if(null != toolbarFullScreenPlayer) {
             if(getActivity() instanceof ToolbarAndRefreshActivity){

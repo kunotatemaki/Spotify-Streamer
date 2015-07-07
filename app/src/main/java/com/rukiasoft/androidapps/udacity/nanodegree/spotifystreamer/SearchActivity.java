@@ -31,7 +31,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     boolean mActivityRecreated = false;
     private Boolean showSearchIcon = true;
 
-    public boolean mIsLargeLayout;     //tablet or phone
 
 
 
@@ -48,9 +47,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
-        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
@@ -60,7 +58,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         if (artistListFragment == null) {
             // add the artist fragment
             artistListFragment = new ArtistListFragment();
-            fm.beginTransaction().add(R.id.artist_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
+            fm.beginTransaction().add(R.id.main_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
             fm.executePendingTransactions();
         }
 
@@ -125,7 +123,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public void onPostResume(){
         //open search byDefault if activity is first created
         super.onPostResume();
-        if(!mActivityRecreated) {
+         if(!mActivityRecreated) {
             onSearchClick();
             mActivityRecreated = true;
         }
@@ -174,7 +172,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
-                .add(R.id.artist_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
+                .add(R.id.main_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -219,7 +217,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
             // Add Fragment B
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.artist_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null)
                     .addSharedElement(sharedElements.get(0), getResources().getString(R.string.artist_name_imageview))
                     .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
@@ -230,7 +228,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         else {
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.artist_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null);
             ft.commit();
         }

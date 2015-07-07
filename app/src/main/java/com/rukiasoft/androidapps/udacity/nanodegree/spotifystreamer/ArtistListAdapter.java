@@ -13,8 +13,8 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.GlideC
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * Created by Raúl Feliz Alonso on 18/06/15.
@@ -31,12 +31,12 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
     public static class ArtistViewHolder
             extends RecyclerView.ViewHolder {
 
-        @InjectView(R.id.artist_item_name) TextView artistName;
-        @InjectView(R.id.artist_item_image) ImageView artistPic;
+        @Bind(R.id.artist_item_name) TextView artistName;
+        @Bind(R.id.artist_item_image) ImageView artistPic;
         private final Context context;
         public ArtistViewHolder(View itemView) {
             super(itemView);
-            ButterKnife.inject(this, itemView);
+            ButterKnife.bind(this, itemView);
             context = itemView.getContext();
         }
 
