@@ -13,13 +13,13 @@
         android:layout_below="@id/appbar"
         android:layout_above="@+id/controls_container">
     </FrameLayout>
-    <FrameLayout
+    <fragment android:name="com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.ArtistSearchWidgetFragment"
+        android:id="@+id/search_fragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/search_container"
         android:elevation="@dimen/search_elevation"
-        android:visibility="gone">
-    </FrameLayout>
+        android:visibility="gone"
+        />
 
     <android.support.v7.widget.CardView
     android:id="@+id/controls_container"
@@ -35,9 +35,5 @@
         android:layout_alignParentBottom="true"
         tools:layout="@layout/fragment_playback_controls" />
     </android.support.v7.widget.CardView>
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
 
 </RelativeLayout>

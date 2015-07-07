@@ -44,6 +44,34 @@ public class ArtistSearchWidgetFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         //Change appearance of statusBar
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getActivity().getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.primary_search_dark));
+        }*/
+    }
+
+    @Override
+    public void onDetach() {
+        //Change appearance of statusBar
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = getActivity().getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(getResources().getColor(R.color.primary_dark));
+        }
+        Utilities.hideSoftKeyboard(getActivity());
+        //get the previous toolbar (ArtistListFragment) back
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((SearchActivity) getActivity()).getSupportActionBar().show();
+        }*/
+        super.onDetach();
+
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        //Change appearance of statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
@@ -52,7 +80,8 @@ public class ArtistSearchWidgetFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
+    public void onPause(){
+        super.onPause();
         //Change appearance of statusBar
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
@@ -64,10 +93,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         if(getActivity() instanceof ToolbarAndRefreshActivity){
             ((SearchActivity) getActivity()).getSupportActionBar().show();
         }
-        super.onDetach();
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

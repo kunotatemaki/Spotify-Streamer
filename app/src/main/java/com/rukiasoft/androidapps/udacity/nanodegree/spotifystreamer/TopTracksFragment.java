@@ -95,6 +95,9 @@ public class TopTracksFragment extends Fragment {
         }
 
 
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((ToolbarAndRefreshActivity) getActivity()).setToolbarWithCustomView(true);
+        }
 
         loadArtistInformationForToolbar();
 
@@ -128,10 +131,10 @@ public class TopTracksFragment extends Fragment {
         });
 
 
-        if(getActivity() instanceof ToolbarAndRefreshActivity) {
+        /*if(getActivity() instanceof ToolbarAndRefreshActivity) {
             ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
             ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
-        }
+        }*/
 
         if(loaded) {
             setTopTracks(songs);

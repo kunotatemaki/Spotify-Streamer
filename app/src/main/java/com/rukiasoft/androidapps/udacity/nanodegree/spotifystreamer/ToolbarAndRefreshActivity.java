@@ -18,6 +18,7 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -40,12 +41,14 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
 
     private static final String TAG = LogHelper.makeLogTag(ToolbarAndRefreshActivity.class);
 
-    @Bind(R.id.toolbar)Toolbar toolbar;
-    @Bind(R.id.toolbar_back_image)
+    @Nullable @Bind(R.id.toolbar)Toolbar toolbar;
+    @Nullable @Bind(R.id.toolbar_back_image)
     RelativeLayout toolbarBackImage;
-    @Bind(R.id.toolbar_subtitle)
+    @Nullable @Bind(R.id.toolbar_layout)
+    RelativeLayout toolbarLayout;
+    @Nullable @Bind(R.id.toolbar_subtitle)
     TextView toolbarSubtitle;
-    @Bind(R.id.toolbar_artist_item_on_back_image)
+    @Nullable @Bind(R.id.toolbar_artist_item_on_back_image)
     ImageView artistItemImage;
 
     private android.support.v7.widget.Toolbar mToolbar;
@@ -94,9 +97,9 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
         getSupportActionBar().setDisplayShowTitleEnabled(!value);
         if(toolbarBackImage != null) {
             if(value){
-                toolbarBackImage.setVisibility(View.VISIBLE);
+                toolbarLayout.setVisibility(View.VISIBLE);
             }else{
-                toolbarBackImage.setVisibility(View.GONE);
+                toolbarLayout.setVisibility(View.GONE);
             }
         }
 

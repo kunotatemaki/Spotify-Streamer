@@ -28,6 +28,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
+    private ArtistSearchWidgetFragment artistSearchWidgetFragment;
 
 
     @Override
@@ -52,6 +53,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
         topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
+        artistSearchWidgetFragment = (ArtistSearchWidgetFragment)fm.findFragmentById(R.id.search_fragment);
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
