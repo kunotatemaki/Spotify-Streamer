@@ -1,6 +1,7 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -30,7 +31,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 
-public class FullScreenPlayerFragment extends Fragment {
+public class FullScreenPlayerFragment extends DialogFragment {
 
     private static final String PREV_AVAILABLE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.fullscreenfragment.prevavailable";
     private static final String NEXT_AVAILABLE = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.fullscreenfragment.nextavailable";

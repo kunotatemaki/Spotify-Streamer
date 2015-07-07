@@ -164,7 +164,7 @@ public class TopTracksFragment extends Fragment {
      * save the list of tracks returned by the search into a local List
      * @param tracks list of tracks
      */
-    private void setTopTracks(List<ListItem> tracks){
+    public void setTopTracks(List<ListItem> tracks){
 
         if(tracksListAdapter != null)
             tracksListAdapter.setItems(tracks);
@@ -197,6 +197,9 @@ public class TopTracksFragment extends Fragment {
 
     public void setArtist(ListItem artist){
         this.artist = artist;
+        if(getActivity() instanceof SearchActivity && ((SearchActivity) getActivity()).mIsLargeLayout){
+            searchTopTracks(this.artist);
+        }
     }
 
     /**
@@ -207,7 +210,6 @@ public class TopTracksFragment extends Fragment {
         Map<String, Object> map = new HashMap<>();
         String zip = Utilities.getZipFromPreferences(getActivity());
         map.put("country", zip);
-        //map.put("country", Locale.getDefault().getCountry());
 
         //show indefiniteProgressBar
         if(getActivity() instanceof ToolbarAndRefreshActivity)

@@ -25,12 +25,13 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     private static final String TAG = LogHelper.makeLogTag(SearchActivity.class);
     private static final int FULL_SCREEN_PLAYER_CODE = 151;
+    public static final String LIST_OF_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.searchactivity.listofsongs";
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
     private Boolean showSearchIcon = true;
 
-    private boolean mIsLargeLayout;     //tablet or phone
+    public boolean mIsLargeLayout;     //tablet or phone
 
 
 
@@ -46,7 +47,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_artist_list);
+        setContentView(R.layout.activity_search);
         ButterKnife.inject(this);
 
         mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
@@ -57,12 +58,18 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
-            // add the fragment
+            // add the artist fragment
             artistListFragment = new ArtistListFragment();
-            fm.beginTransaction().add(R.id.activity_list_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
+            fm.beginTransaction().add(R.id.artist_container, artistListFragment, ArtistListFragment.class.getSimpleName()).commit();
             fm.executePendingTransactions();
         }
 
+        if(mIsLargeLayout){
+            // add the toptracks fragment
+            topTracksFragment = new TopTracksFragment();
+            fm.beginTransaction().add(R.id.toptracks_container, topTracksFragment, TopTracksFragment.class.getSimpleName()).commit();
+            fm.executePendingTransactions();
+        }
 
         //Check if the activity is recreated
         if (savedInstanceState != null) {
@@ -71,9 +78,12 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
 
         //if activity receives list of tracks, it means it is recreated from notification click
-        if(getIntent().hasExtra("list_of_songs")){
+        if(getIntent().hasExtra(LIST_OF_SONGS)){
             LogHelper.d(TAG, "tracks");
-            //TODO lanzar el segundo fragment (provisionaaal)
+            List<ListItem> songs = getIntent().getParcelableArrayListExtra(LIST_OF_SONGS);
+            if(topTracksFragment != null)
+                topTracksFragment.setTopTracks(songs);
+            //TODO comprobaaaar
         }
     }
 
@@ -164,7 +174,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
-                .add(R.id.activity_list_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
+                .add(R.id.artist_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -195,18 +205,21 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         topTracksFragment.setArtist(item);
 
+        if(mIsLargeLayout){
+            //largeScreen, no fragment transaction (both are shown).
+            return;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             artistListFragment.setSharedElementReturnTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
-            //artistListFragment.setExitTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
 
             // Create new fragment to add (Fragment B)
 
             topTracksFragment.setSharedElementEnterTransition(TransitionInflater.from(this).inflateTransition(R.transition.artist_item_transition));
-            //topTracksFragment.setEnterTransition(TransitionInflater.from(this).inflateTransition(android.R.transition.explode));
 
             // Add Fragment B
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.activity_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.artist_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null)
                     .addSharedElement(sharedElements.get(0), getResources().getString(R.string.artist_name_imageview))
                     .addSharedElement(sharedElements.get(1), getResources().getString(R.string.artist_name_textview))
@@ -217,7 +230,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         else {
             FragmentTransaction ft = fm.beginTransaction()
-                    .replace(R.id.activity_list_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .replace(R.id.artist_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
                     .addToBackStack(null);
             ft.commit();
         }

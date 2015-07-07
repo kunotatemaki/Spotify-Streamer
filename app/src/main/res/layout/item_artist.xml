@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:minHeight="@dimen/one_line_row"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
     >
     <ImageView
         android:id="@+id/artist_item_image"

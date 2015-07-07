@@ -97,10 +97,10 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
     }
 
     @Override
-    protected void seekBarPositionReceived(int mseconds){
-        super.seekBarPositionReceived(mseconds);
+    protected void seekBarPositionReceived(int mSeconds){
+        super.seekBarPositionReceived(mSeconds);
         if(fullScreenPlayerFragment != null)
-            fullScreenPlayerFragment.setSeekbarPosition(mseconds);
+            fullScreenPlayerFragment.setSeekbarPosition(mSeconds);
     }
 
     @Override
@@ -108,7 +108,4 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
         super.finishingService();
         finish();
     }
-
-
-
 }

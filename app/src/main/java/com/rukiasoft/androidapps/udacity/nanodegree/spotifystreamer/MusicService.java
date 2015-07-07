@@ -494,6 +494,8 @@ public class MusicService extends Service implements
     }
 
     private void resumeSong(){
+        if(currentPlayingSong == null)
+            return;
         try {
             executeTask();
             mMediaPlayer.start();
@@ -507,6 +509,8 @@ public class MusicService extends Service implements
     }
 
     private void pauseSong(){
+        if(currentPlayingSong == null)
+            return;
         try {
             cancelTask();
             mMediaPlayer.pause();

@@ -25,7 +25,6 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
     private View.OnClickListener listener;
     private List<ListItem> artists;
 
-
     public ArtistListAdapter(){
     }
 
@@ -74,7 +73,6 @@ public class ArtistListAdapter extends RecyclerView.Adapter<ArtistListAdapter.Ar
     @Override
     public void onBindViewHolder(ArtistViewHolder viewHolder, int pos) {
         ListItem item = artists.get(pos);
-
         viewHolder.bindArtist(item);
     }
 
