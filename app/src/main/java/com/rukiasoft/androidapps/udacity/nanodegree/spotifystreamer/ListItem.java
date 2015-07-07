@@ -174,16 +174,11 @@ public class ListItem implements Parcelable{
     };
 }
 
-
+//useful links
 //http://stackoverflow.com/questions/14151661/mediaplayer-service-android
-
 //http://code.tutsplus.com/tutorials/create-a-music-player-on-android-song-playback--mobile-22778
-
 //http://www.binpress.com/tutorial/using-android-media-style-notifications-with-media-session-controls/165
-
 //http://developer.android.com/guide/topics/ui/notifiers/notifications.html
 //https://discussions.udacity.com/t/dialogfragment-is-dismissed-on-rotation-on-tablets/22851
-
 //http://www.reigndesign.com/blog/using-your-own-sqlite-database-in-android-applications/
-
 //http://stackoverflow.com/questions/8499351/how-to-read-csv-file-in-android

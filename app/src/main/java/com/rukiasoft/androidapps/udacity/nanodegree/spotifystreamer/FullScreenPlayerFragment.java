@@ -166,8 +166,9 @@ public class FullScreenPlayerFragment extends Fragment {
     }
 
 
-
-
+    /**
+     * load components for full player fragment
+     */
     private void loadComponents() {
 
         mLine2.setText(song.getAlbumName());
@@ -325,8 +326,6 @@ public class FullScreenPlayerFragment extends Fragment {
         shareIntent.setType("text/html");
         shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, song.getPreviewUrl());
         return shareIntent;
-        //startActivity(Intent.createChooser(shareIntent, getResources().getString(R.string.share_intent_chooser)));
-
     }
 
 

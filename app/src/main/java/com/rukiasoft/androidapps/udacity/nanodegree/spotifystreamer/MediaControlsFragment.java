@@ -79,7 +79,6 @@ public class MediaControlsFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
         ButterKnife.inject(this, rootView);
         mPlayPause.setEnabled(true);
-        mPlayPause.setOnClickListener(mButtonListener);
 
 
         if(mSong != null)
@@ -183,26 +182,5 @@ public class MediaControlsFragment extends Fragment {
                 .error(R.drawable.default_image)
                 .into(mAlbumArt);
     }
-
-    private final View.OnClickListener mButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            MusicServiceActivity activity;
-            if(getActivity() instanceof MusicServiceActivity) activity = (MusicServiceActivity) getActivity();
-            else    return;
-            switch (activity.currentSongState) {
-                case MediaControlsActivity.STATE_PAUSED:
-                    activity.sendResumeMessageToService();
-                    break;
-                case MediaControlsActivity.STATE_STOPPED:
-                case MediaControlsActivity.STATE_PLAYING:
-                    activity.sendPauseMessageToService();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
-
 
 }

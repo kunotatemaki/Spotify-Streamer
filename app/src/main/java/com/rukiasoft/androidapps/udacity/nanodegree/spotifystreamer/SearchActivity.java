@@ -30,6 +30,9 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     boolean mActivityRecreated = false;
     private Boolean showSearchIcon = true;
 
+    private boolean mIsLargeLayout;     //tablet or phone
+
+
 
     public Boolean getShowSearchIcon() {
         return showSearchIcon;
@@ -46,7 +49,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         setContentView(R.layout.activity_artist_list);
         ButterKnife.inject(this);
 
-
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());

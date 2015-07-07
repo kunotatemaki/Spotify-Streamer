@@ -10,10 +10,16 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.view.View;
+
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Base activity for activities that need to bind and communicate with the MusicService
+ */
 public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     static final int STATE_PLAYING = 1;
@@ -22,6 +28,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     static final int STATE_BUFFERING = 4;
     private static final String STATE_ACTIVITY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.stateactivity";
     public static final String START_CONNECTION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.startconnection";
+    private static final String TAG = LogHelper.makeLogTag(MusicServiceActivity.class);
     protected Boolean MusicServiceActivityVisible;
 
     //protected MusicService musicSrv;
@@ -303,6 +310,42 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
      */
     protected void finishingService(){
 
+    }
+
+
+    /**
+     * play-pause button clicked
+     * @param v
+     */
+    public void onPlayPauseClicked(View v){
+        LogHelper.d(TAG, "play-pause clicked");
+        switch (currentSongState) {
+            case STATE_STOPPED:
+            case STATE_PAUSED:
+                sendResumeMessageToService();
+                break;
+            case STATE_PLAYING:
+                sendPauseMessageToService();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * prev button clicked
+     */
+    public void onPrevClicked(View v){
+        LogHelper.d(TAG, "prev clicked");
+        sendSkipToPrevMessageToService();
+    }
+
+    /**
+     * next button clicked
+     */
+    public void onNextClicked(View v){
+        LogHelper.d(TAG, "next clicked");
+        sendSkipToNextMessageToService();
     }
 
 

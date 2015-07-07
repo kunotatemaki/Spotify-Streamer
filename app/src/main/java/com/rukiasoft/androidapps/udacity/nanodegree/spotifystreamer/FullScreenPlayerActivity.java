@@ -109,34 +109,6 @@ public class FullScreenPlayerActivity extends MusicServiceActivity {
         finish();
     }
 
-    public void onPlayPauseClicked(View v){
-        LogHelper.d(TAG, "playpause clicked");
-        switch (currentSongState) {
-            case MediaControlsActivity.STATE_PAUSED:
-                sendResumeMessageToService();
-                break;
-            case MediaControlsActivity.STATE_PLAYING:
-                sendPauseMessageToService();
-                break;
-            default:
-                break;
-        }
-    }
 
-    /**
-     * prev button clicked
-     */
-    public void onPrevClicked(View v){
-        LogHelper.d(TAG, "prev clicked");
-        sendSkipToPrevMessageToService();
-    }
-
-    /**
-     * next button clicked
-     */
-    public void onNextClicked(View v){
-        LogHelper.d(TAG, "next clicked");
-        sendSkipToNextMessageToService();
-    }
 
 }
