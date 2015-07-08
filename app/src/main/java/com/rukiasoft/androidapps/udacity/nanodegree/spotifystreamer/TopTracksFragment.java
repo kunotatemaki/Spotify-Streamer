@@ -46,7 +46,7 @@ public class TopTracksFragment extends Fragment {
     @Bind(R.id.tracks_list) RecyclerView trackList;
     @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
-    private Boolean loaded;
+    private Boolean songsLoaded;
 
     public interface TopTracksFragmentSelectionListener {
         void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements);
@@ -69,8 +69,12 @@ public class TopTracksFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save play controls state
-        savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>)((TrackListAdapter) trackList.getAdapter()).getTracks());
-        savedInstanceState.putParcelable(ARTIST_ITEM, artist);
+        if(((TrackListAdapter) trackList.getAdapter()).getTracks() != null) {
+            savedInstanceState.putParcelableArrayList(LIST_SONGS, (ArrayList<ListItem>) ((TrackListAdapter) trackList.getAdapter()).getTracks());
+        }
+        if(artist != null) {
+            savedInstanceState.putParcelable(ARTIST_ITEM, artist);
+        }
         super.onSaveInstanceState(savedInstanceState);
     }
 
@@ -89,16 +93,12 @@ public class TopTracksFragment extends Fragment {
                 && savedInstanceState.containsKey(LIST_SONGS)) {
             songs = savedInstanceState.getParcelableArrayList(LIST_SONGS);
             artist = savedInstanceState.getParcelable(ARTIST_ITEM);
-            loaded = true;
+            songsLoaded = true;
         }else{
-            loaded = false;
+            songsLoaded = false;
         }
 
-
-        if(getActivity() instanceof ToolbarAndRefreshActivity){
-            ((ToolbarAndRefreshActivity) getActivity()).setToolbarWithCustomView(true);
-        }
-
+        //set toolbar and artist info
         loadArtistInformationForToolbar();
 
         trackList.setHasFixedSize(true);
@@ -130,14 +130,15 @@ public class TopTracksFragment extends Fragment {
             }
         });
 
-        if(loaded) {
+        if(songsLoaded) {
             setTopTracks(songs);
         }
 
+        //disable swipe layout gesture
+        refreshLayout.setEnabled(false);
+
         return view;
     }
-
-
 
     /**
      * save the list of tracks returned by the search into a local List
@@ -155,7 +156,7 @@ public class TopTracksFragment extends Fragment {
         //set tracks in service
         if(getActivity() instanceof MusicServiceActivity)
             ((MusicServiceActivity) getActivity()).sendSetSongListMessageToService(tracks, artist.getArtistId());
-        loaded = true;
+        songsLoaded = true;
     }
 
     public void sendTopTracksToService(){
@@ -166,7 +167,7 @@ public class TopTracksFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        if(!loaded && artist != null){
+        if(!songsLoaded && artist != null){
             searchTopTracks(artist);
         }
         if(trackList.getAdapter() != null)
@@ -177,8 +178,10 @@ public class TopTracksFragment extends Fragment {
 
     public void setArtist(ListItem artist){
         this.artist = artist;
-        if(getActivity() instanceof SearchActivity && ((SearchActivity) getActivity()).mIsLargeLayout){
+        if(isAdded()){
+            loadArtistInformationForToolbar();
             searchTopTracks(this.artist);
+            LogHelper.d(TAG, "is added in setArtist");
         }
     }
 
@@ -251,6 +254,12 @@ public class TopTracksFragment extends Fragment {
     }
 
     private void loadArtistInformationForToolbar() {
+
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            ((ToolbarAndRefreshActivity) getActivity()).setToolbarWithCustomView(true);
+        }else{
+            return;
+        }
         if(artist == null)  return;
         if(!(getActivity() instanceof SearchActivity))  return;
 

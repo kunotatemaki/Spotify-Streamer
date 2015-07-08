@@ -4,10 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
+    <include android:id="@+id/appbar"
+        layout="@layout/toolbar" />
     <android.support.v4.widget.Space
         android:id="@+id/layout_center"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_below="@id/appbar"
         android:layout_centerInParent="true"/>
     <FrameLayout
         android:layout_width="wrap_content"
@@ -17,6 +20,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignRight="@id/layout_center"
         android:id="@+id/main_container"
+        android:layout_below="@id/appbar"
         android:layout_above="@+id/controls_container">
     </FrameLayout>
     <FrameLayout
@@ -27,8 +31,15 @@
         android:layout_alignParentEnd="true"
         android:layout_alignLeft="@id/layout_center"
         android:id="@+id/toptracks_container"
+        android:layout_below="@id/appbar"
         android:layout_above="@+id/controls_container">
     </FrameLayout>
+    <FrameLayout
+        android:id="@+id/search_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:elevation="@dimen/search_elevation"
+        />
     <android.support.v7.widget.CardView
     android:id="@+id/controls_container"
     android:layout_width="match_parent"

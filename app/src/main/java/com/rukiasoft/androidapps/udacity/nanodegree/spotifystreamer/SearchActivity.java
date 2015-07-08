@@ -29,6 +29,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public static final String LIST_OF_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.searchactivity.listofsongs";
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
+    //private FullScreenPlayerFragment fullScreenPlayerFragment;
     boolean mActivityRecreated = false;
 
 
@@ -53,7 +54,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
-        topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
+        //topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
+        //fullScreenPlayerFragment = (FullScreenPlayerFragment) fm.findFragmentByTag(FullScreenPlayerFragment.class.getSimpleName());
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
@@ -63,12 +65,12 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             fm.executePendingTransactions();
         }
 
-        if(mIsLargeLayout){
+        /*if(mIsLargeLayout && topTracksFragment == null){
             // add the toptracks fragment
             topTracksFragment = new TopTracksFragment();
             fm.beginTransaction().add(R.id.toptracks_container, topTracksFragment, TopTracksFragment.class.getSimpleName()).commit();
             fm.executePendingTransactions();
-        }
+        }*/
 
         //Check if the activity is recreated
         if (savedInstanceState != null) {
@@ -173,7 +175,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         ArtistSearchWidgetFragment artistSearchWidgetFragment = new ArtistSearchWidgetFragment();
         FragmentManager fm = getFragmentManager();
         fm.beginTransaction()
-                .add(R.id.main_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
+                .add(R.id.search_container, artistSearchWidgetFragment, ArtistSearchWidgetFragment.class.getSimpleName())
                 .addToBackStack(null)
                 .commit();
         fm.executePendingTransactions();
@@ -203,14 +205,16 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         topTracksFragment.setArtist(item);
 
         if(mIsLargeLayout){
-            //largeScreen, no fragment transaction (both are shown).
-            return;
+            if(!topTracksFragment.isAdded()){
+                fm.beginTransaction().add(R.id.toptracks_container, topTracksFragment, TopTracksFragment.class.getSimpleName()).commit();
+                fm.executePendingTransactions();
+            }
+        }else {
+            FragmentTransaction ft = fm.beginTransaction();
+            ft.replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+                    .addToBackStack(null);
+            ft.commit();
         }
-
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
-            .addToBackStack(null);
-        ft.commit();
 
     }
 
@@ -222,33 +226,44 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         sendSetCurrentSongMessageToService(position);
         sendPlayMessageToService();
-        showPlaybackControls();
-        //start FullPlayerScreen
-        Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(MusicService.SONG_INFO, item);
-        bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
-        fullPlayerIntent.putExtras(bundle);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
+        if(mIsLargeLayout){
+            showDialog(item);
+        }else {
+            showPlaybackControls();
+            //start FullPlayerScreen
+            Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(MusicService.SONG_INFO, item);
+            bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
+            fullPlayerIntent.putExtras(bundle);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,
 
-                    // Now we provide a list of Pair items which contain the view we can transitioning
-                    // from, and the name of the view it is transitioning to, in the launched activity
-                    new Pair<>(sharedElements.get(0),
-                            getResources().getString(R.string.track_pic_imageview)),
-                    new Pair<>(sharedElements.get(1),
-                            getResources().getString(R.string.song_name_textview)),
-                    new Pair<>(sharedElements.get(2),
-                            getResources().getString(R.string.album_name_textview)),
-                    new Pair<>(sharedElements.get(3),
-                            getResources().getString(R.string.artist_name_textview)));
-            startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE, activityOptions.toBundle());
-        } else {
-            startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE);
+                        // Now we provide a list of Pair items which contain the view we can transitioning
+                        // from, and the name of the view it is transitioning to, in the launched activity
+                        new Pair<>(sharedElements.get(0),
+                                getResources().getString(R.string.track_pic_imageview)),
+                        new Pair<>(sharedElements.get(1),
+                                getResources().getString(R.string.song_name_textview)),
+                        new Pair<>(sharedElements.get(2),
+                                getResources().getString(R.string.album_name_textview)),
+                        new Pair<>(sharedElements.get(3),
+                                getResources().getString(R.string.artist_name_textview)));
+                startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE, activityOptions.toBundle());
+            } else {
+                startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE);
+            }
         }
     }
 
+    public void showDialog(ListItem song) {
+        FragmentManager fragmentManager = getFragmentManager();
+        FullScreenPlayerFragment fullScreenPlayerFragment = new FullScreenPlayerFragment();
+        fullScreenPlayerFragment.setSong(song);
 
+        fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.toString());
+
+    }
 
     @Override
     protected void onDestroy() {
