@@ -24,10 +24,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     private static final String TAG = LogHelper.makeLogTag(SearchActivity.class);
     private static final int FULL_SCREEN_PLAYER_CODE = 151;
-    public static final String LIST_OF_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.searchactivity.listofsongs";
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
-    private FullScreenPlayerFragment fullScreenPlayerFragment;
     boolean mActivityRecreated = false;
 
 
@@ -63,12 +61,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             fm.executePendingTransactions();
         }
 
-        /*if(mIsLargeLayout && topTracksFragment == null){
-            // add the toptracks fragment
-            topTracksFragment = new TopTracksFragment();
-            fm.beginTransaction().add(R.id.toptracks_container, topTracksFragment, TopTracksFragment.class.getSimpleName()).commit();
-            fm.executePendingTransactions();
-        }*/
 
         //Check if the activity is recreated
         if (savedInstanceState != null) {
@@ -77,12 +69,11 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
 
         //if activity receives list of tracks, it means it is recreated from notification click
-        if(getIntent().hasExtra(LIST_OF_SONGS)){
+        if(getIntent().getAction().equals(LAUNCH_ACTIVITY)){
+            //started from notification click
             LogHelper.d(TAG, "tracks");
-            List<ListItem> songs = getIntent().getParcelableArrayListExtra(LIST_OF_SONGS);
-            if(topTracksFragment != null)
-                topTracksFragment.setTopTracks(songs);
-            //TODO comprobaaaar
+            setIntentDataInActivity(getIntent().getExtras());
+
         }
     }
 
@@ -94,6 +85,24 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     protected void onNewIntent(Intent intent) {
         setIntent(intent);
         handleIntent(intent);
+    }
+
+    private void setIntentDataInActivity(Bundle extras){
+        List<ListItem> songs = extras.getParcelableArrayList(MusicService.SONG_LIST);
+        ListItem song = extras.getParcelable(MusicService.SONG_INFO);
+        if(topTracksFragment == null) {
+            topTracksFragment = new TopTracksFragment();
+        }
+        if(!topTracksFragment.isAdded()){
+            FragmentManager fm = getFragmentManager();
+            fm.beginTransaction().add(R.id.toptracks_container, topTracksFragment, TopTracksFragment.class.getSimpleName()).commit();
+            fm.executePendingTransactions();
+        }
+        topTracksFragment.setArtist(song, false);
+        topTracksFragment.setTopTracks(songs);
+        mActivityRecreated = true;
+        showDialog(song);
+
     }
 
     private void handleIntent(Intent intent) {
@@ -109,6 +118,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             hideSearchWidget();
             //run search
             artistListFragment.searchArtist(query);
+        }else if(intent.getAction().equals(LAUNCH_ACTIVITY)){
+            setIntentDataInActivity(intent.getExtras());
         }
     }
 
@@ -125,7 +136,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         //open search byDefault if activity is first created
         super.onPostResume();
          if(!mActivityRecreated) {
-            onSearchClick();
+             onSearchClick();
             mActivityRecreated = true;
         }
     }
@@ -200,7 +211,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             // add the fragment
             topTracksFragment = new TopTracksFragment();
         }
-        topTracksFragment.setArtist(item);
+        topTracksFragment.setArtist(item, mIsLargeLayout);
 
         if(mIsLargeLayout){
             if(!topTracksFragment.isAdded()){
@@ -219,7 +230,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void onTopTracksFragmentItemSelected(ListItem item, Integer position, List<View> sharedElements) {
         if(!musicBound){
-            //connect again and sen
+            //connect again and send
             topTracksFragment.sendTopTracksToService();
         }
         sendSetCurrentSongMessageToService(position);
@@ -248,29 +259,16 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
                                 getResources().getString(R.string.album_name_textview)),
                         new Pair<>(sharedElements.get(3),
                                 getResources().getString(R.string.artist_name_textview)));
-                startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE, activityOptions.toBundle());
+                startActivity(fullPlayerIntent, activityOptions.toBundle());
             } else {
-                startActivityForResult(fullPlayerIntent, FULL_SCREEN_PLAYER_CODE);
+                startActivity(fullPlayerIntent);
             }
         }
     }
 
-    public void showDialog(ListItem song) {
-        FragmentManager fragmentManager = getFragmentManager();
-        if(fullScreenPlayerFragment == null) {
-            fullScreenPlayerFragment = new FullScreenPlayerFragment();
-        }
-        fullScreenPlayerFragment.setSong(song);
 
-        fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.getSimpleName());
-    }
 
-    @Override
-    protected void onDestroy() {
-        //stopService(playIntent);
-        //musicSrv=null;
-        super.onDestroy();
-    }
+
 
     @Override
     public void playingSong(Bundle bundle){

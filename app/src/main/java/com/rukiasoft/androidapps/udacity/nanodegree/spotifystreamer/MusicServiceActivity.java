@@ -1,5 +1,6 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.app.FragmentManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -27,7 +28,10 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     private static final String STATE_ACTIVITY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.stateactivity";
     public static final String START_CONNECTION = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.startconnection";
     private static final String TAG = LogHelper.makeLogTag(MusicServiceActivity.class);
+    public static final String LAUNCH_ACTIVITY = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.musicserviceactivity.launchactivity";
     protected Boolean MusicServiceActivityVisible;
+    protected FullScreenPlayerFragment fullScreenPlayerFragment;
+
 
     //protected MusicService musicSrv;
     private Intent playIntent;
@@ -126,10 +130,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
+
 
     private void connectToService(){
         if(playIntent==null){
@@ -176,6 +177,19 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
         MusicServiceActivityVisible = false;
     }
 
+    /**
+     * show a full screen player as a dialog
+     */
+    protected void showDialog(ListItem song) {
+        FragmentManager fragmentManager = getFragmentManager();
+        if(fullScreenPlayerFragment == null) {
+            fullScreenPlayerFragment = new FullScreenPlayerFragment();
+        }
+        fullScreenPlayerFragment.setSong(song);
+
+        fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.getSimpleName());
+    }
+
     protected void sendPlayMessageToService() {
         connectToService();
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
@@ -186,7 +200,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     protected void sendPauseMessageToService() {
         connectToService();
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
-        intent.setAction( MusicService.ACTION_PAUSE );
+        intent.setAction(MusicService.ACTION_PAUSE);
         startService(intent);
     }
 
@@ -230,7 +244,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     protected void sendSetSongListMessageToService(List<ListItem> songs, String id) {
         connectToService();
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
-        intent.setAction( MusicService.ACTION_SET_SONG_LIST );
+        intent.setAction(MusicService.ACTION_SET_SONG_LIST);
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(MusicService.SONG_LIST, (ArrayList<ListItem>)songs);
         bundle.putString(MusicService.ARTIST_ID, id);
@@ -241,14 +255,14 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     protected void sendAskForCurrentPlayingSongService(){
         connectToService();
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
-        intent.setAction( MusicService.ACTION_ASK_CURRENT_PLAYING_SONG );
+        intent.setAction(MusicService.ACTION_ASK_CURRENT_PLAYING_SONG);
         startService(intent);
     }
 
     protected void sendAskForCurrentListService(){
         connectToService();
         Intent intent = new Intent( getApplicationContext(), MusicService.class );
-        intent.setAction( MusicService.ACTION_ASK_CURRENT_LIST );
+        intent.setAction(MusicService.ACTION_ASK_CURRENT_LIST);
         startService(intent);
     }
 

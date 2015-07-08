@@ -31,10 +31,9 @@ public class SettingsFragment extends PreferenceFragment implements Serializable
         final ListPreference zipCodes = (ListPreference) findPreference("pref_zipCode");
         CharSequence[] countriesChar = countriesAndZips.keySet().toArray(new CharSequence[0]);
         zipCodes.setEntries(countriesChar);
-        List<String> codes = new ArrayList<String>(countriesAndZips.values());
+        List<String> codes = new ArrayList<>(countriesAndZips.values());
         CharSequence[] codesChar = codes.toArray(new CharSequence[codes.size()]);
         zipCodes.setEntryValues(codesChar);
-        return;
 
 
     }

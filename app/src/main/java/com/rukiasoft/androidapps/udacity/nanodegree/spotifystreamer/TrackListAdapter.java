@@ -143,6 +143,7 @@ public class TrackListAdapter extends RecyclerView.Adapter<TrackListAdapter.Trac
     }
 
     public void setItemState(int position, int flag, boolean updateView){
+        if(tracks == null)  return;
         if(position < tracks.size() && position >= 0){
             tracks.get(position).setmFlags(flag);
             if(updateView)

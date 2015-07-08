@@ -176,11 +176,11 @@ public class TopTracksFragment extends Fragment {
         Utilities.setRefreshLayoutIfNeeded(getActivity(), refreshLayout);
     }
 
-    public void setArtist(ListItem artist){
+    public void setArtist(ListItem artist, boolean doSearch){
         this.artist = artist;
         if(isAdded()){
             loadArtistInformationForToolbar();
-            searchTopTracks(this.artist);
+            if(doSearch)    searchTopTracks(this.artist);
             LogHelper.d(TAG, "is added in setArtist");
         }
     }
@@ -372,7 +372,7 @@ public class TopTracksFragment extends Fragment {
 
     }
 
-    public List<ListItem> getItems(){
+    public List<ListItem> getSongs(){
         return tracksListAdapter.getTracks();
     }
 

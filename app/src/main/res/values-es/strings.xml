@@ -20,6 +20,6 @@
     <string name="browse_genre_subtitle">Canciones por género</string>
     <string name="browse_genres">Género</string>
     <string name="browse_musics_by_genre_subtitle"></string>
-    <string name="buffering">Cargando...</string>
+    <string name="buffering">Cargando…</string>
 
 </resources>

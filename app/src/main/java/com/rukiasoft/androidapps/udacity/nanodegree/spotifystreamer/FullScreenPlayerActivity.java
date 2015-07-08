@@ -16,15 +16,9 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.app.FragmentManager;
-import android.media.session.PlaybackState;
 import android.os.Bundle;
-import android.view.View;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 
 import butterknife.ButterKnife;
 

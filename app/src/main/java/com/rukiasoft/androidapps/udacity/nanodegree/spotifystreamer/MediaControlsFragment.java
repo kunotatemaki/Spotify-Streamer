@@ -78,7 +78,10 @@ public class MediaControlsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_playback_controls, container, false);
         ButterKnife.bind(this, rootView);
-        mPlayPause.setEnabled(true);
+        if(mPlayPause != null){
+            mPlayPause.setEnabled(true);
+            mPlayPause.setOnClickListener(playPauseListener);
+        }
 
 
         if(mSong != null)
@@ -87,33 +90,43 @@ public class MediaControlsFragment extends Fragment {
         rootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startFullScreenActivity();
+                startFullScreenPlayer();
             }
         });
         return rootView;
     }
 
-    private void startFullScreenActivity(){
+    private void startFullScreenPlayer(){
 
-        Intent fullPlayerIntent = new Intent(getActivity(), FullScreenPlayerActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(MusicService.SONG_INFO, mSong);
-        bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
-        fullPlayerIntent.putExtras(bundle);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
+        boolean mIsLargeLayout = false;
+        if(getActivity() instanceof ToolbarAndRefreshActivity){
+            mIsLargeLayout = ((ToolbarAndRefreshActivity) getActivity()).mIsLargeLayout;
+        }
+        if(!mIsLargeLayout) {    //phones
+            Intent fullPlayerIntent = new Intent(getActivity(), FullScreenPlayerActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putParcelable(MusicService.SONG_INFO, mSong);
+            bundle.putBoolean(MusicServiceActivity.START_CONNECTION, true);
+            fullPlayerIntent.putExtras(bundle);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                ActivityOptionsCompat activityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(),
 
-                    // Now we provide a list of Pair items which contain the view we can transitioning
-                    // from, and the name of the view it is transitioning to, in the launched activity
-                    new Pair<>((View)mAlbumArt,
-                            getActivity().getResources().getString(R.string.track_pic_imageview)),
-                    new Pair<>((View)mTitle,
-                            getActivity().getResources().getString(R.string.song_name_textview)),
-                    new Pair<>((View)mSubtitle,
-                            getActivity().getResources().getString(R.string.album_name_textview)));
-            startActivity(fullPlayerIntent, activityOptions.toBundle());
-        } else {
-            startActivity(fullPlayerIntent);
+                        // Now we provide a list of Pair items which contain the view we can transitioning
+                        // from, and the name of the view it is transitioning to, in the launched activity
+                        new Pair<>((View) mAlbumArt,
+                                getActivity().getResources().getString(R.string.track_pic_imageview)),
+                        new Pair<>((View) mTitle,
+                                getActivity().getResources().getString(R.string.song_name_textview)),
+                        new Pair<>((View) mSubtitle,
+                                getActivity().getResources().getString(R.string.album_name_textview)));
+                startActivity(fullPlayerIntent, activityOptions.toBundle());
+            } else {
+                startActivity(fullPlayerIntent);
+            }
+        }else {  //tablets
+            if(getActivity() instanceof MusicServiceActivity){
+                ((MusicServiceActivity) getActivity()).showDialog(mSong);
+            }
         }
     }
 
@@ -182,5 +195,12 @@ public class MediaControlsFragment extends Fragment {
                 .error(R.drawable.default_image)
                 .into(mAlbumArt);
     }
+
+    View.OnClickListener playPauseListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            if(getActivity() instanceof MusicServiceActivity)
+                ((MusicServiceActivity) getActivity()).onPlayPauseClicked();
+        }
+    };
 
 }

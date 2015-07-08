@@ -6,8 +6,6 @@ import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.view.MenuItem;
 
-import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.Utilities;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
 

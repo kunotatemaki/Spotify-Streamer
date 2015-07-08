@@ -15,9 +15,6 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.ToolbarAndRe
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
@@ -105,9 +102,8 @@ public class Utilities {
             e.printStackTrace();
         }
         //sorted map
-        Map<String, String> treeMap = new TreeMap<>(map);
 
-        return treeMap;
+        return new TreeMap<>(map);
     }
 
     /**

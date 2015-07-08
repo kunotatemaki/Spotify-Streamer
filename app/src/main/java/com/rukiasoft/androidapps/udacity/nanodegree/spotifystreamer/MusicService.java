@@ -10,8 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.session.MediaController;
-import android.media.session.MediaSession;
 import android.media.session.MediaSessionManager;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
@@ -58,7 +56,7 @@ public class MusicService extends Service implements
     private int previouSong;
     private Bitmap previousBitmap = null;
 
-    List<Messenger> mClients = new ArrayList<Messenger>(); // Keeps track of all current registered clients.
+    List<Messenger> mClients = new ArrayList<>(); // Keeps track of all current registered clients.
     static final int MSG_REGISTER_CLIENT = 1;
     static final int MSG_UNREGISTER_CLIENT = 2;
     static final int MSG_FINISHING_SERVICE = 3;
@@ -90,6 +88,7 @@ public class MusicService extends Service implements
     private String artistId = "";
     WifiManager.WifiLock wifiLock;
     private Bitmap defaultBitmap;
+    private boolean mIsLargeLayout;
 
 
     public class SeekBarUpdateBackgroundProcess implements Runnable {
@@ -197,45 +196,6 @@ public class MusicService extends Service implements
 
     }
 
-    /*private void initMediaSessions() {
-        songPosn = 0;
-        previouSong = songPosn;
-        //create mMediaPlayer
-
-        initMusicPlayer();
-
-        mSession = new MediaSession(getApplicationContext(), "simple player session");
-        mController =new MediaController(getApplicationContext(), mSession.getSessionToken());
-
-        mSession.setCallback(new MediaSession.Callback(){
-                                 @Override
-                                 public void onPlay() {
-                                     super.onPlay();
-                                     LogHelper.d("MediaPlayerService", "onPlay");
-                                     playSong();
-                                 }
-                                 @Override
-                                 public void onPause() {
-                                     super.onPause();
-                                     LogHelper.d("MediaPlayerService", "onPause");
-                                     pauseSong();
-                                 }
-
-                                 @Override
-                                 public void onSkipToNext() {
-                                     super.onSkipToNext();
-                                     LogHelper.e( "MediaPlayerService", "onSkipToNext");
-                                     skipToNext();
-                                 }
-                                 @Override
-                                 public void onSkipToPrevious() {
-                                     super.onSkipToPrevious();
-                                     LogHelper.d( "MediaPlayerService", "onSkipToPrevious");
-                                     skipToPrev();
-                                 }
-                             }
-        );
-    }*/
 
     /**
      * finish service
@@ -266,11 +226,22 @@ public class MusicService extends Service implements
     private void showNotification(boolean isForeground, boolean typeBuffering, String mainAction){
         Notification.MediaStyle style = new Notification.MediaStyle();
 
+        PendingIntent clickIntent;
         //action if notification is clicked
-        Intent launchIntent = new Intent( getApplicationContext(), FullScreenPlayerActivity.class );
-        launchIntent.putExtra(MusicServiceActivity.START_CONNECTION, true);
-        PendingIntent clickIntent = PendingIntent.getActivity(getApplicationContext(), 0,
-                launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if(!mIsLargeLayout) {   //phones
+            Intent launchIntent = new Intent(getApplicationContext(), FullScreenPlayerActivity.class);
+            launchIntent.putExtra(MusicServiceActivity.START_CONNECTION, true);
+            clickIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                    launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }else{  //tablets
+            Intent launchIntent = new Intent(getApplicationContext(), SearchActivity.class);
+            launchIntent.putExtra(MusicServiceActivity.START_CONNECTION, true);
+            launchIntent.putParcelableArrayListExtra(SONG_LIST, (ArrayList<ListItem>)songs);
+            launchIntent.putExtra(SONG_INFO, currentPlayingSong);
+            launchIntent.setAction(MusicServiceActivity.LAUNCH_ACTIVITY);
+            clickIntent = PendingIntent.getActivity(getApplicationContext(), 0,
+                    launchIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
 
         //action if notification is descarted
         Intent deleteIntent = new Intent( getApplicationContext(), MusicService.class );
@@ -369,6 +340,7 @@ public class MusicService extends Service implements
         //initialize position
         songPosn = 0;
         previouSong = songPosn;
+        mIsLargeLayout = getResources().getBoolean(R.bool.large_layout);
         //create mMediaPlayer
         initMusicPlayer();
     }

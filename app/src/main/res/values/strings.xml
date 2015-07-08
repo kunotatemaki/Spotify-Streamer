@@ -59,7 +59,7 @@
     <string name="title_activity_music_service">MusicServiceActivity</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="buffering">Buffering...</string>
+    <string name="buffering">Buffering…</string>
     <string name="play_notification_button">Play</string>
     <string name="prev_notification_button">Prev</string>
     <string name="next_notification_button">Next</string>
@@ -72,5 +72,5 @@
     <string name="pref_zipCodeTitle">Select your country</string>
     <string name="pref_zipCodeDialogTitle">Choose your country</string>
     <string name="back_button">Back button</string>
-    <string name="send_with">Send using...</string>
+    <string name="send_with">Send using…</string>
 </resources>
