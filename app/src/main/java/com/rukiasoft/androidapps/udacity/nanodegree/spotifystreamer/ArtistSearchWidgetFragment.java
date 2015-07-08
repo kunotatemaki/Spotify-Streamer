@@ -29,7 +29,7 @@ import butterknife.ButterKnife;
 public class ArtistSearchWidgetFragment extends Fragment {
 
     private static final String TAG = LogHelper.makeLogTag(ArtistSearchWidgetFragment.class);
-    private static final String IS_ANIMATED = "animated";
+    private static final String IS_ANIMATED = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.artistsearchwidgetfragment.animated";
     Boolean animated = false;
     @Bind(R.id.toolbar_search) Toolbar toolbarSearch;
     @Bind(R.id.back_arrow_on_search)
@@ -44,17 +44,17 @@ public class ArtistSearchWidgetFragment extends Fragment {
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         //Change appearance of statusBar
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(getResources().getColor(R.color.primary_search_dark));
-        }*/
+        }
     }
 
     @Override
     public void onDetach() {
         //Change appearance of statusBar
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             Window window = getActivity().getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.setStatusBarColor(getResources().getColor(R.color.primary_dark));
@@ -63,36 +63,9 @@ public class ArtistSearchWidgetFragment extends Fragment {
         //get the previous toolbar (ArtistListFragment) back
         if(getActivity() instanceof ToolbarAndRefreshActivity){
             ((SearchActivity) getActivity()).getSupportActionBar().show();
-        }*/
+        }
         super.onDetach();
 
-    }
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        //Change appearance of statusBar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getActivity().getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getResources().getColor(R.color.primary_search_dark));
-        }
-    }
-
-    @Override
-    public void onPause(){
-        super.onPause();
-        //Change appearance of statusBar
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            Window window = getActivity().getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getResources().getColor(R.color.primary_dark));
-        }
-        Utilities.hideSoftKeyboard(getActivity());
-        //get the previous toolbar (ArtistListFragment) back
-        if(getActivity() instanceof ToolbarAndRefreshActivity){
-            ((SearchActivity) getActivity()).getSupportActionBar().show();
-        }
     }
 
     @Override
@@ -108,6 +81,7 @@ public class ArtistSearchWidgetFragment extends Fragment {
         if(getActivity() instanceof ToolbarAndRefreshActivity){
             ((ToolbarAndRefreshActivity) getActivity()).getSupportActionBar().hide();
         }
+
         if(backArrowOnSearch != null) {
             //make arroy+image clickable (as Whatsapp do)
             backArrowOnSearch.setOnClickListener(new View.OnClickListener() {

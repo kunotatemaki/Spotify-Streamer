@@ -1,5 +1,6 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
+import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
@@ -17,6 +18,7 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHel
 
 import java.util.List;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class SearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
@@ -28,7 +30,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
     boolean mActivityRecreated = false;
-    private ArtistSearchWidgetFragment artistSearchWidgetFragment;
 
 
     @Override
@@ -53,7 +54,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
         topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
-        artistSearchWidgetFragment = (ArtistSearchWidgetFragment)fm.findFragmentById(R.id.search_fragment);
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
@@ -207,8 +207,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
             return;
         }
 
-        FragmentTransaction ft = fm.beginTransaction()
-            .replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
+        FragmentTransaction ft = fm.beginTransaction();
+        ft.replace(R.id.main_container, topTracksFragment, TopTracksFragment.class.getSimpleName())
             .addToBackStack(null);
         ft.commit();
 
@@ -260,7 +260,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void playingSong(Bundle bundle){
         super.playingSong(bundle);
-        boolean updateView;
         if(topTracksFragment != null){
             topTracksFragment.setPlayingSong(bundle);
         }
@@ -270,7 +269,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void pausedSong(Bundle bundle){
         super.pausedSong(bundle);
-        boolean updateView;
         if(topTracksFragment != null){
             topTracksFragment.setPausedSong(bundle);
         }
@@ -279,7 +277,6 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     @Override
     public void finishedPlayingSong(Bundle bundle){
         super.finishedPlayingSong(bundle);
-        boolean updateView;
         if (topTracksFragment != null){
             topTracksFragment.setFinishedPlayingSong(bundle);
         }

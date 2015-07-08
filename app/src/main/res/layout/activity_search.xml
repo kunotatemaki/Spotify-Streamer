@@ -13,12 +13,11 @@
         android:layout_below="@id/appbar"
         android:layout_above="@+id/controls_container">
     </FrameLayout>
-    <fragment android:name="com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.ArtistSearchWidgetFragment"
-        android:id="@+id/search_fragment"
+    <FrameLayout
+        android:id="@+id/search_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="@dimen/search_elevation"
-        android:visibility="gone"
         />
 
     <android.support.v7.widget.CardView
