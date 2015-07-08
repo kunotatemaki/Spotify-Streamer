@@ -1,7 +1,10 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.Dialog;
 import android.app.DialogFragment;
+import android.app.Notification;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -12,6 +15,7 @@ import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -83,12 +87,20 @@ public class FullScreenPlayerFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
         ButterKnife.bind(this, view);
 
+        if(mSkipPrev != null) mSkipPrev.setOnClickListener(prevListener);
+        if(mSkipNext != null) mSkipNext.setOnClickListener(nextListener);
+        if(mPlayPause != null) mPlayPause.setOnClickListener(playPauseListener);
+
         if(backArrowOnFullScreen != null) {
             //make arrow clickable
             backArrowOnFullScreen.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    getActivity().onBackPressed();
+                    if ((getActivity() instanceof ToolbarAndRefreshActivity) && ((ToolbarAndRefreshActivity) getActivity()).mIsLargeLayout){
+                        getDialog().dismiss();
+                    }else {
+                        getActivity().onBackPressed();
+                    }
                 }
             });
         }
@@ -152,6 +164,27 @@ public class FullScreenPlayerFragment extends DialogFragment {
         super.onPause();
         fragmentVisible = false;
     }
+
+    /** The system calls this only when creating the layout in a dialog. */
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        // The only reason you might override this method when using onCreateView() is
+        // to modify any dialog characteristics. For example, the dialog includes a
+        // title by default, but your custom layout might not need it. So here you can
+        // remove the dialog title, but you must call the superclass to get the Dialog.
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
+    }
+
+    @Override
+    public void onDestroyView() {
+        //to retain the fragment
+        if (getDialog() != null && getRetainInstance())
+            getDialog().setDismissMessage(null);
+        super.onDestroyView();
+    }
+
 
     public void setSong(ListItem song){
         this.song = song;
@@ -308,8 +341,10 @@ public class FullScreenPlayerFragment extends DialogFragment {
     }
 
     public void setSeekbarPosition(long miliseconds){
-        if(fragmentVisible && updateSeekbar)
-            mSeekbar.setProgress((int)miliseconds/1000);
+        if(fragmentVisible && updateSeekbar) {
+            mSeekbar.setProgress((int) miliseconds / 1000);
+            mSeekbar.refreshDrawableState();
+        }
     }
 
     private Intent createShareUrlIntent(){
@@ -319,6 +354,45 @@ public class FullScreenPlayerFragment extends DialogFragment {
         shareIntent.putExtra(android.content.Intent.EXTRA_TEXT, song.getPreviewUrl());
         return shareIntent;
     }
+
+    View.OnClickListener nextListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            LogHelper.d(TAG, "next clicked");
+            if(getActivity() instanceof MusicServiceActivity)
+                ((MusicServiceActivity) getActivity()).sendSkipToNextMessageToService();
+        }
+    };
+    View.OnClickListener prevListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            LogHelper.d(TAG, "prev clicked");
+            if(getActivity() instanceof MusicServiceActivity)
+                ((MusicServiceActivity) getActivity()).sendSkipToPrevMessageToService();
+        }
+    };
+
+    View.OnClickListener playPauseListener = new View.OnClickListener() {
+        public void onClick(View v) {
+            MusicServiceActivity activity = null;
+            if(getActivity() instanceof MusicServiceActivity)
+                activity = (MusicServiceActivity) getActivity();
+            else{
+                return;
+            }
+            switch (activity.currentSongState) {
+                case MusicServiceActivity.STATE_STOPPED:
+                case MusicServiceActivity.STATE_PAUSED:
+                    activity.sendResumeMessageToService();
+                    break;
+                case MusicServiceActivity.STATE_PLAYING:
+                    activity.sendPauseMessageToService();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
+
+
 
 
 }

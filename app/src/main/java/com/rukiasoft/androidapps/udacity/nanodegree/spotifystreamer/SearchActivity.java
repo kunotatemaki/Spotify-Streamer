@@ -29,7 +29,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
     public static final String LIST_OF_SONGS = "com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.searchactivity.listofsongs";
     private ArtistListFragment artistListFragment;
     private TopTracksFragment topTracksFragment;
-    //private FullScreenPlayerFragment fullScreenPlayerFragment;
+    private FullScreenPlayerFragment fullScreenPlayerFragment;
     boolean mActivityRecreated = false;
 
 
@@ -54,7 +54,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
-        //topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
+        topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
         //fullScreenPlayerFragment = (FullScreenPlayerFragment) fm.findFragmentByTag(FullScreenPlayerFragment.class.getSimpleName());
 
         // create the fragment and data the first time
@@ -135,7 +135,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     @Override
     public void onBackPressed(){
-
+//TODO comprobar para salir
         if (hideSearchWidget()) return; //if searchview is shown, close it
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
             finish();
@@ -226,10 +226,11 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         sendSetCurrentSongMessageToService(position);
         sendPlayMessageToService();
+        showPlaybackControls();
         if(mIsLargeLayout){
             showDialog(item);
         }else {
-            showPlaybackControls();
+
             //start FullPlayerScreen
             Intent fullPlayerIntent = new Intent(this, FullScreenPlayerActivity.class);
             Bundle bundle = new Bundle();
@@ -258,11 +259,12 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
 
     public void showDialog(ListItem song) {
         FragmentManager fragmentManager = getFragmentManager();
-        FullScreenPlayerFragment fullScreenPlayerFragment = new FullScreenPlayerFragment();
+        if(fullScreenPlayerFragment == null) {
+            fullScreenPlayerFragment = new FullScreenPlayerFragment();
+        }
         fullScreenPlayerFragment.setSong(song);
 
         fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.toString());
-
     }
 
     @Override
@@ -278,6 +280,16 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         if(topTracksFragment != null){
             topTracksFragment.setPlayingSong(bundle);
         }
+        if(fullScreenPlayerFragment != null && bundle.containsKey(MusicService.SONG_INFO)){
+            //show player with information of the song
+            ListItem song = bundle.getParcelable(MusicService.SONG_INFO);
+            boolean prevAvailable = true;
+            boolean nextAvailable = true;
+            if(bundle.containsKey(MusicService.FIRST_SONG)) prevAvailable = false;
+            if(bundle.containsKey(MusicService.LAST_SONG)) nextAvailable = false;
+            fullScreenPlayerFragment.setPlayingSong(song, prevAvailable, nextAvailable);
+            //share intent with song info
+        }
 
     }
 
@@ -287,6 +299,8 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         if(topTracksFragment != null){
             topTracksFragment.setPausedSong(bundle);
         }
+        if(fullScreenPlayerFragment != null)
+            fullScreenPlayerFragment.setPausedSong();
     }
 
     @Override
@@ -294,6 +308,23 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         super.finishedPlayingSong(bundle);
         if (topTracksFragment != null){
             topTracksFragment.setFinishedPlayingSong(bundle);
+        }
+        if(fullScreenPlayerFragment != null)
+            fullScreenPlayerFragment.setFinishedPlayingSong();
+    }
+
+    @Override
+    protected void seekBarPositionReceived(int mSeconds){
+        super.seekBarPositionReceived(mSeconds);
+        if(fullScreenPlayerFragment != null && fullScreenPlayerFragment.isAdded())
+            fullScreenPlayerFragment.setSeekbarPosition(mSeconds);
+    }
+
+    @Override
+    protected void finishingService(){
+        super.finishingService();
+        if(fullScreenPlayerFragment != null){
+            fullScreenPlayerFragment.dismiss();
         }
     }
 }
