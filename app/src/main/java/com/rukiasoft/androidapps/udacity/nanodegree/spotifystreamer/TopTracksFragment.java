@@ -130,18 +130,14 @@ public class TopTracksFragment extends Fragment {
             }
         });
 
-
-        /*if(getActivity() instanceof ToolbarAndRefreshActivity) {
-            ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
-            ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
-        }*/
-
         if(loaded) {
             setTopTracks(songs);
         }
 
         return view;
     }
+
+
 
     /**
      * save the list of tracks returned by the search into a local List
@@ -176,6 +172,7 @@ public class TopTracksFragment extends Fragment {
         if(trackList.getAdapter() != null)
             trackList.getAdapter().notifyDataSetChanged();
 
+        Utilities.setRefreshLayoutIfNeeded(getActivity(), refreshLayout);
     }
 
     public void setArtist(ListItem artist){
@@ -195,8 +192,7 @@ public class TopTracksFragment extends Fragment {
         map.put("country", zip);
 
         //show indefiniteProgressBar
-        if(getActivity() instanceof ToolbarAndRefreshActivity)
-            ((ToolbarAndRefreshActivity) getActivity()).showRefreshLayoutSwipeProgress();
+        Utilities.showRefreshLayout(getActivity(), refreshLayout);
 
         spotify.getArtistTopTrack(artist.getArtistId(), map, new Callback<Tracks>() {
 
@@ -230,8 +226,7 @@ public class TopTracksFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        if(getActivity() instanceof ToolbarAndRefreshActivity)
-                            ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
+                        Utilities.hideRefreshLayout(getActivity(), refreshLayout);
                         setTopTracks(trackItems);
                     }
                 });
@@ -246,8 +241,7 @@ public class TopTracksFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        if(getActivity() instanceof ToolbarAndRefreshActivity)
-                            ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
+                        Utilities.hideRefreshLayout(getActivity(), refreshLayout);
                         Utilities.showToast(getActivity(), getResources().getString(R.string.no_response_zips));
                     }
                 });

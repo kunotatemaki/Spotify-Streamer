@@ -14,5 +14,12 @@
     <string name="search_hint">Buscar Artista</string>
     <string name="error_passing_artist">Algo falló. ¡Inténtalo otra vez!</string>
     <string name="no_response">Sin respuesta del servidor. Inténtalo otra vez.</string>
+    <string name="action_share">Compartir</string>
+    <string name="back_button">Volver</string>
+    <string name="background_image_str">Imágen de fondo para el álbum</string>
+    <string name="browse_genre_subtitle">Canciones por género</string>
+    <string name="browse_genres">Género</string>
+    <string name="browse_musics_by_genre_subtitle"></string>
+    <string name="buffering">Cargando...</string>
 
 </resources>

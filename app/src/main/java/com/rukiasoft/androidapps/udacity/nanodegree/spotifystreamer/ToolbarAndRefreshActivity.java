@@ -51,13 +51,15 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     @Nullable @Bind(R.id.toolbar_artist_item_on_back_image)
     ImageView artistItemImage;
 
-    private android.support.v7.widget.Toolbar mToolbar;
+    //private android.support.v7.widget.Toolbar mToolbar;
 
     protected SwipeRefreshLayout refreshLayout;
     private Boolean showing = false;
     public boolean mIsLargeLayout;     //tablet or phone
 
-
+    public SwipeRefreshLayout getRefreshLayout() {
+        return refreshLayout;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,14 +97,13 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     public void setToolbarWithCustomView(boolean value){
         getSupportActionBar().setDisplayHomeAsUpEnabled(!value);
         getSupportActionBar().setDisplayShowTitleEnabled(!value);
-        if(toolbarBackImage != null) {
+        if(toolbarLayout != null) {
             if(value){
                 toolbarLayout.setVisibility(View.VISIBLE);
             }else{
                 toolbarLayout.setVisibility(View.GONE);
             }
         }
-
     }
 
 
@@ -110,7 +111,7 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     public void setRefreshLayout(SwipeRefreshLayout _refreshLayout){
         refreshLayout = _refreshLayout;
         if (refreshLayout == null) {
-            throw new IllegalStateException("Mising RefreshLayout. Cannot continue.");
+            return;
         }
         //configure swipeRefreshLayout
         setRefreshLayoutColorScheme(getResources().getColor(R.color.color_scheme_1_1),
@@ -122,25 +123,23 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     /**
      * It shows the SwipeRefreshLayout progress
      */
-    protected void showRefreshLayoutSwipeProgress() {
+    public void showRefreshLayoutSwipeProgress() {
+        if (refreshLayout == null) {
+            return;
+        }
         refreshLayout.setRefreshing(true);
         showing = true;
     }
 
-    /**
-     * It shows the SwipeRefreshLayout progress if needed
-     */
-    protected void showRefreshLayoutSwipeProgressIfNeeded() {
-        if(showing){
-            refreshLayout.setRefreshing(false);
-            refreshLayout.setRefreshing(true);
-        }
-    }
+
 
     /**
      * It shows the SwipeRefreshLayout progress
      */
-    protected void hideRefreshLayoutSwipeProgress() {
+    public void hideRefreshLayoutSwipeProgress() {
+        if (refreshLayout == null) {
+            return;
+        }
         refreshLayout.setRefreshing(false);
         showing = false;
     }
@@ -148,7 +147,10 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
     /**
      * Enables swipe gesture
      */
-    protected void enableRefreshLayoutSwipe() {
+    public void enableRefreshLayoutSwipe() {
+        if (refreshLayout == null) {
+            return;
+        }
         refreshLayout.setEnabled(true);
     }
 
@@ -156,7 +158,10 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
      * Disables swipe gesture. It prevents manual gestures but keeps the option tu show
      * refreshing programatically.
      */
-    protected  void disableRefreshLayoutSwipe() {
+    public  void disableRefreshLayoutSwipe() {
+        if (refreshLayout == null) {
+            return;
+        }
         refreshLayout.setEnabled(false);
     }
 
@@ -164,6 +169,9 @@ public abstract class ToolbarAndRefreshActivity extends AppCompatActivity{
      * Set colors of refreshlayout
      */
     private void setRefreshLayoutColorScheme(int colorRes1, int colorRes2, int colorRes3, int colorRes4) {
+        if (refreshLayout == null) {
+            return;
+        }
         refreshLayout.setColorSchemeColors(colorRes1, colorRes2, colorRes3, colorRes4);
     }
 

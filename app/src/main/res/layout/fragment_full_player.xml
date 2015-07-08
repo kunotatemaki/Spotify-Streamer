@@ -37,6 +37,39 @@ limitations under the License.
             android:elevation="@dimen/toolbar_elevation"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" >
+            <RelativeLayout
+                android:id="@+id/toolbar_full_screen_back_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="?attr/actionBarSize"
+                android:gravity="center"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="@dimen/margin_small">
+                <ImageView
+                    android:id="@+id/toolbar_full_screen_back_arrow_on_back_image"
+                    android:layout_width="@dimen/standard_touch_target_size"
+                    android:layout_height="@dimen/standard_touch_target_size"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_arrow_back_white_24dp"
+                    android:scaleType="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:selectableItemBackground"
+                    android:contentDescription="@string/back_button"/>
+                <ImageView
+                    android:id="@+id/toolbar_full_screen_share_url"
+                    android:layout_width="@dimen/standard_touch_target_size"
+                    android:layout_height="@dimen/standard_touch_target_size"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_equalizer1_white_36dp"
+                    android:scaleType="center"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?android:selectableItemBackground"
+                    android:contentDescription="@string/action_share"/>
+            </RelativeLayout>
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
 

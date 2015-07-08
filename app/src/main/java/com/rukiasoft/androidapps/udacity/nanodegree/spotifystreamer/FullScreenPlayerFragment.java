@@ -6,15 +6,10 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.transition.Transition;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -53,6 +48,8 @@ public class FullScreenPlayerFragment extends DialogFragment {
     @Bind(R.id.swipe_container)
     protected SwipeRefreshLayout refreshLayout;
     @Bind(R.id.toolbar_full_screen_player) Toolbar toolbarFullScreenPlayer;
+    @Bind(R.id.toolbar_full_screen_back_arrow_on_back_image) ImageView backArrowOnFullScreen;
+    @Bind(R.id.toolbar_full_screen_share_url) ImageView shareUrl;
     private boolean fragmentVisible;
     private boolean prevAvailable;
     private boolean nextAvailable;
@@ -66,7 +63,6 @@ public class FullScreenPlayerFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -80,19 +76,6 @@ public class FullScreenPlayerFragment extends DialogFragment {
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_full_player_fragment, menu);
-
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-
-        ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
-        if(mShareActionProvider != null){
-            mShareActionProvider.setShareIntent(createShareUrlIntent());
-        }
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -100,16 +83,25 @@ public class FullScreenPlayerFragment extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_full_player, container, false);
         ButterKnife.bind(this, view);
 
-        /*if(null != toolbarFullScreenPlayer) {
-            if(getActivity() instanceof ToolbarAndRefreshActivity){
-                ((ToolbarAndRefreshActivity) getActivity()).setToolbarInActivity(toolbarFullScreenPlayer, true, false, false);
+        if(backArrowOnFullScreen != null) {
+            //make arrow clickable
+            backArrowOnFullScreen.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().onBackPressed();
+                }
+            });
+        }
 
-            }
-        }*/
-
-        if(getActivity() instanceof ToolbarAndRefreshActivity) {
-            ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
-            ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
+        if(shareUrl != null) {
+            //make arrow clickable
+            shareUrl.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent shareIntent = createShareUrlIntent();
+                    startActivity(Intent.createChooser(shareIntent, getResources().getText(R.string.send_with)));
+                }
+            });
         }
 
         mPauseDrawable = getActivity().getDrawable(R.drawable.ic_pause_white_48dp);
@@ -147,10 +139,10 @@ public class FullScreenPlayerFragment extends DialogFragment {
         return view;
     }
 
-
     @Override
     public void onResume(){
         super.onResume();
+        Utilities.setRefreshLayout(getActivity(), refreshLayout);
         fragmentVisible = true;
 
     }

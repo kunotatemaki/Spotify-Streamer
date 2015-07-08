@@ -109,10 +109,7 @@ public class ArtistListFragment extends Fragment {
             }
         });
 
-        if(getActivity() instanceof ToolbarAndRefreshActivity) {
-            ((ToolbarAndRefreshActivity) getActivity()).setRefreshLayout(refreshLayout);
-            ((ToolbarAndRefreshActivity) getActivity()).disableRefreshLayoutSwipe();
-        }
+        Utilities.setRefreshLayout(getActivity(), refreshLayout);
 
         return view;
     }
@@ -165,8 +162,7 @@ public class ArtistListFragment extends Fragment {
         String parsedQuery = query.replace(" ", "+");
 
         //show indefiniteProgressBar
-        if(getActivity() instanceof ToolbarAndRefreshActivity)
-            ((ToolbarAndRefreshActivity) getActivity()).showRefreshLayoutSwipeProgress();
+        Utilities.showRefreshLayout(getActivity(), refreshLayout);
 
         spotify.searchArtists(parsedQuery, new Callback<ArtistsPager>() {
 
@@ -181,8 +177,7 @@ public class ArtistListFragment extends Fragment {
                         @Override
                         public void run() {
                             //hide indefiniteProgressBar
-                            if(getActivity() instanceof ToolbarAndRefreshActivity)
-                                ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
+                            Utilities.hideRefreshLayout(getActivity(), refreshLayout);
                             Utilities.showToast(getActivity(), getResources().getString(R.string.no_artist_found));
                         }
                     });
@@ -209,8 +204,7 @@ public class ArtistListFragment extends Fragment {
                     @Override
                     public void run() {
                         //hide indefiniteProgressBar
-                        if(getActivity() instanceof ToolbarAndRefreshActivity)
-                            ((ToolbarAndRefreshActivity) getActivity()).hideRefreshLayoutSwipeProgress();
+                        Utilities.hideRefreshLayout(getActivity(), refreshLayout);
                         setArtists(artists);
                     }
                 });

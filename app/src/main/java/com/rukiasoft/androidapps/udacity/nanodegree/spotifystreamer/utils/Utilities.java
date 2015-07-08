@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.opencsv.CSVReader;
+import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.ToolbarAndRefreshActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -106,6 +108,46 @@ public class Utilities {
         Map<String, String> treeMap = new TreeMap<>(map);
 
         return treeMap;
+    }
+
+    /**
+     * set the refresh layout to be shown in the activity
+     */
+    public static void setRefreshLayout(Activity activity, SwipeRefreshLayout refreshLayout){
+        if(activity instanceof ToolbarAndRefreshActivity) {
+            ((ToolbarAndRefreshActivity) activity).setRefreshLayout(refreshLayout);
+            ((ToolbarAndRefreshActivity) activity).disableRefreshLayoutSwipe();
+        }
+    }
+
+    /**
+     * set the refresh layout to be shown in the activity only if it doesn't exist
+     */
+    public static void setRefreshLayoutIfNeeded(Activity activity, SwipeRefreshLayout refreshLayout){
+        if((activity instanceof ToolbarAndRefreshActivity) && ((ToolbarAndRefreshActivity) activity).getRefreshLayout() == null) {
+            ((ToolbarAndRefreshActivity) activity).setRefreshLayout(refreshLayout);
+            ((ToolbarAndRefreshActivity) activity).disableRefreshLayoutSwipe();
+        }
+    }
+
+    /**
+     * set the refresh layout to be shown in the activity
+     */
+    public static void showRefreshLayout(Activity activity, SwipeRefreshLayout refreshLayout){
+        if(activity instanceof ToolbarAndRefreshActivity) {
+            ((ToolbarAndRefreshActivity) activity).setRefreshLayout(refreshLayout);
+            ((ToolbarAndRefreshActivity) activity).showRefreshLayoutSwipeProgress();
+        }
+    }
+
+    /**
+     * set the refresh layout to be shown in the activity
+     */
+    public static void hideRefreshLayout(Activity activity, SwipeRefreshLayout refreshLayout){
+        if(activity instanceof ToolbarAndRefreshActivity) {
+            ((ToolbarAndRefreshActivity) activity).setRefreshLayout(refreshLayout);
+            ((ToolbarAndRefreshActivity) activity).hideRefreshLayoutSwipeProgress();
+        }
     }
 
 

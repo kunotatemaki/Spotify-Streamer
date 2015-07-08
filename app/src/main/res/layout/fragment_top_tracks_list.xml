@@ -15,8 +15,7 @@
             android:id="@+id/tracks_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/header_shadow"
-            android:layout_below="@id/appbar_layout"/>
+            android:background="@drawable/header_shadow"/>
     </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>
