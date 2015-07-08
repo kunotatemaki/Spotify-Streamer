@@ -17,9 +17,30 @@
     <string name="action_share">Compartir</string>
     <string name="back_button">Volver</string>
     <string name="background_image_str">Imágen de fondo para el álbum</string>
-    <string name="browse_genre_subtitle">Canciones por género</string>
-    <string name="browse_genres">Género</string>
     <string name="browse_musics_by_genre_subtitle"></string>
     <string name="buffering">Cargando…</string>
+    <string name="song_no_available">Canción no disponible</string>
+    <string name="skip_prev">Siguiente canción</string>
+    <string name="skip_next">Canción anterior</string>
+    <string name="show_controls_in_lockscreen">Los controles de reproducción se muestran en la pantalla de bloqueo</string>
+    <string name="share_intent_chooser">compartir usando</string>
+    <string name="send_with">Enviar usando...</string>
+    <string name="random_queue_title"></string>
+    <string name="category_application">Ajustes de la aplicación</string>
+    <string name="controls_in_lockSscreen">Controles multimedia en pantalla de bloqueo</string>
+    <string name="currently_playing_artist">Artista de la canción que está sonando</string>
+    <string name="currently_playing_song">Canción sonando</string>
+    <string name="error_loading_media">Error cargando contenido multimedia</string>
+    <string name="error_no_connection">No es posible conectar con el servidor. Comprueba tu conexión.</string>
+    <string name="hide_controls_in_lockscreen">No mostrar controles multimedia en la pantalla de bloqueo</string>
+    <string name="next_notification_button">Siguiente</string>
+    <string name="no_response_zips">Sin respuesta del servidor. Prueba con otro código zip en los ajustes</string>
+    <string name="no_search_results">Búsqueda sin resultados</string>
+    <string name="pause_notification_button">Pause</string>
+    <string name="play_notification_button">Play</string>
+    <string name="play_pause">Play o pause</string>
+    <string name="pref_zipCodeDialogTitle">Elige tu país</string>
+    <string name="pref_zipCodeTitle">Elige tu país</string>
+    <string name="prev_notification_button">Previa</string>
 
 </resources>
