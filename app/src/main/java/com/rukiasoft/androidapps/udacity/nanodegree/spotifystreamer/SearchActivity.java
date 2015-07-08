@@ -1,6 +1,5 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
@@ -18,7 +17,6 @@ import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHel
 
 import java.util.List;
 
-import butterknife.Bind;
 import butterknife.ButterKnife;
 
 public class SearchActivity extends MediaControlsActivity implements ArtistListFragment.ArtistListSearchClickListener,
@@ -55,7 +53,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         FragmentManager fm = getFragmentManager();
         artistListFragment = (ArtistListFragment) fm.findFragmentByTag(ArtistListFragment.class.getSimpleName());
         topTracksFragment = (TopTracksFragment) fm.findFragmentByTag(TopTracksFragment.class.getSimpleName());
-        //fullScreenPlayerFragment = (FullScreenPlayerFragment) fm.findFragmentByTag(FullScreenPlayerFragment.class.getSimpleName());
+        fullScreenPlayerFragment = (FullScreenPlayerFragment) fm.findFragmentByTag(FullScreenPlayerFragment.class.getSimpleName());
 
         // create the fragment and data the first time
         if (artistListFragment == null) {
@@ -264,7 +262,7 @@ ArtistListFragment.ArtistListFragmentSelectionListener, TopTracksFragment.TopTra
         }
         fullScreenPlayerFragment.setSong(song);
 
-        fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.toString());
+        fullScreenPlayerFragment.show(fragmentManager, FullScreenPlayerFragment.class.getSimpleName());
     }
 
     @Override

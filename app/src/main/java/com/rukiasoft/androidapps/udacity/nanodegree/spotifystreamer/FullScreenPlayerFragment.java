@@ -1,10 +1,8 @@
 package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.app.Notification;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -359,36 +357,21 @@ public class FullScreenPlayerFragment extends DialogFragment {
         public void onClick(View v) {
             LogHelper.d(TAG, "next clicked");
             if(getActivity() instanceof MusicServiceActivity)
-                ((MusicServiceActivity) getActivity()).sendSkipToNextMessageToService();
+                ((MusicServiceActivity) getActivity()).onNextClicked();
         }
     };
     View.OnClickListener prevListener = new View.OnClickListener() {
         public void onClick(View v) {
             LogHelper.d(TAG, "prev clicked");
             if(getActivity() instanceof MusicServiceActivity)
-                ((MusicServiceActivity) getActivity()).sendSkipToPrevMessageToService();
+                ((MusicServiceActivity) getActivity()).onPrevClicked();
         }
     };
 
     View.OnClickListener playPauseListener = new View.OnClickListener() {
         public void onClick(View v) {
-            MusicServiceActivity activity = null;
             if(getActivity() instanceof MusicServiceActivity)
-                activity = (MusicServiceActivity) getActivity();
-            else{
-                return;
-            }
-            switch (activity.currentSongState) {
-                case MusicServiceActivity.STATE_STOPPED:
-                case MusicServiceActivity.STATE_PAUSED:
-                    activity.sendResumeMessageToService();
-                    break;
-                case MusicServiceActivity.STATE_PLAYING:
-                    activity.sendPauseMessageToService();
-                    break;
-                default:
-                    break;
-            }
+                ((MusicServiceActivity) getActivity()).onPlayPauseClicked();
         }
     };
 

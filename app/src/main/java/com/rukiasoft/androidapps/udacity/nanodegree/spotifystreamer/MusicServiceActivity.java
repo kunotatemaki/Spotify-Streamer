@@ -3,14 +3,12 @@ package com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.media.session.MediaController;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.view.View;
 
 import com.rukiasoft.androidapps.udacity.nanodegree.spotifystreamer.utils.LogHelper;
 
@@ -315,9 +313,8 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
 
     /**
      * play-pause button clicked
-     * @param v
      */
-    public void onPlayPauseClicked(View v){
+    public void onPlayPauseClicked(){
         LogHelper.d(TAG, "play-pause clicked");
         switch (currentSongState) {
             case STATE_STOPPED:
@@ -335,7 +332,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     /**
      * prev button clicked
      */
-    public void onPrevClicked(View v){
+    public void onPrevClicked(){
         LogHelper.d(TAG, "prev clicked");
         sendSkipToPrevMessageToService();
     }
@@ -343,7 +340,7 @@ public class MusicServiceActivity extends ToolbarAndRefreshActivity {
     /**
      * next button clicked
      */
-    public void onNextClicked(View v){
+    public void onNextClicked(){
         LogHelper.d(TAG, "next clicked");
         sendSkipToNextMessageToService();
     }
